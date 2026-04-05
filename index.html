@@ -576,6 +576,42 @@
     </div>
   </div>
 
+  <!-- ── SUPERADMIN: Analytics Dashboard ──── -->
+  <div class="page" id="page-saanalytics">
+    <div class="ptitle sa">Analytics Overview</div>
+    <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;">
+      <span style="color:var(--sa);font-size:14px;">&#9670;</span>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Full-system analytics across all reports, categories, and users. <strong style="color:var(--sa);">SuperAdmin view — all actions remain available from other tabs.</strong></p>
+    </div>
+    <div class="srow" id="sa-srow"></div>
+    <div class="tm-grid">
+      <div class="tm-panel" style="border-color:rgba(245,197,66,0.15);">
+        <div class="tm-panel-title" style="--tm:var(--sa);">Reports by Category</div>
+        <div class="bar-row" id="sa-catbars"></div>
+      </div>
+      <div class="tm-panel" style="border-color:rgba(245,197,66,0.15);">
+        <div class="tm-panel-title" style="--tm:var(--sa);">Severity Breakdown</div>
+        <div class="sev-split" id="sa-sevbox"></div>
+        <div style="margin-top:20px;">
+          <div class="tm-panel-title" style="--tm:var(--sa);margin-top:0;">Status Overview</div>
+          <div class="bar-row" id="sa-stbars"></div>
+        </div>
+      </div>
+      <div class="tm-panel" style="border-color:rgba(245,197,66,0.15);">
+        <div class="tm-panel-title" style="--tm:var(--sa);">Weekly Trend (Last 8 weeks)</div>
+        <div class="trend-bars" id="sa-trend"></div>
+      </div>
+      <div class="tm-panel" style="border-color:rgba(245,197,66,0.15);">
+        <div class="tm-panel-title" style="--tm:var(--sa);">Resolution Rate &amp; System Stats</div>
+        <div id="sa-resrate" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+    </div>
+    <div style="margin-top:26px;">
+      <div class="ptitle sa" style="margin-bottom:14px;">Recent Reports</div>
+      <div class="rgrid" id="sa-recentgrid"></div>
+    </div>
+  </div>
+
   <!-- ── SUPERADMIN: Category Management ───── -->
   <div class="page" id="page-categories">
     <div class="ptitle sa">Category Management</div>
@@ -915,14 +951,15 @@ function initApp(r) {
     hdot.className = 'dot dsa'; ht.className = 'sa'; ht.textContent = 'SecureReport — SuperAdmin';
     rb.className = 'rbadge sa'; rb.textContent = 'SuperAdmin';
     nav.innerHTML = `
-      <button class="nb asa" onclick="showPage('dashboard',this)">Dashboard</button>
+      <button class="nb asa" onclick="showPage('saanalytics',this)">&#128202; Analytics</button>
+      <button class="nb" onclick="showPage('dashboard',this)">Dashboard</button>
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('categories',this)">&#128193; Categories</button>
       <button class="nb" onclick="showPage('users',this)">&#128101; Users</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
-    showPage('dashboard', nav.querySelector('.asa'));
+    showPage('saanalytics', nav.querySelector('.asa'));
 
   } else if (r === 'topmanagement') {
     hdot.className = 'dot dtm'; ht.className = 'tm'; ht.textContent = 'SecureReport — Top Management';
@@ -942,6 +979,7 @@ function onRealtimeUpdate() {
   if (pid==='page-dashboard') renderDash();
   else if (pid==='page-allreports') renderAll();
   else if (pid==='page-topmgmt') renderTopMgmt();
+  else if (pid==='page-saanalytics') renderSAAnalytics();
 }
 
 function lockApp() {
@@ -966,6 +1004,7 @@ function showPage(name, btn) {
   if (name==='allreports')     renderAll();
   if (name==='qrcode')         renderQR();
   if (name==='topmgmt')        renderTopMgmt();
+  if (name==='saanalytics')    renderSAAnalytics();
   if (name==='categories')     renderCatPage();
   if (name==='users')          renderUserPage();
   if (name==='changepassword') renderChangePwPage();
@@ -1417,6 +1456,100 @@ function avgDaily30() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-30);
   const cnt = reports.filter(r=>new Date(r.date)>=cutoff).length;
   return (cnt/30).toFixed(1);
+}
+
+// ══════════════════════════════════════════════════════════
+//  SUPERADMIN ANALYTICS
+// ══════════════════════════════════════════════════════════
+function renderSAAnalytics() {
+  const t  = reports.length;
+  const n  = reports.filter(r=>r.status==='new').length;
+  const rv = reports.filter(r=>r.status==='reviewing').length;
+  const rs = reports.filter(r=>r.status==='resolved').length;
+  const lo = reports.filter(r=>r.severity==='low').length;
+  const me = reports.filter(r=>r.severity==='medium').length;
+  const hi = reports.filter(r=>r.severity==='high').length;
+  const totalUsers = getUsers().length;
+  const staffUsers = getUsers().filter(u=>u.role!=='superadmin').length;
+
+  // Stat cards (extra: users, high-severity)
+  document.getElementById('sa-srow').innerHTML = `
+    <div class="scard tall"><div class="sl">Total Reports</div><div class="sv">${t}</div></div>
+    <div class="scard snew"><div class="sl">New / Pending</div><div class="sv">${n}</div></div>
+    <div class="scard srev"><div class="sl">In Review</div><div class="sv">${rv}</div></div>
+    <div class="scard sres"><div class="sl">Resolved</div><div class="sv">${rs}</div></div>`;
+
+  // Category bars (gold fill)
+  const cats = getCategories();
+  const catCounts = {};
+  cats.forEach(c=>catCounts[c]=0);
+  reports.forEach(r=>{ if(catCounts[r.category]!==undefined) catCounts[r.category]++; else catCounts[r.category]=(catCounts[r.category]||0)+1; });
+  const maxCat = Math.max(1, ...Object.values(catCounts));
+  document.getElementById('sa-catbars').innerHTML = cats.filter(c=>catCounts[c]>0).sort((a,b)=>catCounts[b]-catCounts[a]).slice(0,8).map(c=>`
+    <div class="bar-item">
+      <div class="bar-label"><span>${c}</span><span style="color:var(--sa);">${catCounts[c]||0}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(((catCounts[c]||0)/maxCat)*100)}%;background:linear-gradient(90deg,var(--sa2),var(--sa));"></div></div>
+    </div>`).join('') || '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No data yet</div>';
+
+  // Severity boxes
+  document.getElementById('sa-sevbox').innerHTML = `
+    <div class="sev-box low"><div class="sv2">${lo}</div><div class="sl2">Low</div></div>
+    <div class="sev-box medium"><div class="sv2">${me}</div><div class="sl2">Medium</div></div>
+    <div class="sev-box high"><div class="sv2">${hi}</div><div class="sl2">High</div></div>`;
+
+  // Status bars
+  const maxSt = Math.max(1, n, rv, rs);
+  document.getElementById('sa-stbars').innerHTML = [
+    {label:'New',count:n,cls:'green'},{label:'Reviewing',count:rv,cls:'warn'},{label:'Resolved',count:rs,cls:''}
+  ].map(s=>`<div class="bar-item">
+    <div class="bar-label"><span>${s.label}</span><span>${s.count}</span></div>
+    <div class="bar-track"><div class="bar-fill ${s.cls}" style="width:${Math.round((s.count/maxSt)*100)}%"></div></div>
+  </div>`).join('');
+
+  // Weekly trend (gold bars)
+  const now = new Date();
+  const weekBuckets = Array.from({length:8},(_,i)=>{
+    const d = new Date(now); d.setDate(d.getDate() - (7*(7-i)));
+    return { label:`W${8-i}`, start:new Date(d), end:new Date(d.setDate(d.getDate()+7)), count:0 };
+  });
+  reports.forEach(r=>{ const rd=new Date(r.date); weekBuckets.forEach(wb=>{ if(rd>=wb.start&&rd<wb.end) wb.count++; }); });
+  const maxW = Math.max(1, ...weekBuckets.map(w=>w.count));
+  document.getElementById('sa-trend').innerHTML = weekBuckets.map(w=>`
+    <div class="trend-bar-wrap">
+      <div class="trend-bar" style="height:${Math.max(4,Math.round((w.count/maxW)*70))}px;background:rgba(245,197,66,0.18);border-color:rgba(245,197,66,0.35);" title="${w.count} reports"></div>
+      <div class="trend-label">${w.label}</div>
+    </div>`).join('');
+
+  // Resolution rate + system stats
+  const resRate     = t>0 ? Math.round((rs/t)*100) : 0;
+  const reviewRate  = t>0 ? Math.round((rv/t)*100) : 0;
+  const pendingRate = t>0 ? Math.round((n/t)*100)  : 0;
+  document.getElementById('sa-resrate').innerHTML = `
+    <div class="bar-item">
+      <div class="bar-label"><span>Resolution Rate</span><span style="color:var(--accent);">${resRate}%</span></div>
+      <div class="bar-track"><div class="bar-fill green" style="width:${resRate}%"></div></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-label"><span>In-Progress Rate</span><span style="color:var(--warn);">${reviewRate}%</span></div>
+      <div class="bar-track"><div class="bar-fill warn" style="width:${reviewRate}%"></div></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-label"><span>Pending Rate</span><span style="color:var(--danger);">${pendingRate}%</span></div>
+      <div class="bar-track"><div class="bar-fill danger" style="width:${pendingRate}%"></div></div>
+    </div>
+    <div style="margin-top:14px;background:var(--bg);border:1px solid rgba(245,197,66,0.15);border-radius:3px;padding:12px 14px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:2;">
+      Total reports: <strong style="color:var(--text);">${t}</strong><br>
+      High severity: <strong style="color:var(--danger);">${hi}</strong><br>
+      Avg daily (30d): <strong style="color:var(--sa);">${avgDaily30()} reports</strong><br>
+      Staff accounts: <strong style="color:var(--sa);">${staffUsers}</strong> &nbsp;|&nbsp; Total users: <strong style="color:var(--text);">${totalUsers}</strong><br>
+      Active categories: <strong style="color:var(--sa);">${cats.length}</strong>
+    </div>`;
+
+  // Recent reports (with full card — superadmin can click to edit)
+  const recent = [...reports].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6);
+  document.getElementById('sa-recentgrid').innerHTML = recent.length
+    ? recent.map(r=>cardHTML(r,reports.indexOf(r))).join('')
+    : '<div class="empty"><div class="ei">&#128196;</div><div>No reports yet</div></div>';
 }
 
 // ══════════════════════════════════════════════════════════
