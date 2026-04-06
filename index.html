@@ -449,6 +449,10 @@
       <span class="ic">&#9651;</span>
       <p><strong>Your identity is fully protected.</strong> No personal details are required or stored. You will receive a unique Report ID — use it to track your report anonymously at any time.</p>
     </div>
+    <div id="track-from-qr" style="display:none;background:rgba(0,229,160,0.03);border:1px solid rgba(0,229,160,0.15);border-radius:4px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Already submitted a report? <span style="color:var(--accent);">Track its status anonymously.</span></div>
+      <button class="sbtn" onclick="switchToTrack()" style="padding:8px 18px;font-size:11px;">&#128269; Track Report</button>
+    </div>
     <div id="submitForm" class="fg">
       <div class="frow">
         <div class="field">
@@ -499,6 +503,7 @@
       <div class="rid" id="sid">RPT-000000</div>
       <p style="font-size:11px;color:var(--text3);">&#9888; Save this ID — it cannot be recovered if lost</p>
       <button class="sbtn" onclick="resetForm()" style="margin-top:4px;">Submit Another Report</button>
+      <button class="sbtn" onclick="showPage('track', document.querySelector('#hnav .nb:nth-child(2)'))" style="margin-top:4px;background:none;border:1px solid rgba(0,229,160,0.35);color:var(--accent);">&#128269; Track a Report</button>
     </div>
   </div>
 
@@ -1178,17 +1183,23 @@ window.addEventListener('DOMContentLoaded', () => {
   getUsers();       // seed defaults if needed
   getCategories();  // seed defaults if needed
   const params = new URLSearchParams(window.location.search);
-  if(params.get('report') === 'true') enterReporter();
+  if(params.get('report') === 'true') enterReporter(true);
 });
 
 // ══════════════════════════════════════════════════════════
 //  ROLE / LOGIN
 // ══════════════════════════════════════════════════════════
-async function enterReporter() {
+async function enterReporter(fromQR) {
   role = 'user'; currentUser = null;
   document.getElementById('roleScreen').style.display = 'none';
   await loadReports();
-  initApp('user');
+  initApp('user', fromQR);
+}
+
+function switchToTrack() {
+  const nav = document.getElementById('hnav');
+  const trackBtn = nav ? nav.querySelector('.nb:nth-child(2)') : null;
+  showPage('track', trackBtn);
 }
 
 function goLogin() {
@@ -1245,8 +1256,11 @@ function initApp(r) {
     hdot.className = 'dot du'; ht.className = 'u'; ht.textContent = 'SecureReport';
     rb.className = 'rbadge u'; rb.textContent = 'Reporter';
     lkBtn.style.display = 'none';
-    nav.innerHTML = `<button class="nb au" onclick="showPage('submit',this)">Submit Report</button><button class="nb" onclick="showPage('track',this)">Track Report</button>`;
+    nav.innerHTML = `<button class="nb au" onclick="showPage('submit',this)">Submit Report</button><button class="nb" onclick="showPage('track',this)">&#128269; Track Report</button>`;
     showPage('submit', nav.querySelector('.au'));
+    // Show track banner if arrived via QR scan
+    const qrBanner = document.getElementById('track-from-qr');
+    if (qrBanner) qrBanner.style.display = fromQR ? 'flex' : 'none';
 
   } else if (r === 'admin') {
     hdot.className = 'dot da'; ht.className = 'a'; ht.textContent = 'SecureReport — Admin';
@@ -2065,6 +2079,8 @@ function downloadQR() {
     link.href = canvas.toDataURL('image/png');
     link.click();
   }, 200);
+}
+
 // ══════════════════════════════════════════════════════════
 //  SIO FUNCTIONS
 // ══════════════════════════════════════════════════════════
