@@ -17,6 +17,7 @@
     --sa:#f5c542; --sa2:#c9960e;
     --tm:#b06fff; --tm2:#8844dd;
     --danger:#ff4d6a; --warn:#ffaa00;
+    --sio:#00cfff; --sio2:#009bcc;
     --text:#e8ecf0; --text2:#8896a8; --text3:#4a5568;
     --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
   }
@@ -60,6 +61,50 @@
   .rpill.sa{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .rpill.adm{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
   .rpill.tm{color:var(--tm);border-color:rgba(176,111,255,0.3);background:rgba(176,111,255,0.06);}
+  .rpill.sio{color:var(--sio);border-color:rgba(0,207,255,0.3);background:rgba(0,207,255,0.06);}
+
+  /* SIO role card */
+  .rs-card.sio-card:hover{border-color:var(--sio);box-shadow:0 0 24px rgba(0,207,255,0.12);}
+  .rs-card.sio-card h2{color:var(--sio);}
+  .dsio{background:var(--sio);box-shadow:0 0 7px var(--sio);}
+  .hb h1.sio{color:var(--sio);}
+  .rbadge.sio{color:var(--sio);background:rgba(0,207,255,0.08);border-color:rgba(0,207,255,0.2);}
+  .nb.asio{border-color:var(--sio);color:var(--sio);background:rgba(0,207,255,0.06);}
+  .ptitle.sio::before{background:var(--sio);}
+  .sbtn.sio-btn{background:var(--sio);color:#000;}
+  .sbtn.sio-btn:hover{background:var(--sio2);}
+
+  /* SIO assignment badge */
+  .sio-assign-badge{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:2px;border:1px solid rgba(0,207,255,0.3);background:rgba(0,207,255,0.07);color:var(--sio);display:inline-flex;align-items:center;gap:5px;}
+
+  /* Investigation report */
+  .inv-section{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:14px;}
+  .inv-section-title{font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .inv-section-title::before{content:'';display:block;width:10px;height:1px;background:var(--sio);}
+
+  /* Feedback buttons */
+  .fb-btn{flex:1;padding:12px;border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1px solid;}
+  .fb-btn.satisfied{border-color:rgba(0,229,160,0.4);color:var(--accent);background:rgba(0,229,160,0.06);}
+  .fb-btn.satisfied:hover,.fb-btn.satisfied.sel{background:rgba(0,229,160,0.14);border-color:var(--accent);}
+  .fb-btn.unsatisfied{border-color:rgba(255,77,106,0.4);color:var(--danger);background:rgba(255,77,106,0.06);}
+  .fb-btn.unsatisfied:hover,.fb-btn.unsatisfied.sel{background:rgba(255,77,106,0.14);border-color:var(--danger);}
+
+  /* Media upload zone */
+  .media-upzone{border:1px dashed var(--sio);border-radius:3px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:rgba(0,207,255,0.02);}
+  .media-upzone:hover{background:rgba(0,207,255,0.05);}
+  .media-upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .media-upzone p{font-family:var(--mono);font-size:11px;color:var(--sio);}
+  .media-upzone p span{color:var(--text2);font-size:10px;}
+
+  /* SIO case card */
+  .case-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:17px 19px;cursor:pointer;transition:border-color 0.15s;}
+  .case-card:hover{border-color:var(--sio);}
+  .case-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;}
+
+  /* Assign SIO row in admin */
+  .assign-sio-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+  .assign-sio-row select{background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;flex:1;min-width:150px;}
+  .assign-sio-row select:focus{border-color:var(--sio);}
 
   /* ─── APP HEADER ───────────────────────────────────────── */
   #app{display:none;}
@@ -353,7 +398,7 @@
     <div class="rs-card ac" onclick="goLogin()">
       <div class="rci">&#128737;</div>
       <h2>Staff Access</h2>
-      <p>Admin · SuperAdmin · Top Management</p>
+      <p>Admin · SuperAdmin · Top Management · SIO</p>
     </div>
   </div>
 </div>
@@ -375,7 +420,8 @@
     <div class="lhint">Roles available:&nbsp;
       <span class="rpill sa">SuperAdmin</span>&nbsp;
       <span class="rpill adm">Admin</span>&nbsp;
-      <span class="rpill tm">Top Mgmt</span>
+      <span class="rpill tm">Top Mgmt</span>&nbsp;
+      <span class="rpill sio">SIO</span>
     </div>
     <div class="lerr" id="lerr">Invalid username or password. Access denied.</div>
   </div>
@@ -663,6 +709,7 @@
             <option value="">Select role...</option>
             <option value="admin">Admin</option>
             <option value="topmanagement">Top Management</option>
+            <option value="sio">Special Investigation Officer (SIO)</option>
           </select>
         </div>
       </div>
@@ -718,9 +765,107 @@
       </div>
     </div>
   </div>
+  <!-- ── SIO: My Cases ─────────────────────────── -->
+  <div class="page" id="page-siocases">
+    <div class="ptitle sio">&#128373; My Assigned Cases</div>
+    <div style="background:rgba(0,207,255,0.04);border:1px solid rgba(0,207,255,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;">
+      <span style="color:var(--sio);font-size:14px;">&#9650;</span>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">You can only access cases assigned to you. Review each case, conduct your investigation, and submit your findings using the investigation report form.</p>
+    </div>
+    <div class="rgrid" id="sio-casesgrid"></div>
+  </div>
+
+  <!-- ── SIO: Investigation Report ──────────────── -->
+  <div class="page" id="page-sioreport">
+    <div class="ptitle sio">&#128221; Investigation Report</div>
+    <div id="sio-report-case-info" style="background:var(--surface);border:1px solid rgba(0,207,255,0.2);border-radius:4px;padding:16px 20px;margin-bottom:20px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;"></div>
+
+    <div class="inv-section">
+      <div class="inv-section-title">&#128270; Investigation Findings</div>
+      <div class="fg">
+        <div class="field">
+          <label>Investigation Summary *</label>
+          <textarea id="inv-summary" placeholder="Provide a comprehensive summary of your investigation findings..." style="min-height:130px;"></textarea>
+        </div>
+        <div class="frow">
+          <div class="field">
+            <label>Root Cause Identified</label>
+            <input type="text" id="inv-rootcause" placeholder="e.g. Policy non-compliance, System failure..." />
+          </div>
+          <div class="field">
+            <label>Persons Involved</label>
+            <input type="text" id="inv-persons" placeholder="Departments/roles only — no personal info" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Investigation Status *</label>
+          <select id="inv-status">
+            <option value="">Select status...</option>
+            <option value="in_progress">In Progress</option>
+            <option value="findings_ready">Findings Ready</option>
+            <option value="closed_substantiated">Closed — Substantiated</option>
+            <option value="closed_unsubstantiated">Closed — Unsubstantiated</option>
+            <option value="referred_to_management">Referred to Management</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Recommended Actions</label>
+          <textarea id="inv-actions" placeholder="List recommended corrective or disciplinary actions..." style="min-height:90px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="inv-section">
+      <div class="inv-section-title">&#128248; Evidence — Upload Media</div>
+      <p style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Attach photos, videos, or audio recordings collected during investigation. Files are stored as references.</p>
+      <div class="media-upzone">
+        <input type="file" multiple id="inv-media" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onchange="handleInvMedia(this)" />
+        <div style="font-size:28px;margin-bottom:8px;">📎</div>
+        <p>Drop or <strong style="color:var(--sio);">browse</strong> — Images, Videos, Audio, Documents</p>
+        <p><span>image/* · video/* · audio/* · PDF · DOC</span></p>
+      </div>
+      <div class="flist" id="inv-medialist" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="inv-section">
+      <div class="inv-section-title">&#128203; Final Notes</div>
+      <div class="field">
+        <label>Confidential Notes (visible to SuperAdmin / Top Mgmt only)</label>
+        <textarea id="inv-confnotes" placeholder="Any sensitive information not for general admin view..." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-top:4px;">
+      <button class="sbtn sio-btn" onclick="submitInvReport()">&#128228; Submit Investigation Report</button>
+      <button class="sbtn danger-btn" onclick="showPage('siocases', document.querySelector('.nb.asio'))">&#8592; Back to My Cases</button>
+      <span id="inv-saved-msg" style="display:none;font-family:var(--mono);font-size:11px;color:var(--accent);">&#10003; Report submitted successfully</span>
+    </div>
+  </div>
+
 </div><!-- end #app -->
 
-<!-- ═══════════════ DETAIL MODAL ═══════════════ -->
+<!-- ═══════════════ ASSIGN SIO MODAL ═══════════════ -->
+<div id="assignSioModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;align-items:center;justify-content:center;padding:22px;">
+  <div style="background:var(--surface2);border:1px solid rgba(0,207,255,0.25);border-radius:5px;width:100%;max-width:460px;padding:26px;display:flex;flex-direction:column;gap:16px;">
+    <h2 style="font-family:var(--mono);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sio);">&#128373; Assign Special Investigation Officer</h2>
+    <div id="sio-modal-report-info" style="font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px 13px;line-height:1.8;"></div>
+    <div>
+      <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Select SIO</label>
+      <select id="sio-assign-select" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;transition:border-color 0.2s;">
+        <option value="">— Unassign / No SIO —</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Assignment Note (optional)</label>
+      <textarea id="sio-assign-note" placeholder="Brief instruction or priority note for the SIO..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px;">
+      <button class="mclose" onclick="closeAssignSioModal()">Cancel</button>
+      <button class="sbtn sio-btn" style="padding:9px 20px;font-size:11px;" onclick="confirmAssignSio()">&#128373; Assign SIO</button>
+    </div>
+    <div id="sio-assign-msg" style="display:none;font-family:var(--mono);font-size:10px;"></div>
+  </div>
+</div>
 <div id="detailModal">
   <div class="mbox" id="mbox"></div>
 </div>
@@ -786,7 +931,8 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_USERS = [
   { username:'superadmin', password:'super123', role:'superadmin', name:'Super Admin', createdBy:'system' },
-  { username:'admin',      password:'admin123', role:'admin',       name:'Admin User',  createdBy:'system' }
+  { username:'admin',      password:'admin123', role:'admin',       name:'Admin User',  createdBy:'system' },
+  { username:'sio1',       password:'sio123',   role:'sio',         name:'SIO Officer', createdBy:'system' }
 ];
 
 // ══════════════════════════════════════════════════════════
@@ -798,6 +944,8 @@ let reports = JSON.parse(localStorage.getItem('wb_reports')||'[]');
 let selSevVal = '';
 let files = [];
 let qrGenerated = false;
+let invMediaFiles = [];
+let _sioCurrentCaseId = null;
 
 function getUsers() {
   const raw = localStorage.getItem('wb_users');
@@ -966,9 +1114,19 @@ function initApp(r) {
     rb.className = 'rbadge tm'; rb.textContent = 'Top Mgmt';
     nav.innerHTML = `
       <button class="nb atm" onclick="showPage('topmgmt',this)">&#128202; Analytics</button>
+      <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
     showPage('topmgmt', nav.querySelector('.atm'));
+
+  } else if (r === 'sio') {
+    hdot.className = 'dot dsio'; ht.className = 'sio'; ht.textContent = 'SecureReport — SIO';
+    rb.className = 'rbadge sio'; rb.textContent = 'SIO Officer';
+    nav.innerHTML = `
+      <button class="nb asio" onclick="showPage('siocases',this)">&#128373; My Cases</button>
+      <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
+    subscribeReports(onRealtimeUpdate);
+    showPage('siocases', nav.querySelector('.asio'));
   }
 }
 
@@ -980,6 +1138,7 @@ function onRealtimeUpdate() {
   else if (pid==='page-allreports') renderAll();
   else if (pid==='page-topmgmt') renderTopMgmt();
   else if (pid==='page-saanalytics') renderSAAnalytics();
+  else if (pid==='page-siocases') renderSioCases();
 }
 
 function lockApp() {
@@ -988,6 +1147,8 @@ function lockApp() {
   document.getElementById('roleScreen').style.display = 'flex';
   role = null; currentUser = null;
   qrGenerated = false;
+  invMediaFiles = [];
+  _sioCurrentCaseId = null;
   resetForm();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
 }
@@ -995,9 +1156,9 @@ function lockApp() {
 function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('au','aa','asa','atm'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('au','aa','asa','atm','asio'));
   if (btn) {
-    const cls = role==='user'?'au':role==='admin'?'aa':role==='superadmin'?'asa':'atm';
+    const cls = role==='user'?'au':role==='admin'?'aa':role==='superadmin'?'asa':role==='sio'?'asio':'atm';
     btn.classList.add(cls);
   }
   if (name==='dashboard')      renderDash();
@@ -1008,6 +1169,7 @@ function showPage(name, btn) {
   if (name==='categories')     renderCatPage();
   if (name==='users')          renderUserPage();
   if (name==='changepassword') renderChangePwPage();
+  if (name==='siocases')       renderSioCases();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1091,7 +1253,7 @@ function renderUserPage() {
 }
 
 function roleLabel(r){
-  return r==='superadmin'?'SuperAdmin':r==='topmanagement'?'Top Mgmt':r==='admin'?'Admin':r;
+  return r==='superadmin'?'SuperAdmin':r==='topmanagement'?'Top Mgmt':r==='admin'?'Admin':r==='sio'?'SIO Officer':r;
 }
 
 function addUser() {
@@ -1163,7 +1325,7 @@ function renderChangePwPage() {
   const info   = document.getElementById('cp-target-info');
   const others = document.getElementById('cp-resetOther');
 
-  ptitle.className = 'ptitle ' + (isSA ? 'sa' : 'tm');
+  ptitle.className = 'ptitle ' + (isSA ? 'sa' : role==='sio' ? 'sio' : 'tm');
   info.textContent = `Changing password for: ${currentUser?.name} (@${currentUser?.username}) — Role: ${roleLabel(role)}`;
 
   // Clear fields
@@ -1264,6 +1426,36 @@ async function trackReport() {
   await loadReports();
   const r = reports.find(x=>x.id===inp);
   if(!r) { con.innerHTML=`<span style="font-family:var(--mono);font-size:12px;color:var(--danger);">&#9888; No report found for ID: ${inp||'—'}</span>`; res.classList.add('show'); return; }
+
+  const inv = r.invReport;
+  const fb  = r.reporterFeedback;
+
+  const invHtml = inv ? `
+    <div style="margin-top:12px;background:rgba(0,207,255,0.04);border:1px solid rgba(0,207,255,0.18);border-radius:3px;padding:14px 16px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">&#128221; Investigation Report</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px;">Status: <strong style="color:var(--sio);">${invStatusLabel(inv.status)}</strong> &nbsp;|&nbsp; Submitted: ${new Date(inv.submittedAt).toLocaleDateString('en-IN')}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:8px;">${inv.summary}</div>
+      ${inv.actions?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Recommended Actions: ${inv.actions}</div>`:''}
+    </div>
+    <div style="margin-top:14px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Your Feedback</div>
+      ${fb && fb.verdict
+        ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 14px;">
+             <span style="font-family:var(--mono);font-size:12px;${fb.verdict==='satisfied'?'color:var(--accent)':'color:var(--danger)'};">${fb.verdict==='satisfied'?'✅ You marked this as Satisfied':'❌ You marked this as Not Satisfied'}</span>
+             ${fb.comment?`<span style="font-size:12px;color:var(--text2);">"${fb.comment}"</span>`:''}
+           </div>`
+        : `<div style="display:flex;flex-direction:column;gap:10px;">
+             <div style="display:flex;gap:8px;">
+               <button class="fb-btn satisfied" id="fb-sat-btn" onclick="selectFeedback('satisfied')" style="padding:10px 14px;">&#10003; Satisfied</button>
+               <button class="fb-btn unsatisfied" id="fb-unsat-btn" onclick="selectFeedback('unsatisfied')" style="padding:10px 14px;">&#10007; Not Satisfied</button>
+             </div>
+             <textarea id="fb-comment" placeholder="Optional: Add a comment about the investigation..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s;"></textarea>
+             <button class="sbtn" onclick="submitReporterFeedback('${r.id}')" style="align-self:flex-start;padding:9px 20px;font-size:11px;">Submit Feedback</button>
+             <div id="fb-msg" style="display:none;font-family:var(--mono);font-size:11px;"></div>
+           </div>`
+      }
+    </div>` : '';
+
   con.innerHTML = `<div style="display:flex;flex-direction:column;gap:11px;">
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <span style="font-family:var(--mono);font-size:17px;color:var(--accent);">${r.id}</span>
@@ -1273,9 +1465,31 @@ async function trackReport() {
     <div style="font-size:14px;color:var(--text);">${r.title}</div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--text2);">${r.category}</div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Submitted: ${new Date(r.date).toLocaleString('en-IN')}</div>
+    ${r.invReport ? `<div style="font-family:var(--mono);font-size:10px;color:var(--sio);">&#128373; Investigation in progress / completed</div>` : ''}
     ${r.adminNotes?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 13px;"><div style="font-family:var(--mono);font-size:10px;color:var(--adm);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Admin Note</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${r.adminNotes}</div></div>`:''}
+    ${invHtml}
   </div>`;
   res.classList.add('show');
+}
+
+let _selectedFeedback = '';
+function selectFeedback(v) {
+  _selectedFeedback = v;
+  document.querySelectorAll('.fb-btn').forEach(b=>b.classList.remove('sel'));
+  const btn = document.getElementById(v==='satisfied'?'fb-sat-btn':'fb-unsat-btn');
+  if(btn) btn.classList.add('sel');
+}
+
+async function submitReporterFeedback(reportId) {
+  if(!_selectedFeedback) { const m=document.getElementById('fb-msg'); if(m){m.textContent='Please select Satisfied or Not Satisfied first.';m.style.color='var(--danger)';m.style.display='block';setTimeout(()=>m.style.display='none',3000);} return; }
+  const comment = (document.getElementById('fb-comment')||{}).value||'';
+  const r = reports.find(x=>x.id===reportId);
+  if(!r) return;
+  r.reporterFeedback = { verdict: _selectedFeedback, comment: comment.trim(), at: new Date().toISOString() };
+  await saveReport(r);
+  _selectedFeedback = '';
+  // Re-render the track section
+  await trackReport();
 }
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('tid').addEventListener('keydown', e=>{ if(e.key==='Enter') trackReport(); });
@@ -1307,11 +1521,22 @@ function renderAll() {
 
 function cardHTML(r, idx) {
   const ds = new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const sioUsers = getUsers().filter(u=>u.role==='sio');
+  const assignedSio = r.assignedSio ? sioUsers.find(u=>u.username===r.assignedSio) : null;
+  const canAssign = (role==='superadmin'||role==='topmanagement'||role==='admin');
+  const sioRow = canAssign ? `
+    <div onclick="event.stopPropagation()" style="margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+      ${assignedSio
+        ? `<span class="sio-assign-badge">&#128373; SIO: ${assignedSio.name}</span>`
+        : `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);">No SIO assigned</span>`}
+      <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--sio);transition:all 0.15s;" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">&#128373; ${assignedSio?'Reassign':'Assign'} SIO</button>
+    </div>` : '';
   return `<div class="rcard" onclick="openDetail(${idx})">
     <div class="rcid">${r.id}</div>
     <div class="rcb">
       <h3>${r.title}</h3>
       <p>${r.description}</p>
+      ${sioRow}
       <div class="stup" onclick="event.stopPropagation()">
         <button onclick="updStatus(${idx},'new')">New</button>
         <button onclick="updStatus(${idx},'reviewing')">Reviewing</button>
@@ -1557,6 +1782,43 @@ function renderSAAnalytics() {
 // ══════════════════════════════════════════════════════════
 function openDetail(i) {
   const r = reports[i];
+  const sioUsers = getUsers().filter(u=>u.role==='sio');
+  const assignedSio = r.assignedSio ? sioUsers.find(u=>u.username===r.assignedSio) : null;
+  const canAssign = (role==='superadmin'||role==='topmanagement'||role==='admin');
+
+  // SIO assignment row
+  const sioAssignBlock = canAssign ? `
+    <div class="mrow">
+      <span class="lbl">SIO</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        ${assignedSio
+          ? `<span class="sio-assign-badge">&#128373; ${assignedSio.name} (@${assignedSio.username})</span>`
+          : `<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">Not assigned</span>`}
+        <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--sio);" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">${assignedSio?'Reassign SIO':'Assign SIO'}</button>
+      </div>
+    </div>
+    ${r.sioAssignNote ? `<div class="mrow"><span class="lbl">SIO Note</span><span class="val" style="color:var(--sio);font-size:12px;">${r.sioAssignNote}</span></div>` : ''}` : '';
+
+  // Investigation report block
+  const inv = r.invReport;
+  const invBlock = inv ? `
+    <div style="margin-top:6px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;padding-top:10px;border-top:1px solid var(--border);">&#128221; Investigation Report</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Status: <strong style="color:var(--sio);">${invStatusLabel(inv.status)}</strong></span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">By: ${assignedSio?assignedSio.name:'SIO'} &nbsp;|&nbsp; ${new Date(inv.submittedAt).toLocaleString('en-IN')}</span>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:11px 13px;font-size:13px;color:var(--text2);line-height:1.6;">${inv.summary}</div>
+        ${inv.rootCause?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Root Cause: <strong style="color:var(--text);">${inv.rootCause}</strong></div>`:''}
+        ${inv.persons?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Persons: ${inv.persons}</div>`:''}
+        ${inv.actions?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Recommended Actions: ${inv.actions}</div>`:''}
+        ${inv.mediaFiles&&inv.mediaFiles.length?`<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">&#128248; Evidence: ${inv.mediaFiles.join(', ')}</div>`:''}
+        ${(role==='superadmin'||role==='topmanagement')&&inv.confNotes?`<div style="background:rgba(0,207,255,0.05);border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--sio);">&#128274; Confidential: ${inv.confNotes}</div>`:''}
+        ${renderFeedbackBlock(r, i)}
+      </div>
+    </div>` : (canAssign&&assignedSio?`<div style="padding:10px 0;font-family:var(--mono);font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:6px;">&#128373; Investigation report pending from ${assignedSio.name}.</div>`:'');
+
   document.getElementById('mbox').innerHTML = `
     <h2>${r.id}</h2>
     <div class="mrow"><span class="lbl">Title</span><span class="val">${r.title}</span></div>
@@ -1567,6 +1829,7 @@ function openDetail(i) {
     <div class="mrow"><span class="lbl">Submitted</span><span class="val">${new Date(r.date).toLocaleString('en-IN')}</span></div>
     <div class="mrow"><span class="lbl">Description</span><span class="val">${r.description}</span></div>
     <div class="mrow"><span class="lbl">Evidence</span><span class="val">${r.files&&r.files.length?r.files.join(', '):'None attached'}</span></div>
+    ${sioAssignBlock}
     <div class="mrow">
       <span class="lbl">Admin Notes</span>
       <div style="display:flex;flex-direction:column;gap:7px;">
@@ -1577,11 +1840,34 @@ function openDetail(i) {
         </div>
       </div>
     </div>
+    ${invBlock}
     <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:14px;">
       <button class="delbtn" onclick="delReport(${i})">&#128465; Delete Report</button>
       <button class="mclose" onclick="closeDetail()">Close</button>
     </div>`;
   document.getElementById('detailModal').classList.add('open');
+}
+
+function invStatusLabel(s) {
+  return {in_progress:'In Progress',findings_ready:'Findings Ready',closed_substantiated:'Closed — Substantiated',closed_unsubstantiated:'Closed — Unsubstantiated',referred_to_management:'Referred to Management'}[s]||s;
+}
+
+function renderFeedbackBlock(r, i) {
+  // Reporter can provide feedback via track page; here admin/mgmt sees it
+  const fb = r.reporterFeedback;
+  if (role === 'user' || role === 'sio') return ''; // handled separately in track page
+  if (!r.invReport) return '';
+  const hasFb = fb && fb.verdict;
+  return `<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Reporter Feedback</div>
+    ${hasFb
+      ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-family:var(--mono);font-size:12px;${fb.verdict==='satisfied'?'color:var(--accent)':'color:var(--danger)'};">${fb.verdict==='satisfied'?'✅ Satisfied':'❌ Not Satisfied'}</span>
+          ${fb.comment?`<span style="font-size:12px;color:var(--text2);">"${fb.comment}"</span>`:''}
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">${new Date(fb.at).toLocaleDateString('en-IN')}</span>
+        </div>`
+      : `<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">Awaiting reporter feedback</span>`}
+  </div>`;
 }
 function closeDetail() { document.getElementById('detailModal').classList.remove('open'); }
 document.getElementById('detailModal').addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
@@ -1606,7 +1892,187 @@ function downloadQR() {
     link.href = canvas.toDataURL('image/png');
     link.click();
   }, 200);
+// ══════════════════════════════════════════════════════════
+//  SIO FUNCTIONS
+// ══════════════════════════════════════════════════════════
+
+// ── SIO: Render My Cases ──────────────────────────────────
+function renderSioCases() {
+  if (!currentUser || currentUser.role !== 'sio') return;
+  const myCases = reports.filter(r => r.assignedSio === currentUser.username);
+  const grid = document.getElementById('sio-casesgrid');
+  if (!grid) return;
+  if (!myCases.length) {
+    grid.innerHTML = '<div class="empty"><div class="ei">&#128373;</div><div>No cases assigned to you yet</div></div>';
+    return;
+  }
+  grid.innerHTML = myCases.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r => {
+    const ds = new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const hasReport = !!r.invReport;
+    const invSt = hasReport ? invStatusLabel(r.invReport.status) : null;
+    return `<div class="case-card" onclick="openSioReportForm('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:5px;flex:1;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:11px;color:var(--sio);background:rgba(0,207,255,0.08);border:1px solid rgba(0,207,255,0.15);border-radius:2px;padding:3px 9px;">${r.id}</span>
+            <span class="sevb ${r.severity}">${r.severity}</span>
+            <span class="stbadge ${r.status}">${r.status}</span>
+            ${hasReport ? `<span style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;background:rgba(0,207,255,0.1);color:var(--sio);border:1px solid rgba(0,207,255,0.2);">&#128221; ${invSt}</span>` : '<span style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;background:rgba(255,170,0,0.08);color:var(--warn);border:1px solid rgba(255,170,0,0.2);">&#9888; Report Pending</span>'}
+          </div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);margin-top:3px;">${r.title}</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${r.description}</div>
+          <div class="case-meta">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">&#128197; ${ds}</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">&#128193; ${r.category}</span>
+            ${r.sioAssignNote?`<span style="font-family:var(--mono);font-size:10px;color:var(--sio);">&#128172; "${r.sioAssignNote}"</span>`:''}
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--sio);border:1px solid rgba(0,207,255,0.25);border-radius:3px;padding:7px 14px;white-space:nowrap;flex-shrink:0;">${hasReport?'&#9998; Edit Report':'&#43; Write Report'}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
+
+// ── SIO: Open investigation report form ──────────────────
+function openSioReportForm(reportId) {
+  _sioCurrentCaseId = reportId;
+  const r = reports.find(x=>x.id===reportId);
+  if (!r) return;
+  // Populate case info header
+  const infoEl = document.getElementById('sio-report-case-info');
+  if (infoEl) {
+    infoEl.innerHTML = `<strong style="color:var(--sio);">${r.id}</strong> &nbsp;|&nbsp; ${r.title}
+      <br>Category: ${r.category} &nbsp;|&nbsp; Severity: <span class="sevb ${r.severity}" style="font-size:9px;">${r.severity}</span> &nbsp;|&nbsp; Status: <span class="stbadge ${r.status}" style="font-size:9px;">${r.status}</span>
+      <br>Submitted: ${new Date(r.date).toLocaleString('en-IN')}`;
+  }
+  // Pre-fill form if report already exists
+  const inv = r.invReport;
+  document.getElementById('inv-summary').value    = inv ? inv.summary    : '';
+  document.getElementById('inv-rootcause').value  = inv ? inv.rootCause  : '';
+  document.getElementById('inv-persons').value    = inv ? inv.persons    : '';
+  document.getElementById('inv-status').value     = inv ? inv.status     : '';
+  document.getElementById('inv-actions').value    = inv ? inv.actions    : '';
+  document.getElementById('inv-confnotes').value  = inv ? inv.confNotes  : '';
+  invMediaFiles = inv && inv.mediaFiles ? [...inv.mediaFiles] : [];
+  renderInvMediaList();
+  document.getElementById('inv-saved-msg').style.display = 'none';
+  // Navigate to the report page
+  const nav = document.getElementById('hnav');
+  const activeBtn = nav ? nav.querySelector('.nb.asio') : null;
+  showPage('sioreport', activeBtn);
+}
+
+// ── SIO: Media upload handling ────────────────────────────
+function handleInvMedia(input) {
+  invMediaFiles = [...invMediaFiles, ...Array.from(input.files)];
+  renderInvMediaList();
+}
+function renderInvMediaList() {
+  const el = document.getElementById('inv-medialist');
+  if (!el) return;
+  el.innerHTML = invMediaFiles.map((f,i) => {
+    const isObj = typeof f === 'string';
+    const name  = isObj ? f : f.name;
+    const size  = isObj ? '' : ` (${(f.size/1024).toFixed(1)}KB)`;
+    const icon  = name.match(/\.(mp4|mov|avi|webm)$/i) ? '🎬'
+                : name.match(/\.(mp3|wav|ogg|m4a)$/i)  ? '🎵'
+                : name.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? '🖼️'
+                : '📎';
+    return `<div class="fi"><span>${icon} ${name}${size}</span><button class="rmf" onclick="rmInvMedia(${i})">&#215;</button></div>`;
+  }).join('');
+}
+function rmInvMedia(i) { invMediaFiles.splice(i,1); renderInvMediaList(); }
+
+// ── SIO: Submit investigation report ─────────────────────
+async function submitInvReport() {
+  const summary = document.getElementById('inv-summary').value.trim();
+  const status  = document.getElementById('inv-status').value;
+  if (!summary || !status) { alert('Please fill in the Investigation Summary and Status fields.'); return; }
+  if (!_sioCurrentCaseId) { alert('No case selected. Please go back to My Cases.'); return; }
+  const r = reports.find(x=>x.id===_sioCurrentCaseId);
+  if (!r) { alert('Case not found.'); return; }
+  const mediaNames = invMediaFiles.map(f=>typeof f==='string'?f:f.name);
+  r.invReport = {
+    summary:     summary,
+    rootCause:   document.getElementById('inv-rootcause').value.trim(),
+    persons:     document.getElementById('inv-persons').value.trim(),
+    status:      status,
+    actions:     document.getElementById('inv-actions').value.trim(),
+    confNotes:   document.getElementById('inv-confnotes').value.trim(),
+    mediaFiles:  mediaNames,
+    submittedAt: new Date().toISOString(),
+    submittedBy: currentUser ? currentUser.username : 'sio'
+  };
+  // Auto-update report status to 'reviewing' if still 'new'
+  if (r.status === 'new') r.status = 'reviewing';
+  const btn = document.querySelector('#page-sioreport .sbtn.sio-btn');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Saving...'; }
+  await saveReport(r);
+  if (btn) { btn.disabled=false; btn.textContent='📨 Submit Investigation Report'; }
+  const msg = document.getElementById('inv-saved-msg');
+  if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 3000); }
+  renderSioCases();
+}
+
+// ── Assign SIO Modal ──────────────────────────────────────
+let _assignSioReportId = null;
+function openAssignSioModal(reportId) {
+  _assignSioReportId = reportId;
+  const r = reports.find(x=>x.id===reportId);
+  if (!r) return;
+  const infoEl = document.getElementById('sio-modal-report-info');
+  if (infoEl) infoEl.innerHTML = `<strong style="color:var(--sio);">${r.id}</strong> — ${r.title}<br>Severity: ${r.severity} &nbsp;|&nbsp; Status: ${r.status}`;
+  // Populate SIO select
+  const sel = document.getElementById('sio-assign-select');
+  const sioUsers = getUsers().filter(u=>u.role==='sio');
+  sel.innerHTML = '<option value="">— Unassign / No SIO —</option>'
+    + sioUsers.map(u=>`<option value="${u.username}" ${r.assignedSio===u.username?'selected':''}>${u.name} (@${u.username})</option>`).join('');
+  document.getElementById('sio-assign-note').value = r.sioAssignNote || '';
+  document.getElementById('sio-assign-msg').style.display = 'none';
+  const modal = document.getElementById('assignSioModal');
+  modal.style.display = 'flex';
+}
+function closeAssignSioModal() {
+  document.getElementById('assignSioModal').style.display = 'none';
+  _assignSioReportId = null;
+}
+async function confirmAssignSio() {
+  const sel  = document.getElementById('sio-assign-select').value;
+  const note = document.getElementById('sio-assign-note').value.trim();
+  const r = reports.find(x=>x.id===_assignSioReportId);
+  if (!r) return;
+  r.assignedSio    = sel || null;
+  r.sioAssignNote  = note || '';
+  r.sioAssignedAt  = sel ? new Date().toISOString() : null;
+  r.sioAssignedBy  = currentUser ? currentUser.username : 'admin';
+  const msg = document.getElementById('sio-assign-msg');
+  msg.style.display = 'none';
+  await saveReport(r);
+  msg.textContent = sel ? `✓ Assigned to ${sel}` : '✓ SIO assignment removed';
+  msg.style.color = 'var(--accent)';
+  msg.style.display = 'block';
+  setTimeout(() => { closeAssignSioModal(); }, 1400);
+  // Refresh current page view
+  const active = document.querySelector('.page.active');
+  if (active) {
+    const pid = active.id;
+    if (pid==='page-dashboard') renderDash();
+    else if (pid==='page-allreports') renderAll();
+    else if (pid==='page-saanalytics') renderSAAnalytics();
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const m = document.getElementById('assignSioModal');
+  if (m) m.addEventListener('click', e => { if (e.target===m) closeAssignSioModal(); });
+});
+
+// ── SIO: role tag CSS ──────────────────────────────────────
+// Extend existing role-tag styling for sio role
+(function(){
+  const style = document.createElement('style');
+  style.textContent = '.role-tag.sio{color:var(--sio);border-color:rgba(0,207,255,0.3);background:rgba(0,207,255,0.06);}';
+  document.head.appendChild(style);
+})();
 </script>
 </body>
 </html>
