@@ -423,6 +423,7 @@
       <span class="rpill tm">Top Mgmt</span>&nbsp;
       <span class="rpill sio">SIO</span>
     </div>
+    <div class="lhint" style="margin-top:4px;font-size:9px;color:var(--text3);">Default accounts — superadmin / super123 &nbsp;|&nbsp; admin / admin123 &nbsp;|&nbsp; topmgmt / topmgmt123 &nbsp;|&nbsp; sio1 / sio123</div>
     <div class="lerr" id="lerr">Invalid username or password. Access denied.</div>
   </div>
 </div>
@@ -930,9 +931,10 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_USERS = [
-  { username:'superadmin', password:'super123', role:'superadmin', name:'Super Admin', createdBy:'system' },
-  { username:'admin',      password:'admin123', role:'admin',       name:'Admin User',  createdBy:'system' },
-  { username:'sio1',       password:'sio123',   role:'sio',         name:'SIO Officer', createdBy:'system' }
+  { username:'superadmin', password:'super123',  role:'superadmin',    name:'Super Admin',       createdBy:'system' },
+  { username:'admin',      password:'admin123',  role:'admin',         name:'Admin User',        createdBy:'system' },
+  { username:'topmgmt',    password:'topmgmt123',role:'topmanagement', name:'Top Management',    createdBy:'system' },
+  { username:'sio1',       password:'sio123',    role:'sio',           name:'SIO Officer',       createdBy:'system' }
 ];
 
 // ══════════════════════════════════════════════════════════
@@ -940,7 +942,8 @@ const DEFAULT_USERS = [
 // ══════════════════════════════════════════════════════════
 let role = null;
 let currentUser = null;
-let reports = JSON.parse(localStorage.getItem('wb_reports')||'[]');
+let reports = [];
+try { reports = JSON.parse(localStorage.getItem('wb_reports')||'[]'); } catch(e) { reports = []; }
 let selSevVal = '';
 let files = [];
 let qrGenerated = false;
@@ -948,18 +951,22 @@ let invMediaFiles = [];
 let _sioCurrentCaseId = null;
 
 function getUsers() {
-  const raw = localStorage.getItem('wb_users');
-  if (!raw) { localStorage.setItem('wb_users', JSON.stringify(DEFAULT_USERS)); return DEFAULT_USERS; }
-  return JSON.parse(raw);
+  try {
+    const raw = localStorage.getItem('wb_users');
+    if (!raw) { localStorage.setItem('wb_users', JSON.stringify(DEFAULT_USERS)); return DEFAULT_USERS; }
+    return JSON.parse(raw);
+  } catch(e) { return DEFAULT_USERS; }
 }
-function saveUsers(users) { localStorage.setItem('wb_users', JSON.stringify(users)); }
+function saveUsers(users) { try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {} }
 
 function getCategories() {
-  const raw = localStorage.getItem('wb_categories');
-  if (!raw) { localStorage.setItem('wb_categories', JSON.stringify(DEFAULT_CATEGORIES)); return DEFAULT_CATEGORIES; }
-  return JSON.parse(raw);
+  try {
+    const raw = localStorage.getItem('wb_categories');
+    if (!raw) { localStorage.setItem('wb_categories', JSON.stringify(DEFAULT_CATEGORIES)); return DEFAULT_CATEGORIES; }
+    return JSON.parse(raw);
+  } catch(e) { return DEFAULT_CATEGORIES; }
 }
-function saveCategories(cats) { localStorage.setItem('wb_categories', JSON.stringify(cats)); }
+function saveCategories(cats) { try { localStorage.setItem('wb_categories', JSON.stringify(cats)); } catch(e) {} }
 
 // ══════════════════════════════════════════════════════════
 //  FIREBASE HELPERS
@@ -967,7 +974,7 @@ function saveCategories(cats) { localStorage.setItem('wb_categories', JSON.strin
 async function saveReport(report) {
   const idx = reports.findIndex(r => r.id === report.id);
   if(idx >= 0) reports[idx] = report; else reports.push(report);
-  localStorage.setItem('wb_reports', JSON.stringify(reports));
+  try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
   if(_fbReady && _db) {
     try { await _db.collection('wb_reports').doc(report.id).set(report); }
     catch(e) { console.warn('Firestore write failed (saved locally):', e); }
@@ -976,7 +983,7 @@ async function saveReport(report) {
 
 async function deleteReportById(id) {
   reports = reports.filter(r => r.id !== id);
-  localStorage.setItem('wb_reports', JSON.stringify(reports));
+  try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
   if(_fbReady && _db) {
     try { await _db.collection('wb_reports').doc(id).delete(); }
     catch(e) { console.warn('Firestore delete failed:', e); }
@@ -989,7 +996,7 @@ function subscribeReports(onUpdate) {
   _unsubscribe = _db.collection('wb_reports').orderBy('date', 'desc')
     .onSnapshot(snap => {
       reports = snap.docs.map(d => d.data());
-      localStorage.setItem('wb_reports', JSON.stringify(reports));
+      try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
       if(onUpdate) onUpdate();
     }, err => console.warn('Firestore snapshot error:', err));
 }
@@ -999,10 +1006,10 @@ async function loadReports() {
   try {
     const snap = await _db.collection('wb_reports').orderBy('date','desc').get();
     reports = snap.docs.map(d => d.data());
-    localStorage.setItem('wb_reports', JSON.stringify(reports));
+    try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
   } catch(e) {
     console.warn('Firestore load failed (using local):', e);
-    reports = JSON.parse(localStorage.getItem('wb_reports')||'[]');
+    try { reports = JSON.parse(localStorage.getItem('wb_reports')||'[]'); } catch(e2) { reports = []; }
   }
 }
 
@@ -1065,7 +1072,7 @@ async function doLogin() {
 }
 
 function initApp(r) {
-  reports = JSON.parse(localStorage.getItem('wb_reports')||'[]');
+  try { reports = JSON.parse(localStorage.getItem('wb_reports')||'[]'); } catch(e) { reports = []; }
   document.getElementById('app').style.display = 'block';
   populateCategoryDropdowns();
 
