@@ -699,6 +699,10 @@
           <input type="text" id="au-user" placeholder="e.g. ravi.sharma" autocomplete="off" />
         </div>
       </div>
+      <div>
+        <label>Email Address <span style="color:var(--text3);font-size:9px;letter-spacing:.06em;text-transform:uppercase;">(for notifications)</span></label>
+        <input type="email" id="au-email" placeholder="e.g. ravi.sharma@yourorg.com" autocomplete="off" />
+      </div>
       <div class="frow">
         <div>
           <label>Password</label>
@@ -1014,6 +1018,159 @@ async function loadReports() {
 }
 
 // ══════════════════════════════════════════════════════════
+//  MICROSOFT GRAPH EMAIL NOTIFICATIONS
+// ══════════════════════════════════════════════════════════
+// ── Configuration — fill these in ──────────────────────────
+const MAIL_CONFIG = {
+  // Azure AD / Entra App Registration details
+  tenantId:     'YOUR_TENANT_ID',           // e.g. "contoso.onmicrosoft.com" or GUID
+  clientId:     'YOUR_CLIENT_APP_ID',       // Azure app client ID
+  clientSecret: 'YOUR_CLIENT_SECRET',       // Azure app client secret (use backend proxy in production!)
+  senderEmail:  'notifications@yourorg.com',// Licensed M365 mailbox to send from
+  // Recipients — add/edit as needed
+  adminEmails:  ['admin@yourorg.com'],      // Notified on every new report
+  superAdminEmails: ['superadmin@yourorg.com'],
+};
+
+// Obtain an OAuth2 access token using client credentials flow
+async function getGraphToken() {
+  try {
+    const url = `https://login.microsoftonline.com/${MAIL_CONFIG.tenantId}/oauth2/v2.0/token`;
+    const body = new URLSearchParams({
+      grant_type:    'client_credentials',
+      client_id:     MAIL_CONFIG.clientId,
+      client_secret: MAIL_CONFIG.clientSecret,
+      scope:         'https://graph.microsoft.com/.default'
+    });
+    const res  = await fetch(url, { method:'POST', body });
+    const data = await res.json();
+    return data.access_token || null;
+  } catch(e) { console.warn('Graph token error:', e); return null; }
+}
+
+// Send an email via Microsoft Graph /sendMail
+async function sendGraphMail(toEmails, subject, htmlBody) {
+  if (!toEmails || !toEmails.length) return;
+  if (MAIL_CONFIG.tenantId === 'YOUR_TENANT_ID') {
+    console.info('[Mail] Config not set — skipping notification:', subject);
+    return;
+  }
+  const token = await getGraphToken();
+  if (!token) { console.warn('[Mail] Could not obtain Graph token'); return; }
+  const payload = {
+    message: {
+      subject,
+      body: { contentType: 'HTML', content: htmlBody },
+      toRecipients: toEmails.map(e => ({ emailAddress: { address: e } }))
+    },
+    saveToSentItems: false
+  };
+  try {
+    const res = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MAIL_CONFIG.senderEmail)}/sendMail`,
+      { method:'POST', headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify(payload) }
+    );
+    if (res.ok) console.info('[Mail] Sent:', subject);
+    else { const err = await res.json(); console.warn('[Mail] Send failed:', err); }
+  } catch(e) { console.warn('[Mail] Fetch error:', e); }
+}
+
+// ── Email templates ────────────────────────────────────────
+function mailTemplate(title, rows, accentColor='#00e5a0') {
+  const rowsHtml = rows.map(([label, value]) =>
+    `<tr><td style="padding:7px 12px;font-size:12px;color:#888;font-family:monospace;text-transform:uppercase;letter-spacing:.06em;width:130px;">${label}</td>
+     <td style="padding:7px 12px;font-size:13px;color:#e8ecf0;">${value}</td></tr>`
+  ).join('');
+  return `<div style="background:#0a0c0f;padding:30px;font-family:'Segoe UI',sans-serif;max-width:560px;margin:0 auto;border:1px solid #1e2430;border-radius:6px;">
+    <div style="font-family:monospace;font-size:13px;color:${accentColor};letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;">&#128737; SecureReport</div>
+    <h2 style="color:#e8ecf0;font-size:16px;margin:0 0 18px;font-weight:500;">${title}</h2>
+    <table style="width:100%;border-collapse:collapse;background:#111318;border:1px solid #1e2430;border-radius:4px;">${rowsHtml}</table>
+    <p style="font-size:11px;color:#4a5568;margin-top:18px;font-family:monospace;">This is an automated notification from SecureReport. Do not reply to this email.</p>
+  </div>`;
+}
+
+// ── Trigger functions (called from app actions) ────────────
+async function notifyNewReport(report) {
+  const html = mailTemplate('New Report Submitted', [
+    ['Report ID',   report.id],
+    ['Title',       report.title],
+    ['Category',    report.category],
+    ['Severity',    `<span style="color:${report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0'}">${report.severity.toUpperCase()}</span>`],
+    ['Submitted',   new Date(report.date).toLocaleString('en-IN')],
+    ['Organisation',report.org || '—'],
+  ]);
+  await sendGraphMail(
+    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
+    `[SecureReport] New ${report.severity.toUpperCase()} Report — ${report.id}`,
+    html
+  );
+}
+
+async function notifyStatusChange(report, newStatus) {
+  const statusColors = { new:'#00e5a0', reviewing:'#ffaa00', resolved:'#4a5568' };
+  const html = mailTemplate('Report Status Updated', [
+    ['Report ID', report.id],
+    ['Title',     report.title],
+    ['New Status',`<strong style="color:${statusColors[newStatus]||'#e8ecf0'}">${newStatus.toUpperCase()}</strong>`],
+    ['Severity',  report.severity],
+    ['Updated',   new Date().toLocaleString('en-IN')],
+  ], '#7b8cff');
+  await sendGraphMail(
+    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
+    `[SecureReport] Status → ${newStatus.toUpperCase()} — ${report.id}`,
+    html
+  );
+}
+
+async function notifySioAssigned(report, sioUser) {
+  // Notify SIO officer
+  const users = getUsers();
+  const sio   = users.find(u => u.username === sioUser);
+  const sioEmail = sio && sio.email ? [sio.email] : [];
+  const html = mailTemplate('You Have Been Assigned a Case', [
+    ['Report ID',  report.id],
+    ['Title',      report.title],
+    ['Severity',   report.severity],
+    ['Assigned By',report.sioAssignedBy || 'Admin'],
+    ['Note',       report.sioAssignNote || '—'],
+    ['Date',       new Date().toLocaleString('en-IN')],
+  ], '#00cfff');
+  if (sioEmail.length) {
+    await sendGraphMail(sioEmail, `[SecureReport] New Case Assigned — ${report.id}`, html);
+  }
+  // Also notify admins
+  const adminHtml = mailTemplate('SIO Assignment Made', [
+    ['Report ID', report.id],
+    ['Title',     report.title],
+    ['SIO',       sioUser],
+    ['Date',      new Date().toLocaleString('en-IN')],
+  ], '#00cfff');
+  await sendGraphMail(
+    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
+    `[SecureReport] SIO Assigned to ${report.id}`,
+    adminHtml
+  );
+}
+
+async function notifyInvReportSubmitted(report) {
+  const inv = report.invReport;
+  if (!inv) return;
+  const html = mailTemplate('Investigation Report Submitted', [
+    ['Report ID',  report.id],
+    ['Title',      report.title],
+    ['Inv Status', inv.status.replace(/_/g,' ').toUpperCase()],
+    ['Summary',    inv.summary.slice(0,200)+(inv.summary.length>200?'…':'')],
+    ['Submitted By',inv.submittedBy],
+    ['Date',       new Date(inv.submittedAt).toLocaleString('en-IN')],
+  ], '#00cfff');
+  await sendGraphMail(
+    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
+    `[SecureReport] Investigation Report Filed — ${report.id}`,
+    html
+  );
+}
+
+// ══════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
@@ -1249,7 +1406,7 @@ function renderUserPage() {
     <div class="user-item">
       <div class="user-info">
         <div class="un">${u.name} <span style="color:var(--text3);font-size:10px;">@${u.username}</span></div>
-        <div class="ud">Created by: ${u.createdBy} &nbsp;|&nbsp; Role: ${u.role}</div>
+        <div class="ud">Created by: ${u.createdBy} &nbsp;|&nbsp; Role: ${u.role}${u.email?` &nbsp;|&nbsp; <span style="color:var(--sio);">✉ ${u.email}</span>`:' &nbsp;|&nbsp; <span style="color:var(--text3);">No email set</span>'}</div>
       </div>
       <span class="role-tag ${u.role}">${roleLabel(u.role)}</span>
       <div class="user-actions">
@@ -1264,12 +1421,13 @@ function roleLabel(r){
 }
 
 function addUser() {
-  const name = document.getElementById('au-name').value.trim();
-  const uname= document.getElementById('au-user').value.trim().toLowerCase().replace(/\s+/g,'.');
-  const pw   = document.getElementById('au-pass').value;
-  const rl   = document.getElementById('au-role').value;
-  const err  = document.getElementById('au-err');
-  const ok   = document.getElementById('au-ok');
+  const name  = document.getElementById('au-name').value.trim();
+  const uname = document.getElementById('au-user').value.trim().toLowerCase().replace(/\s+/g,'.');
+  const pw    = document.getElementById('au-pass').value;
+  const rl    = document.getElementById('au-role').value;
+  const email = document.getElementById('au-email').value.trim();
+  const err   = document.getElementById('au-err');
+  const ok    = document.getElementById('au-ok');
   err.style.display='none'; ok.style.display='none';
 
   if(!name||!uname||!pw||!rl){ err.textContent='All fields are required.'; err.style.display='block'; return; }
@@ -1277,9 +1435,9 @@ function addUser() {
   const users = getUsers();
   if(users.find(u=>u.username===uname)){ err.textContent=`Username "${uname}" already exists.`; err.style.display='block'; return; }
 
-  users.push({ username:uname, password:pw, role:rl, name, createdBy: currentUser?currentUser.username:'superadmin' });
+  users.push({ username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' });
   saveUsers(users);
-  ['au-name','au-user','au-pass'].forEach(id=>document.getElementById(id).value='');
+  ['au-name','au-user','au-pass','au-email'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('au-role').value='';
   renderUserPage();
   ok.textContent = `Account "${uname}" created successfully.`;
@@ -1321,7 +1479,10 @@ function confirmPwReset() {
   if(currentUser && currentUser.username===_pwModalTarget) currentUser.password=p1;
   setTimeout(()=>closePwModal(), 1800);
 }
-document.getElementById('pwModal').addEventListener('click', function(e){ if(e.target===this) closePwModal(); });
+document.addEventListener('DOMContentLoaded', () => {
+  const pwModal = document.getElementById('pwModal');
+  if (pwModal) pwModal.addEventListener('click', function(e){ if(e.target===this) closePwModal(); });
+});
 
 // ══════════════════════════════════════════════════════════
 //  CHANGE PASSWORD PAGE
@@ -1410,6 +1571,7 @@ async function submitReport() {
   const btn = document.querySelector('#submitForm .sbtn');
   if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting...'; }
   await saveReport(report);
+  notifyNewReport(report); // fire-and-forget email
   if(btn){ btn.disabled=false; btn.textContent='▶ Submit Report'; }
   document.getElementById('submitForm').style.display = 'none';
   document.getElementById('sc').classList.add('show');
@@ -1561,6 +1723,7 @@ function cardHTML(r, idx) {
 async function updStatus(i, s) {
   reports[i].status = s;
   await saveReport(reports[i]);
+  notifyStatusChange(reports[i], s); // fire-and-forget email
   if(document.getElementById('page-dashboard').classList.contains('active')) renderDash(); else renderAll();
 }
 
@@ -1877,7 +2040,10 @@ function renderFeedbackBlock(r, i) {
   </div>`;
 }
 function closeDetail() { document.getElementById('detailModal').classList.remove('open'); }
-document.getElementById('detailModal').addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
+document.addEventListener('DOMContentLoaded', () => {
+  const dm = document.getElementById('detailModal');
+  if (dm) dm.addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
+});
 
 // ══════════════════════════════════════════════════════════
 //  QR CODE
@@ -2015,6 +2181,7 @@ async function submitInvReport() {
   const btn = document.querySelector('#page-sioreport .sbtn.sio-btn');
   if (btn) { btn.disabled=true; btn.textContent='⏳ Saving...'; }
   await saveReport(r);
+  notifyInvReportSubmitted(r); // fire-and-forget email
   if (btn) { btn.disabled=false; btn.textContent='📨 Submit Investigation Report'; }
   const msg = document.getElementById('inv-saved-msg');
   if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 3000); }
@@ -2055,6 +2222,7 @@ async function confirmAssignSio() {
   const msg = document.getElementById('sio-assign-msg');
   msg.style.display = 'none';
   await saveReport(r);
+  if (sel) notifySioAssigned(r, sel); // fire-and-forget email
   msg.textContent = sel ? `✓ Assigned to ${sel}` : '✓ SIO assignment removed';
   msg.style.color = 'var(--accent)';
   msg.style.display = 'block';
