@@ -7,30 +7,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#0a0c0f; --surface:#111318; --surface2:#181c24;
-    --border:#1e2430; --border2:#2a3040;
-    --accent:#00e5a0; --accent2:#00b87d;
-    --adm:#7b8cff; --adm2:#5a6adf;
-    --sa:#f5c542; --sa2:#c9960e;
-    --tm:#b06fff; --tm2:#8844dd;
-    --danger:#ff4d6a; --warn:#ffaa00;
-    --sio:#00cfff; --sio2:#009bcc;
-    --text:#e8ecf0; --text2:#8896a8; --text3:#4a5568;
-    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    --bg:#07090d; --surface:#0f1219; --surface2:#161b25;
+    --border:#232c3a; --border2:#2e3a4e;
+    --accent:#00f0a8; --accent2:#00c487;
+    --adm:#8b9dff; --adm2:#6070f0;
+    --sa:#ffd04a; --sa2:#d9a010;
+    --tm:#c07fff; --tm2:#9350e8;
+    --danger:#ff4f6d; --warn:#ffb800;
+    --sio:#00d8ff; --sio2:#00a8cc;
+    --text:#f0f4f8; --text2:#a8b8cc; --text3:#637080;
+    --mono:'IBM Plex Mono','Courier New',monospace; --sans:'IBM Plex Sans','Segoe UI',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:12px;min-height:100vh;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,160,0.012) 2px,rgba(0,229,160,0.012) 4px);pointer-events:none;z-index:999;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;overflow-x:hidden;letter-spacing:0.01em;}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,168,0.006) 2px,rgba(0,240,168,0.006) 4px);pointer-events:none;z-index:999;}
 
   /* ─── ROLE SCREEN ─────────────────────────────────────── */
   #roleScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:40px;}
   .rs-logo{text-align:center;}
   .rs-logo svg{width:58px;height:58px;display:block;margin:0 auto 14px;}
-  .rs-logo h1{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
-  .rs-logo p{font-family:var(--mono);font-size:12px;color:var(--text3);letter-spacing:0.06em;margin-top:4px;}
+  .rs-logo h1{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
+  .rs-logo p{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.06em;margin-top:4px;}
   .rs-cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
   .rs-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:28px 32px;width:190px;text-align:center;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:12px;}
   .rs-card:hover{transform:translateY(-3px);}
@@ -40,7 +40,7 @@
   .rs-card h2{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
   .rs-card.uc h2{color:var(--accent);}
   .rs-card.ac h2{color:var(--adm);}
-  .rs-card p{font-size:12px;color:var(--text3);line-height:1.5;}
+  .rs-card p{font-size:12px;color:var(--text2);line-height:1.5;}
   .no-pass{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:2px;padding:3px 7px;text-transform:uppercase;letter-spacing:0.06em;}
 
   /* ─── LOGIN ────────────────────────────────────────────── */
@@ -49,10 +49,10 @@
   .login-back:hover{color:var(--text2);}
   .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:30px;width:360px;display:flex;flex-direction:column;gap:16px;}
   .ltitle{font-family:var(--mono);font-size:14px;letter-spacing:0.1em;text-transform:uppercase;padding-bottom:13px;border-bottom:1px solid var(--border);color:var(--adm);}
-  .login-box label{font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;}
-  .login-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color 0.2s;}
+  .login-box label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:500;}
+  .login-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;}
   .login-box input:focus{border-color:var(--adm);}
-  .lhint{font-family:var(--mono);font-size:14px;color:var(--text3);text-align:center;}
+  .lhint{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;}
   .lerr{font-family:var(--mono);font-size:12px;color:var(--danger);text-align:center;display:none;padding:8px;background:rgba(255,77,106,0.07);border:1px solid rgba(255,77,106,0.2);border-radius:3px;}
   .btn-a{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:12px;width:100%;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .btn-a:hover{background:var(--adm2);}
@@ -116,13 +116,13 @@
   .dsa{background:var(--sa);box-shadow:0 0 7px var(--sa);}
   .dtm{background:var(--tm);box-shadow:0 0 7px var(--tm);}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
-  .hb h1{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;}
+  .hb h1{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;}
   .hb h1.u{color:var(--accent);}
   .hb h1.a{color:var(--adm);}
   .hb h1.sa{color:var(--sa);}
   .hb h1.tm{color:var(--tm);}
   .hnav{display:flex;gap:4px;flex-wrap:wrap;}
-  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:14px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;font-weight:500;}
   .nb:hover{border-color:var(--border2);color:var(--text);}
   .nb.au{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,0.06);}
   .nb.aa{border-color:var(--adm);color:var(--adm);background:rgba(123,140,255,0.06);}
@@ -140,7 +140,7 @@
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
-  .ptitle{font-family:var(--mono);font-size:12px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+  .ptitle{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-weight:600;}
   .ptitle::before{content:'';display:block;width:14px;height:1px;}
   .ptitle.u::before{background:var(--accent);}
   .ptitle.a::before{background:var(--adm);}
@@ -151,16 +151,16 @@
   .fg{display:flex;flex-direction:column;gap:20px;}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .field{display:flex;flex-direction:column;gap:6px;}
-  .field label{font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;}
-  .field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color 0.2s;width:100%;}
+  .field label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
+  .field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
   .field textarea{resize:vertical;min-height:120px;line-height:1.6;}
   .field select{appearance:none;cursor:pointer;}
-  .fhint{font-family:var(--mono);font-size:14px;color:var(--text3);line-height:1.5;}
+  .fhint{font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.5;}
   .anotice{background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;}
   .anotice .ic{color:var(--accent);font-size:14px;flex-shrink:0;margin-top:1px;}
-  .anotice p{font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
-  .anotice p strong{color:var(--accent);font-weight:500;}
+  .anotice p{font-size:13px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
+  .anotice p strong{color:var(--accent);font-weight:600;}
   .sevs{display:flex;gap:8px;}
   .so{flex:1;padding:8px;border:1px solid var(--border);border-radius:3px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:14px;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;color:var(--text3);}
   .so.low:hover,.so.low.sel{border-color:#00c8a0;color:#00c8a0;background:rgba(0,200,160,0.06);}
@@ -175,7 +175,7 @@
   .flist{display:flex;flex-direction:column;gap:5px;margin-top:7px;}
   .fi{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:7px 11px;font-family:var(--mono);font-size:12px;color:var(--text2);}
   .fi .rmf{color:var(--danger);cursor:pointer;background:none;border:none;font-size:14px;}
-  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
+  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:11px 22px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
   .sbtn:hover{background:var(--accent2);transform:translateY(-1px);}
   .sbtn.sa-btn{background:var(--sa);color:#000;}
   .sbtn.sa-btn:hover{background:var(--sa2);}
@@ -199,14 +199,14 @@
   .rcard:hover{border-color:var(--border2);}
   .rcard.readonly{cursor:default;}
   .rcid{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.15);border-radius:2px;padding:4px 9px;white-space:nowrap;align-self:center;}
-  .rcb h3{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;}
-  .rcb p{font-size:14px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .rcb h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .rcb p{font-size:13px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .rcm{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
   .sevb{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid;}
   .sevb.low{color:#00c8a0;border-color:#00c8a0;background:rgba(0,200,160,0.08);}
   .sevb.medium{color:var(--warn);border-color:var(--warn);background:rgba(255,170,0,0.08);}
   .sevb.high{color:var(--danger);border-color:var(--danger);background:rgba(255,77,106,0.08);}
-  .rdate{font-family:var(--mono);font-size:14px;color:var(--text3);}
+  .rdate{font-family:var(--mono);font-size:11px;color:var(--text2);}
   .stbadge{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
   .stbadge.new{background:rgba(0,229,160,0.1);color:var(--accent);}
   .stbadge.reviewing{background:rgba(255,170,0,0.1);color:var(--warn);}
@@ -223,7 +223,7 @@
   /* ─── ADMIN STATS ──────────────────────────────────────── */
   .srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:26px;}
   .scard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:15px 17px;}
-  .scard .sl{font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
+  .scard .sl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
   .scard .sv{font-family:var(--mono);font-size:20px;font-weight:600;}
   .scard.tall .sv{color:var(--text);}
   .scard.snew .sv{color:var(--accent);}
@@ -234,11 +234,11 @@
   /* ─── TOP MANAGEMENT ANALYTICS ─────────────────────────── */
   .tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
   .tm-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;}
-  .tm-panel-title{font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .tm-panel-title{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:600;}
   .tm-panel-title::before{content:'';display:block;width:10px;height:1px;background:var(--tm);}
   .bar-row{display:flex;flex-direction:column;gap:10px;}
   .bar-item{display:flex;flex-direction:column;gap:5px;}
-  .bar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:14px;color:var(--text2);}
+  .bar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--text2);}
   .bar-label span:last-child{color:var(--tm);}
   .bar-track{background:var(--bg);border-radius:2px;height:5px;overflow:hidden;}
   .bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--tm2),var(--tm));transition:width 0.6s ease;}
@@ -264,7 +264,7 @@
   .notice-tm p strong{color:var(--tm);}
 
   /* ─── ADMIN NOTE ───────────────────────────────────────── */
-  .nota{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:8px 12px;color:var(--text2);font-family:var(--mono);font-size:14px;width:100%;outline:none;resize:vertical;min-height:70px;transition:border-color 0.2s;}
+  .nota{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:13px;width:100%;outline:none;resize:vertical;min-height:70px;transition:border-color 0.2s;}
   .nota:focus{border-color:var(--adm);}
   .notebtn{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:7px 15px;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .notebtn:hover{background:var(--adm2);}
@@ -277,8 +277,8 @@
   .mbox{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;width:100%;max-width:580px;max-height:82vh;overflow-y:auto;padding:26px;display:flex;flex-direction:column;gap:17px;}
   .mbox h2{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--adm);}
   .mrow{display:grid;grid-template-columns:100px 1fr;gap:10px;border-top:1px solid var(--border);padding-top:13px;font-size:12px;}
-  .mrow .lbl{font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding-top:2px;}
-  .mrow .val{color:var(--text2);line-height:1.6;word-break:break-word;}
+  .mrow .lbl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;padding-top:2px;font-weight:500;}
+  .mrow .val{color:var(--text);line-height:1.6;word-break:break-word;font-size:13px;}
   .mclose{background:none;border:1px solid var(--border2);border-radius:3px;padding:7px 15px;color:var(--text2);font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;align-self:flex-end;transition:all 0.15s;}
   .mclose:hover{border-color:var(--danger);color:var(--danger);}
 
@@ -325,8 +325,8 @@
   /* ─── USER MANAGEMENT ──────────────────────────────────── */
   .user-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
   .user-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:14px 18px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;}
-  .user-info .un{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:3px;}
-  .user-info .ud{font-family:var(--mono);font-size:14px;color:var(--text3);}
+  .user-info .un{font-family:var(--mono);font-size:13px;color:var(--text);margin-bottom:3px;}
+  .user-info .ud{font-family:var(--mono);font-size:11px;color:var(--text2);}
   .role-tag{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:0.06em;}
   .role-tag.superadmin{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .role-tag.admin{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
@@ -382,19 +382,19 @@
 
   /* ─── LIGHT THEME OVERRIDES ────────────────────────────── */
   [data-theme="light"]{
-    --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5;
-    --border:#cdd7e3; --border2:#b8c8d8;
-    --text:#1a2232; --text2:#4a5568; --text3:#718096;
-    --accent:#00a372; --accent2:#007a56;
-    --adm:#4a5ce8; --adm2:#3447c0;
-    --sa:#b07a00; --sa2:#8a5f00;
-    --tm:#7a3fd6; --tm2:#5e2dab;
-    --danger:#d9294a; --warn:#c07a00;
-    --sio:#0099cc; --sio2:#006fa0;
+    --bg:#f5f7fa; --surface:#ffffff; --surface2:#eaeff5;
+    --border:#c4d0de; --border2:#a8bace;
+    --text:#0f1827; --text2:#374558; --text3:#5e7080;
+    --accent:#007a55; --accent2:#005c3e;
+    --adm:#3a4dd6; --adm2:#2838b0;
+    --sa:#a06800; --sa2:#7a4e00;
+    --tm:#6b2dc8; --tm2:#4e1fa0;
+    --danger:#c8183a; --warn:#b06000;
+    --sio:#006fa0; --sio2:#004e78;
   }
   [data-theme="light"] body{background:var(--bg);}
   [data-theme="light"] body::before{display:none;}
-  [data-theme="light"] header{background:rgba(240,244,248,0.97)!important;box-shadow:0 1px 0 var(--border);}
+  [data-theme="light"] header{background:rgba(245,247,250,0.98)!important;box-shadow:0 1px 0 var(--border);}
   [data-theme="light"] #roleScreen,[data-theme="light"] #loginScreen{background:var(--bg);}
   [data-theme="light"] .login-box input,[data-theme="light"] .add-user-panel input,
   [data-theme="light"] .add-user-panel select,[data-theme="light"] .cat-add-row input,
@@ -471,7 +471,7 @@
       <span class="rpill tm">Top Mgmt</span>&nbsp;
       <span class="rpill sio">SIO</span>
     </div>
-    <div class="lhint" style="margin-top:4px;font-size:13px;color:var(--text3);">Default accounts — superadmin / super123 &nbsp;|&nbsp; admin / admin123 &nbsp;|&nbsp; topmgmt / topmgmt123 &nbsp;|&nbsp; sio1 / sio123</div>
+    <div class="lhint" style="margin-top:4px;font-size:11px;color:var(--text2);">Default accounts — superadmin / super123 &nbsp;|&nbsp; admin / admin123 &nbsp;|&nbsp; topmgmt / topmgmt123 &nbsp;|&nbsp; sio1 / sio123</div>
     <div class="lerr" id="lerr">Invalid username or password. Access denied.</div>
   </div>
 </div>
@@ -829,11 +829,18 @@
   <!-- ── SUPERADMIN: Email / Graph API Config ──── -->
   <div class="page" id="page-mailconfig">
     <div class="ptitle sa">&#9993; Email Notification Settings</div>
-    <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:28px;">
-      <span style="color:var(--sa);font-size:18px;flex-shrink:0;">&#9889;</span>
+
+    <!-- Connection Status Banner -->
+    <div id="mc-status-banner" style="background:rgba(99,112,128,0.1);border:1px solid rgba(99,112,128,0.3);border-radius:4px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--text3);">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--text3);display:inline-block;flex-shrink:0;"></span>
+      <span id="mc-status-text">Microsoft Graph API — Not configured. Fill in credentials below and save to activate email notifications.</span>
+    </div>
+
+    <div style="background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:3px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:28px;">
+      <span style="color:var(--warn);font-size:18px;flex-shrink:0;">&#9889;</span>
       <p style="font-size:13px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
-        Configure <strong style="color:var(--sa);">Microsoft Graph API</strong> to send automated email notifications. You need an Azure AD / Entra ID App Registration with <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 6px;border-radius:2px;">Mail.Send</code> application permission.
-        <br><span style="color:var(--warn);">&#9888; In production, move clientSecret to a backend proxy to avoid exposing credentials.</span>
+        Configure <strong style="color:var(--sa);">Microsoft Graph API</strong> to send automated email notifications via Microsoft 365. You need an Azure Entra ID App Registration with <code style="color:var(--sa);background:rgba(245,197,66,0.1);padding:2px 6px;border-radius:2px;">Mail.Send</code> application permission granted.
+        <br><span style="color:var(--warn);">&#9888; In production, proxy the token request through a backend service to protect credentials.</span>
       </p>
     </div>
 
@@ -915,17 +922,23 @@
     </div>
 
     <!-- Setup Guide -->
-    <div style="margin-top:30px;background:rgba(10,12,15,0.7);border:1px solid var(--border2);border-radius:4px;padding:20px;">
-      <div style="font-family:var(--mono);font-size:13px;color:var(--sa);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">&#128218; Azure Setup Guide</div>
-      <ol style="font-family:var(--mono);font-size:14px;color:var(--text2);line-height:2.2;padding-left:20px;">
-        <li>Go to <strong style="color:var(--text);">portal.azure.com</strong> → Azure Active Directory → App Registrations → <em>New Registration</em></li>
-        <li>Name the app (e.g. <em>SecureReport Mailer</em>), choose <em>Single tenant</em>, click Register</li>
-        <li>Go to <strong style="color:var(--text);">API Permissions</strong> → Add a Permission → Microsoft Graph → Application Permissions → <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 5px;border-radius:2px;">Mail.Send</code> → Grant Admin Consent</li>
-        <li>Go to <strong style="color:var(--text);">Certificates &amp; Secrets</strong> → New Client Secret → copy the <em>Value</em> (shown only once)</li>
-        <li>Paste Tenant ID (Overview), Client ID (Overview), and Secret Value (above) into the fields above</li>
-        <li>Set <strong style="color:var(--text);">Sender Email</strong> to any licensed Microsoft 365 mailbox in your tenant</li>
-        <li>Click <em>Save Configuration</em>, then <em>Send Test Email</em> to verify the setup</li>
+    <div style="margin-top:30px;background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:22px;">
+      <div style="font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;display:flex;align-items:center;gap:10px;"><span style="display:block;width:12px;height:1px;background:var(--sa);"></span>Azure Entra ID Setup Guide</div>
+      <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--warn);">
+        ⚠ Required Azure permission: <code style="background:rgba(255,184,0,0.1);padding:2px 7px;border-radius:2px;color:var(--sa);">Mail.Send</code> (Application Permission) with Admin Consent granted
+      </div>
+      <ol style="font-family:var(--mono);font-size:13px;color:var(--text2);line-height:2.3;padding-left:22px;">
+        <li>Sign in to <strong style="color:var(--text);">portal.azure.com</strong> → <em>Microsoft Entra ID</em> → <em>App Registrations</em> → <strong>New Registration</strong></li>
+        <li>Name the app (e.g. <em>SecureReport Mailer</em>), choose <em>Single tenant</em>, click <strong>Register</strong></li>
+        <li>Go to <strong style="color:var(--text);">API Permissions</strong> → Add Permission → Microsoft Graph → <em>Application Permissions</em> → search <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 5px;border-radius:2px;">Mail.Send</code> → Add → <strong>Grant Admin Consent</strong></li>
+        <li>Go to <strong style="color:var(--text);">Certificates &amp; Secrets</strong> → New Client Secret → set expiry → copy the <strong style="color:var(--warn);">Value</strong> (shown only once — store securely)</li>
+        <li>From <strong style="color:var(--text);">Overview</strong>, copy the <em>Application (client) ID</em> and <em>Directory (tenant) ID</em></li>
+        <li>The <strong style="color:var(--text);">Sender Email</strong> must be a licensed Microsoft 365 mailbox in your tenant (e.g. a shared mailbox or service account)</li>
+        <li>Paste all values above, click <strong style="color:var(--sa);">Save Configuration</strong>, then <strong style="color:var(--sio);">Send Test Email</strong> to verify</li>
       </ol>
+      <div style="margin-top:14px;background:rgba(0,216,255,0.05);border:1px solid rgba(0,216,255,0.18);border-radius:3px;padding:11px 14px;font-family:var(--mono);font-size:12px;color:var(--text3);line-height:1.8;">
+        🔒 <strong style="color:var(--sio);">Security note:</strong> For production deployments, proxy the Graph API token request through a backend server to prevent exposing <code style="color:var(--warn);">clientSecret</code> in the browser. The current configuration is suitable for internal/intranet portals.
+      </div>
     </div>
   </div>
 
@@ -1206,6 +1219,30 @@ function saveMailConfigToStorage(cfg) {
 // Keep a live reference that functions use
 let MAIL_CONFIG = getMailConfig();
 
+function updateMailStatusBanner() {
+  const cfg = getMailConfig();
+  const banner = document.getElementById('mc-status-banner');
+  const text   = document.getElementById('mc-status-text');
+  if (!banner || !text) return;
+  const isConfigured = cfg.tenantId && cfg.clientId && cfg.clientSecret && cfg.senderEmail;
+  if (isConfigured) {
+    banner.style.background = 'rgba(0,240,168,0.07)';
+    banner.style.borderColor = 'rgba(0,240,168,0.28)';
+    banner.querySelector('span').style.background = 'var(--accent)';
+    banner.querySelector('span').style.boxShadow = '0 0 6px var(--accent)';
+    text.style.color = 'var(--accent)';
+    text.textContent = `Microsoft Graph API — Configured ✓  Sender: ${cfg.senderEmail}  |  Recipients: ${[...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[])].length} address(es)`;
+  } else {
+    banner.style.background = 'rgba(99,112,128,0.1)';
+    banner.style.borderColor = 'rgba(99,112,128,0.3)';
+    banner.querySelector('span').style.background = 'var(--text3)';
+    banner.querySelector('span').style.boxShadow = 'none';
+    text.style.color = 'var(--text3)';
+    text.textContent = 'Microsoft Graph API — Not configured. Fill in credentials below and save to activate email notifications.';
+  }
+}
+
+
 // ── Mail Config Page ────────────────────────────────────────
 function renderMailConfigPage() {
   const cfg = getMailConfig();
@@ -1220,6 +1257,7 @@ function renderMailConfigPage() {
   if (el('mc-notifyStatusChange')) el('mc-notifyStatusChange').checked = cfg.notifyStatusChange !== false;
   if (el('mc-notifySioAssigned'))  el('mc-notifySioAssigned').checked  = cfg.notifySioAssigned !== false;
   if (el('mc-notifyInvReport'))    el('mc-notifyInvReport').checked    = cfg.notifyInvReport !== false;
+  updateMailStatusBanner();
 }
 
 function saveMailConfig() {
@@ -1239,6 +1277,7 @@ function saveMailConfig() {
   };
   saveMailConfigToStorage(cfg);
   MAIL_CONFIG = cfg;
+  updateMailStatusBanner();
   const msg = document.getElementById('mc-saved-msg');
   if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
 }
