@@ -22,42 +22,42 @@
     --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;min-height:100vh;overflow-x:hidden;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,160,0.012) 2px,rgba(0,229,160,0.012) 4px);pointer-events:none;z-index:999;}
 
   /* ─── ROLE SCREEN ─────────────────────────────────────── */
   #roleScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:40px;}
   .rs-logo{text-align:center;}
   .rs-logo svg{width:58px;height:58px;display:block;margin:0 auto 14px;}
-  .rs-logo h1{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
-  .rs-logo p{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.06em;margin-top:4px;}
+  .rs-logo h1{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
+  .rs-logo p{font-family:var(--mono);font-size:15px;color:var(--text3);letter-spacing:0.06em;margin-top:4px;}
   .rs-cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
   .rs-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:28px 32px;width:190px;text-align:center;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:12px;}
   .rs-card:hover{transform:translateY(-3px);}
   .rs-card.uc:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(0,229,160,0.1);}
   .rs-card.ac:hover{border-color:var(--adm);box-shadow:0 0 24px rgba(123,140,255,0.12);}
-  .rs-card .rci{font-size:30px;}
-  .rs-card h2{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
+  .rs-card .rci{font-size:32px;}
+  .rs-card h2{font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
   .rs-card.uc h2{color:var(--accent);}
   .rs-card.ac h2{color:var(--adm);}
-  .rs-card p{font-size:11px;color:var(--text3);line-height:1.5;}
-  .no-pass{font-family:var(--mono);font-size:9px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:2px;padding:3px 7px;text-transform:uppercase;letter-spacing:0.06em;}
+  .rs-card p{font-size:15px;color:var(--text3);line-height:1.5;}
+  .no-pass{font-family:var(--mono);font-size:15px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:2px;padding:3px 7px;text-transform:uppercase;letter-spacing:0.06em;}
 
   /* ─── LOGIN ────────────────────────────────────────────── */
   #loginScreen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:190;flex-direction:column;gap:26px;}
-  .login-back{font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.15s;}
+  .login-back{font-family:var(--mono);font-size:16px;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.15s;}
   .login-back:hover{color:var(--text2);}
   .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:30px;width:360px;display:flex;flex-direction:column;gap:16px;}
-  .ltitle{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;padding-bottom:13px;border-bottom:1px solid var(--border);color:var(--adm);}
-  .login-box label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;}
-  .login-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color 0.2s;}
+  .ltitle{font-family:var(--mono);font-size:16px;letter-spacing:0.1em;text-transform:uppercase;padding-bottom:13px;border-bottom:1px solid var(--border);color:var(--adm);}
+  .login-box label{font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;}
+  .login-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;transition:border-color 0.2s;}
   .login-box input:focus{border-color:var(--adm);}
-  .lhint{font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;}
-  .lerr{font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;display:none;padding:8px;background:rgba(255,77,106,0.07);border:1px solid rgba(255,77,106,0.2);border-radius:3px;}
-  .btn-a{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:12px;width:100%;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .lhint{font-family:var(--mono);font-size:16px;color:var(--text3);text-align:center;}
+  .lerr{font-family:var(--mono);font-size:15px;color:var(--danger);text-align:center;display:none;padding:8px;background:rgba(255,77,106,0.07);border:1px solid rgba(255,77,106,0.2);border-radius:3px;}
+  .btn-a{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:12px;width:100%;font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .btn-a:hover{background:var(--adm2);}
   .role-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;}
-  .rpill{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;border:1px solid;letter-spacing:0.06em;text-transform:uppercase;}
+  .rpill{font-family:var(--mono);font-size:15px;padding:3px 8px;border-radius:2px;border:1px solid;letter-spacing:0.06em;text-transform:uppercase;}
   .rpill.sa{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .rpill.adm{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
   .rpill.tm{color:var(--tm);border-color:rgba(176,111,255,0.3);background:rgba(176,111,255,0.06);}
@@ -75,15 +75,15 @@
   .sbtn.sio-btn:hover{background:var(--sio2);}
 
   /* SIO assignment badge */
-  .sio-assign-badge{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:2px;border:1px solid rgba(0,207,255,0.3);background:rgba(0,207,255,0.07);color:var(--sio);display:inline-flex;align-items:center;gap:5px;}
+  .sio-assign-badge{font-family:var(--mono);font-size:15px;padding:3px 9px;border-radius:2px;border:1px solid rgba(0,207,255,0.3);background:rgba(0,207,255,0.07);color:var(--sio);display:inline-flex;align-items:center;gap:5px;}
 
   /* Investigation report */
   .inv-section{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:14px;}
-  .inv-section-title{font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .inv-section-title{font-family:var(--mono);font-size:16px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .inv-section-title::before{content:'';display:block;width:10px;height:1px;background:var(--sio);}
 
   /* Feedback buttons */
-  .fb-btn{flex:1;padding:12px;border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1px solid;}
+  .fb-btn{flex:1;padding:12px;border-radius:3px;font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1px solid;}
   .fb-btn.satisfied{border-color:rgba(0,229,160,0.4);color:var(--accent);background:rgba(0,229,160,0.06);}
   .fb-btn.satisfied:hover,.fb-btn.satisfied.sel{background:rgba(0,229,160,0.14);border-color:var(--accent);}
   .fb-btn.unsatisfied{border-color:rgba(255,77,106,0.4);color:var(--danger);background:rgba(255,77,106,0.06);}
@@ -93,8 +93,8 @@
   .media-upzone{border:1px dashed var(--sio);border-radius:3px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:rgba(0,207,255,0.02);}
   .media-upzone:hover{background:rgba(0,207,255,0.05);}
   .media-upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-  .media-upzone p{font-family:var(--mono);font-size:11px;color:var(--sio);}
-  .media-upzone p span{color:var(--text2);font-size:10px;}
+  .media-upzone p{font-family:var(--mono);font-size:15px;color:var(--sio);}
+  .media-upzone p span{color:var(--text2);font-size:16px;}
 
   /* SIO case card */
   .case-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:17px 19px;cursor:pointer;transition:border-color 0.15s;}
@@ -103,7 +103,7 @@
 
   /* Assign SIO row in admin */
   .assign-sio-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
-  .assign-sio-row select{background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;flex:1;min-width:150px;}
+  .assign-sio-row select{background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;flex:1;min-width:150px;}
   .assign-sio-row select:focus{border-color:var(--sio);}
 
   /* ─── APP HEADER ───────────────────────────────────────── */
@@ -116,31 +116,31 @@
   .dsa{background:var(--sa);box-shadow:0 0 7px var(--sa);}
   .dtm{background:var(--tm);box-shadow:0 0 7px var(--tm);}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
-  .hb h1{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;}
+  .hb h1{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;}
   .hb h1.u{color:var(--accent);}
   .hb h1.a{color:var(--adm);}
   .hb h1.sa{color:var(--sa);}
   .hb h1.tm{color:var(--tm);}
   .hnav{display:flex;gap:4px;flex-wrap:wrap;}
-  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:16px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
   .nb:hover{border-color:var(--border2);color:var(--text);}
   .nb.au{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,0.06);}
   .nb.aa{border-color:var(--adm);color:var(--adm);background:rgba(123,140,255,0.06);}
   .nb.asa{border-color:var(--sa);color:var(--sa);background:rgba(245,197,66,0.06);}
   .nb.atm{border-color:var(--tm);color:var(--tm);background:rgba(176,111,255,0.06);}
   .hr{display:flex;align-items:center;gap:10px;}
-  .rbadge{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;border-radius:2px;padding:4px 10px;text-transform:uppercase;border:1px solid;}
+  .rbadge{font-family:var(--mono);font-size:16px;letter-spacing:0.08em;border-radius:2px;padding:4px 10px;text-transform:uppercase;border:1px solid;}
   .rbadge.u{color:var(--accent);background:rgba(0,229,160,0.08);border-color:rgba(0,229,160,0.2);}
   .rbadge.a{color:var(--adm);background:rgba(123,140,255,0.08);border-color:rgba(123,140,255,0.2);}
   .rbadge.sa{color:var(--sa);background:rgba(245,197,66,0.08);border-color:rgba(245,197,66,0.2);}
   .rbadge.tm{color:var(--tm);background:rgba(176,111,255,0.08);border-color:rgba(176,111,255,0.2);}
-  .lkbtn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;}
+  .lkbtn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;color:var(--text3);font-family:var(--mono);font-size:16px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;}
   .lkbtn:hover{border-color:var(--danger);color:var(--danger);}
 
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
-  .ptitle{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+  .ptitle{font-family:var(--mono);font-size:15px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
   .ptitle::before{content:'';display:block;width:14px;height:1px;}
   .ptitle.u::before{background:var(--accent);}
   .ptitle.a::before{background:var(--adm);}
@@ -151,31 +151,31 @@
   .fg{display:flex;flex-direction:column;gap:20px;}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .field{display:flex;flex-direction:column;gap:6px;}
-  .field label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;}
-  .field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color 0.2s;width:100%;}
+  .field label{font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;}
+  .field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--sans);font-size:16px;outline:none;transition:border-color 0.2s;width:100%;}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
   .field textarea{resize:vertical;min-height:120px;line-height:1.6;}
   .field select{appearance:none;cursor:pointer;}
-  .fhint{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.5;}
+  .fhint{font-family:var(--mono);font-size:16px;color:var(--text3);line-height:1.5;}
   .anotice{background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;}
-  .anotice .ic{color:var(--accent);font-size:14px;flex-shrink:0;margin-top:1px;}
-  .anotice p{font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
+  .anotice .ic{color:var(--accent);font-size:16px;flex-shrink:0;margin-top:1px;}
+  .anotice p{font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
   .anotice p strong{color:var(--accent);font-weight:500;}
   .sevs{display:flex;gap:8px;}
-  .so{flex:1;padding:8px;border:1px solid var(--border);border-radius:3px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;color:var(--text3);}
+  .so{flex:1;padding:8px;border:1px solid var(--border);border-radius:3px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:16px;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;color:var(--text3);}
   .so.low:hover,.so.low.sel{border-color:#00c8a0;color:#00c8a0;background:rgba(0,200,160,0.06);}
   .so.med:hover,.so.med.sel{border-color:var(--warn);color:var(--warn);background:rgba(255,170,0,0.06);}
   .so.high:hover,.so.high.sel{border-color:var(--danger);color:var(--danger);background:rgba(255,77,106,0.06);}
   .upzone{border:1px dashed var(--border2);border-radius:3px;padding:22px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;}
   .upzone:hover{border-color:var(--accent);background:rgba(0,229,160,0.02);}
   .upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-  .upzone .upi{font-size:26px;margin-bottom:7px;}
-  .upzone p{font-family:var(--mono);font-size:11px;color:var(--text2);}
+  .upzone .upi{font-size:28px;margin-bottom:7px;}
+  .upzone p{font-family:var(--mono);font-size:15px;color:var(--text2);}
   .upzone p span{color:var(--accent);}
   .flist{display:flex;flex-direction:column;gap:5px;margin-top:7px;}
-  .fi{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:7px 11px;font-family:var(--mono);font-size:11px;color:var(--text2);}
-  .fi .rmf{color:var(--danger);cursor:pointer;background:none;border:none;font-size:14px;}
-  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
+  .fi{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:7px 11px;font-family:var(--mono);font-size:15px;color:var(--text2);}
+  .fi .rmf{color:var(--danger);cursor:pointer;background:none;border:none;font-size:16px;}
+  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
   .sbtn:hover{background:var(--accent2);transform:translateY(-1px);}
   .sbtn.sa-btn{background:var(--sa);color:#000;}
   .sbtn.sa-btn:hover{background:var(--sa2);}
@@ -190,29 +190,29 @@
   #sc{display:none;background:var(--surface);border:1px solid rgba(0,229,160,0.18);border-radius:4px;padding:34px;text-align:center;flex-direction:column;align-items:center;gap:13px;}
   #sc.show{display:flex;}
   #sc h2{font-family:var(--mono);font-size:15px;color:var(--accent);letter-spacing:0.08em;}
-  #sc p{font-size:13px;color:var(--text2);line-height:1.6;}
-  .rid{background:var(--bg);border:1px solid var(--accent);border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);letter-spacing:0.15em;}
+  #sc p{font-size:15px;color:var(--text2);line-height:1.6;}
+  .rid{background:var(--bg);border:1px solid var(--accent);border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:22px;font-weight:600;color:var(--accent);letter-spacing:0.15em;}
 
   /* ─── REPORT CARDS ─────────────────────────────────────── */
   .rgrid{display:flex;flex-direction:column;gap:10px;}
   .rcard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:17px 19px;cursor:pointer;transition:border-color 0.15s;display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:start;}
   .rcard:hover{border-color:var(--border2);}
   .rcard.readonly{cursor:default;}
-  .rcid{font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.15);border-radius:2px;padding:4px 9px;white-space:nowrap;align-self:center;}
-  .rcb h3{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;}
-  .rcb p{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .rcid{font-family:var(--mono);font-size:15px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.15);border-radius:2px;padding:4px 9px;white-space:nowrap;align-self:center;}
+  .rcb h3{font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px;}
+  .rcb p{font-size:16px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .rcm{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-  .sevb{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid;}
+  .sevb{font-family:var(--mono);font-size:15px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid;}
   .sevb.low{color:#00c8a0;border-color:#00c8a0;background:rgba(0,200,160,0.08);}
   .sevb.medium{color:var(--warn);border-color:var(--warn);background:rgba(255,170,0,0.08);}
   .sevb.high{color:var(--danger);border-color:var(--danger);background:rgba(255,77,106,0.08);}
-  .rdate{font-family:var(--mono);font-size:10px;color:var(--text3);}
-  .stbadge{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+  .rdate{font-family:var(--mono);font-size:16px;color:var(--text3);}
+  .stbadge{font-family:var(--mono);font-size:15px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
   .stbadge.new{background:rgba(0,229,160,0.1);color:var(--accent);}
   .stbadge.reviewing{background:rgba(255,170,0,0.1);color:var(--warn);}
   .stbadge.resolved{background:rgba(74,85,104,0.18);color:var(--text3);}
   .stup{display:flex;gap:5px;margin-top:5px;}
-  .stup button{background:none;border:1px solid var(--border);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
+  .stup button{background:none;border:1px solid var(--border);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:15px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
   .stup button:hover{border-color:var(--adm);color:var(--adm);}
 
   /* ─── TRACK ────────────────────────────────────────────── */
@@ -223,8 +223,8 @@
   /* ─── ADMIN STATS ──────────────────────────────────────── */
   .srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:26px;}
   .scard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:15px 17px;}
-  .scard .sl{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
-  .scard .sv{font-family:var(--mono);font-size:26px;font-weight:600;}
+  .scard .sl{font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
+  .scard .sv{font-family:var(--mono);font-size:28px;font-weight:600;}
   .scard.tall .sv{color:var(--text);}
   .scard.snew .sv{color:var(--accent);}
   .scard.srev .sv{color:var(--warn);}
@@ -234,11 +234,11 @@
   /* ─── TOP MANAGEMENT ANALYTICS ─────────────────────────── */
   .tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
   .tm-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;}
-  .tm-panel-title{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .tm-panel-title{font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
   .tm-panel-title::before{content:'';display:block;width:10px;height:1px;background:var(--tm);}
   .bar-row{display:flex;flex-direction:column;gap:10px;}
   .bar-item{display:flex;flex-direction:column;gap:5px;}
-  .bar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text2);}
+  .bar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:16px;color:var(--text2);}
   .bar-label span:last-child{color:var(--tm);}
   .bar-track{background:var(--bg);border-radius:2px;height:5px;overflow:hidden;}
   .bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--tm2),var(--tm));transition:width 0.6s ease;}
@@ -248,7 +248,7 @@
   .sev-split{display:flex;gap:12px;}
   .sev-box{flex:1;background:var(--bg);border-radius:3px;padding:14px 10px;text-align:center;border:1px solid var(--border);}
   .sev-box .sv2{font-family:var(--mono);font-size:22px;font-weight:600;margin-bottom:4px;}
-  .sev-box .sl2{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+  .sev-box .sl2{font-family:var(--mono);font-size:15px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
   .sev-box.low .sv2{color:#00c8a0;}
   .sev-box.medium .sv2{color:var(--warn);}
   .sev-box.high .sv2{color:var(--danger);}
@@ -259,98 +259,98 @@
   .trend-label{font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;}
   .recent-ro .rcard{cursor:default;}
   .notice-tm{background:rgba(176,111,255,0.04);border:1px solid rgba(176,111,255,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;}
-  .notice-tm .ic{color:var(--tm);font-size:14px;flex-shrink:0;}
-  .notice-tm p{font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
+  .notice-tm .ic{color:var(--tm);font-size:16px;flex-shrink:0;}
+  .notice-tm p{font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
   .notice-tm p strong{color:var(--tm);}
 
   /* ─── ADMIN NOTE ───────────────────────────────────────── */
-  .nota{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:8px 12px;color:var(--text2);font-family:var(--mono);font-size:12px;width:100%;outline:none;resize:vertical;min-height:70px;transition:border-color 0.2s;}
+  .nota{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:8px 12px;color:var(--text2);font-family:var(--mono);font-size:16px;width:100%;outline:none;resize:vertical;min-height:70px;transition:border-color 0.2s;}
   .nota:focus{border-color:var(--adm);}
-  .notebtn{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:7px 15px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .notebtn{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:7px 15px;font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .notebtn:hover{background:var(--adm2);}
-  .delbtn{background:none;border:1px solid rgba(255,77,106,0.3);border-radius:3px;padding:7px 13px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
+  .delbtn{background:none;border:1px solid rgba(255,77,106,0.3);border-radius:3px;padding:7px 13px;font-family:var(--mono);font-size:16px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .delbtn:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
 
   /* ─── MODAL ────────────────────────────────────────────── */
   #detailModal,#pwModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;align-items:center;justify-content:center;padding:22px;}
   #detailModal.open,#pwModal.open{display:flex;}
   .mbox{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;width:100%;max-width:580px;max-height:82vh;overflow-y:auto;padding:26px;display:flex;flex-direction:column;gap:17px;}
-  .mbox h2{font-family:var(--mono);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--adm);}
-  .mrow{display:grid;grid-template-columns:100px 1fr;gap:10px;border-top:1px solid var(--border);padding-top:13px;font-size:13px;}
-  .mrow .lbl{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding-top:2px;}
+  .mbox h2{font-family:var(--mono);font-size:15px;letter-spacing:0.1em;text-transform:uppercase;color:var(--adm);}
+  .mrow{display:grid;grid-template-columns:100px 1fr;gap:10px;border-top:1px solid var(--border);padding-top:13px;font-size:15px;}
+  .mrow .lbl{font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding-top:2px;}
   .mrow .val{color:var(--text2);line-height:1.6;word-break:break-word;}
-  .mclose{background:none;border:1px solid var(--border2);border-radius:3px;padding:7px 15px;color:var(--text2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;align-self:flex-end;transition:all 0.15s;}
+  .mclose{background:none;border:1px solid var(--border2);border-radius:3px;padding:7px 15px;color:var(--text2);font-family:var(--mono);font-size:16px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;align-self:flex-end;transition:all 0.15s;}
   .mclose:hover{border-color:var(--danger);color:var(--danger);}
 
   /* ─── PASSWORD MODAL ───────────────────────────────────── */
   .pw-box{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;width:100%;max-width:400px;padding:26px;display:flex;flex-direction:column;gap:16px;}
-  .pw-box h2{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sa);padding-bottom:12px;border-bottom:1px solid var(--border);}
-  .pw-box label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:5px;}
-  .pw-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;}
+  .pw-box h2{font-family:var(--mono);font-size:16px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sa);padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .pw-box label{font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:5px;}
+  .pw-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;}
   .pw-box input:focus{border-color:var(--sa);}
-  .pw-err{font-family:var(--mono);font-size:10px;color:var(--danger);display:none;}
-  .pw-ok{font-family:var(--mono);font-size:10px;color:var(--accent);display:none;}
+  .pw-err{font-family:var(--mono);font-size:16px;color:var(--danger);display:none;}
+  .pw-ok{font-family:var(--mono);font-size:16px;color:var(--accent);display:none;}
 
   /* ─── QR CODE ──────────────────────────────────────────── */
   .qr-wrap{display:flex;flex-direction:column;gap:22px;}
   .qr-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:28px;display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
   .qr-canvas-wrap{background:#fff;border-radius:4px;padding:14px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
   .qr-info{display:flex;flex-direction:column;gap:13px;flex:1;min-width:220px;}
-  .qr-info h2{font-family:var(--mono);font-size:13px;color:var(--adm);letter-spacing:0.08em;text-transform:uppercase;}
-  .qr-info p{font-size:13px;color:var(--text2);line-height:1.7;}
-  .qr-info ul{font-size:12px;color:var(--text2);line-height:2;padding-left:18px;font-family:var(--mono);}
+  .qr-info h2{font-family:var(--mono);font-size:15px;color:var(--adm);letter-spacing:0.08em;text-transform:uppercase;}
+  .qr-info p{font-size:15px;color:var(--text2);line-height:1.7;}
+  .qr-info ul{font-size:16px;color:var(--text2);line-height:2;padding-left:18px;font-family:var(--mono);}
   .qr-info ul li::marker{color:var(--accent);}
   .qr-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
-  .btn-print{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .btn-print{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .btn-print:hover{background:var(--adm2);}
-  .btn-dl{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+  .btn-dl{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:15px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
   .btn-dl:hover{border-color:var(--adm);color:var(--adm);}
-  .qr-url{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;font-family:var(--mono);font-size:11px;color:var(--accent);word-break:break-all;}
-  .qr-tip{background:rgba(123,140,255,0.05);border:1px solid rgba(123,140,255,0.15);border-radius:3px;padding:13px 16px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;}
+  .qr-url{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;font-family:var(--mono);font-size:15px;color:var(--accent);word-break:break-all;}
+  .qr-tip{background:rgba(123,140,255,0.05);border:1px solid rgba(123,140,255,0.15);border-radius:3px;padding:13px 16px;font-family:var(--mono);font-size:15px;color:var(--text2);line-height:1.8;}
   .qr-tip strong{color:var(--adm);}
 
   /* ─── CATEGORY MANAGEMENT ──────────────────────────────── */
   .cat-list{display:flex;flex-direction:column;gap:7px;margin-bottom:24px;}
   .cat-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-  .cat-item .cat-name{font-family:var(--mono);font-size:13px;color:var(--text);}
-  .cat-item .cat-tag{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:2px;background:rgba(245,197,66,0.08);color:var(--sa);border:1px solid rgba(245,197,66,0.2);}
-  .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
+  .cat-item .cat-name{font-family:var(--mono);font-size:15px;color:var(--text);}
+  .cat-item .cat-tag{font-family:var(--mono);font-size:15px;padding:2px 7px;border-radius:2px;background:rgba(245,197,66,0.08);color:var(--sa);border:1px solid rgba(245,197,66,0.2);}
+  .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:15px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .cat-item .cat-del:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
   .cat-add-row{display:flex;gap:10px;align-items:center;}
-  .cat-add-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;}
+  .cat-add-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;}
   .cat-add-row input:focus{border-color:var(--sa);}
   .section-sep{border:none;border-top:1px solid var(--border);margin:28px 0;}
-  .sec-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;}
+  .sec-label{font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;}
 
   /* ─── USER MANAGEMENT ──────────────────────────────────── */
   .user-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
   .user-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:14px 18px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;}
-  .user-info .un{font-family:var(--mono);font-size:13px;color:var(--text);margin-bottom:3px;}
-  .user-info .ud{font-family:var(--mono);font-size:10px;color:var(--text3);}
-  .role-tag{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:0.06em;}
+  .user-info .un{font-family:var(--mono);font-size:15px;color:var(--text);margin-bottom:3px;}
+  .user-info .ud{font-family:var(--mono);font-size:16px;color:var(--text3);}
+  .role-tag{font-family:var(--mono);font-size:15px;padding:3px 9px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:0.06em;}
   .role-tag.superadmin{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .role-tag.admin{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
   .role-tag.topmanagement{color:var(--tm);border-color:rgba(176,111,255,0.3);background:rgba(176,111,255,0.06);}
   .user-actions{display:flex;gap:6px;}
-  .user-actions button{background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
+  .user-actions button{background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:15px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
   .user-actions .rpw-btn:hover{border-color:var(--sa);color:var(--sa);}
   .user-actions .del-btn:hover{border-color:var(--danger);color:var(--danger);}
   .add-user-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:16px;}
-  .add-user-panel .au-title{font-family:var(--mono);font-size:11px;color:var(--sa);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;}
-  .add-user-panel input,.add-user-panel select{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
+  .add-user-panel .au-title{font-family:var(--mono);font-size:15px;color:var(--sa);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;}
+  .add-user-panel input,.add-user-panel select{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;width:100%;}
   .add-user-panel input:focus,.add-user-panel select:focus{border-color:var(--sa);}
   .add-user-panel select{appearance:none;cursor:pointer;}
-  .add-user-panel label{font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:5px;}
-  .au-err{font-family:var(--mono);font-size:10px;color:var(--danger);display:none;}
-  .au-ok{font-family:var(--mono);font-size:10px;color:var(--accent);display:none;}
+  .add-user-panel label{font-family:var(--mono);font-size:16px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:5px;}
+  .au-err{font-family:var(--mono);font-size:16px;color:var(--danger);display:none;}
+  .au-ok{font-family:var(--mono);font-size:16px;color:var(--accent);display:none;}
 
   /* ─── FILTERS ──────────────────────────────────────────── */
   .frow2{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
-  .fsel{background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-family:var(--mono);font-size:11px;padding:6px 11px;outline:none;cursor:pointer;}
+  .fsel{background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-family:var(--mono);font-size:15px;padding:6px 11px;outline:none;cursor:pointer;}
 
   /* ─── MISC ─────────────────────────────────────────────── */
-  .empty{text-align:center;padding:56px 0;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:0.05em;}
-  .empty .ei{font-size:30px;margin-bottom:11px;opacity:0.35;}
+  .empty{text-align:center;padding:56px 0;color:var(--text3);font-family:var(--mono);font-size:16px;letter-spacing:0.05em;}
+  .empty .ei{font-size:32px;margin-bottom:11px;opacity:0.35;}
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
@@ -423,7 +423,7 @@
       <span class="rpill tm">Top Mgmt</span>&nbsp;
       <span class="rpill sio">SIO</span>
     </div>
-    <div class="lhint" style="margin-top:4px;font-size:9px;color:var(--text3);">Default accounts — superadmin / super123 &nbsp;|&nbsp; admin / admin123 &nbsp;|&nbsp; topmgmt / topmgmt123 &nbsp;|&nbsp; sio1 / sio123</div>
+    <div class="lhint" style="margin-top:4px;font-size:15px;color:var(--text3);">Default accounts — superadmin / super123 &nbsp;|&nbsp; admin / admin123 &nbsp;|&nbsp; topmgmt / topmgmt123 &nbsp;|&nbsp; sio1 / sio123</div>
     <div class="lerr" id="lerr">Invalid username or password. Access denied.</div>
   </div>
 </div>
@@ -450,8 +450,8 @@
       <p><strong>Your identity is fully protected.</strong> No personal details are required or stored. You will receive a unique Report ID — use it to track your report anonymously at any time.</p>
     </div>
     <div id="track-from-qr" style="display:none;background:rgba(0,229,160,0.03);border:1px solid rgba(0,229,160,0.15);border-radius:4px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Already submitted a report? <span style="color:var(--accent);">Track its status anonymously.</span></div>
-      <button class="sbtn" onclick="switchToTrack()" style="padding:8px 18px;font-size:11px;">&#128269; Track Report</button>
+      <div style="font-family:var(--mono);font-size:15px;color:var(--text2);">Already submitted a report? <span style="color:var(--accent);">Track its status anonymously.</span></div>
+      <button class="sbtn" onclick="switchToTrack()" style="padding:8px 18px;font-size:15px;">&#128269; Track Report</button>
     </div>
     <div id="submitForm" class="fg">
       <div class="frow">
@@ -493,15 +493,15 @@
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <button class="sbtn" onclick="submitReport()">&#9654; Submit Report</button>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Stored securely</span>
+        <span style="font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Stored securely</span>
       </div>
     </div>
     <div id="sc">
-      <div style="font-size:42px;">&#10003;</div>
+      <div style="font-size:48px;">&#10003;</div>
       <h2>Report Submitted Successfully</h2>
       <p>Your report has been recorded. Save the Report ID below — use it to check your report status anonymously at any time.</p>
       <div class="rid" id="sid">RPT-000000</div>
-      <p style="font-size:11px;color:var(--text3);">&#9888; Save this ID — it cannot be recovered if lost</p>
+      <p style="font-size:15px;color:var(--text3);">&#9888; Save this ID — it cannot be recovered if lost</p>
       <button class="sbtn" onclick="resetForm()" style="margin-top:4px;">Submit Another Report</button>
       <button class="sbtn" onclick="showPage('track', document.querySelector('#hnav .nb:nth-child(2)'))" style="margin-top:4px;background:none;border:1px solid rgba(0,229,160,0.35);color:var(--accent);">&#128269; Track a Report</button>
     </div>
@@ -522,7 +522,7 @@
       <button class="sbtn" onclick="trackReport()">&#9654; Check Status</button>
     </div>
     <div class="tres" id="tres">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Result</div>
+      <div style="font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Result</div>
       <div id="tcon"></div>
     </div>
   </div>
@@ -586,7 +586,7 @@
         <strong>&#128204; Placement tips:</strong> Paste near notice boards, canteen, restroom entrances, HR area, stairwells, and entry gates. The more visible the QR, the safer employees feel reporting issues.
       </div>
       <div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;">QR Code encodes this URL:</div>
+        <div style="font-family:var(--mono);font-size:16px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;">QR Code encodes this URL:</div>
         <div class="qr-url" id="qrUrlDisplay">—</div>
       </div>
     </div>
@@ -632,8 +632,8 @@
   <div class="page" id="page-saanalytics">
     <div class="ptitle sa">Analytics Overview</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;">
-      <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Full-system analytics across all reports, categories, and users. <strong style="color:var(--sa);">SuperAdmin view — all actions remain available from other tabs.</strong></p>
+      <span style="color:var(--sa);font-size:16px;">&#9670;</span>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Full-system analytics across all reports, categories, and users. <strong style="color:var(--sa);">SuperAdmin view — all actions remain available from other tabs.</strong></p>
     </div>
     <div class="srow" id="sa-srow"></div>
     <div class="tm-grid">
@@ -668,8 +668,8 @@
   <div class="page" id="page-categories">
     <div class="ptitle sa">Category Management</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
-      <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Categories are available in the reporter submission form and all report filters. <strong style="color:var(--sa);">Changes apply immediately.</strong> Default categories cannot be deleted.</p>
+      <span style="color:var(--sa);font-size:16px;">&#9670;</span>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Categories are available in the reporter submission form and all report filters. <strong style="color:var(--sa);">Changes apply immediately.</strong> Default categories cannot be deleted.</p>
     </div>
     <div class="sec-label">Active Categories</div>
     <div class="cat-list" id="catList"></div>
@@ -679,15 +679,15 @@
       <input type="text" id="newCatInput" placeholder="e.g. IT Security Incident" maxlength="60" />
       <button class="sbtn sa-btn" onclick="addCategory()">&#43; Add</button>
     </div>
-    <div id="cat-msg" style="font-family:var(--mono);font-size:10px;margin-top:8px;display:none;"></div>
+    <div id="cat-msg" style="font-family:var(--mono);font-size:16px;margin-top:8px;display:none;"></div>
   </div>
 
   <!-- ── SUPERADMIN: User Management ───────── -->
   <div class="page" id="page-users">
     <div class="ptitle sa">User Management</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
-      <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong></p>
+      <span style="color:var(--sa);font-size:16px;">&#9670;</span>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong></p>
     </div>
     <div class="sec-label">All Staff Accounts</div>
     <div class="user-list" id="userList"></div>
@@ -705,7 +705,7 @@
         </div>
       </div>
       <div>
-        <label>Email Address <span style="color:var(--text3);font-size:9px;letter-spacing:.06em;text-transform:uppercase;">(for notifications)</span></label>
+        <label>Email Address <span style="color:var(--text3);font-size:15px;letter-spacing:.06em;text-transform:uppercase;">(for notifications)</span></label>
         <input type="email" id="au-email" placeholder="e.g. ravi.sharma@yourorg.com" autocomplete="off" />
       </div>
       <div class="frow">
@@ -734,24 +734,24 @@
   <!-- ── SUPERADMIN / TOP MGMT: Change Password ─ -->
   <div class="page" id="page-changepassword">
     <div class="ptitle sa" id="cp-ptitle">Change Password</div>
-    <div id="cp-target-info" style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:22px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;"></div>
+    <div id="cp-target-info" style="font-family:var(--mono);font-size:15px;color:var(--text2);margin-bottom:22px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;"></div>
     <div style="max-width:420px;display:flex;flex-direction:column;gap:16px;" id="cpForm">
       <div>
-        <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Current Password</label>
-        <input type="password" id="cp-old" placeholder="Enter current password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
+        <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Current Password</label>
+        <input type="password" id="cp-old" placeholder="Enter current password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password</label>
-        <input type="password" id="cp-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
+        <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password</label>
+        <input type="password" id="cp-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Confirm New Password</label>
-        <input type="password" id="cp-confirm" placeholder="Repeat new password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
+        <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Confirm New Password</label>
+        <input type="password" id="cp-confirm" placeholder="Repeat new password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <button class="sbtn sa-btn" onclick="changePassword()">&#128274; Update Password</button>
-        <div id="cp-err" style="font-family:var(--mono);font-size:10px;color:var(--danger);display:none;"></div>
-        <div id="cp-ok" style="font-family:var(--mono);font-size:10px;color:var(--accent);display:none;">&#10003; Password updated successfully</div>
+        <div id="cp-err" style="font-family:var(--mono);font-size:16px;color:var(--danger);display:none;"></div>
+        <div id="cp-ok" style="font-family:var(--mono);font-size:16px;color:var(--accent);display:none;">&#10003; Password updated successfully</div>
       </div>
     </div>
 
@@ -761,26 +761,129 @@
       <div class="sec-label">Reset Another User's Password</div>
       <div style="max-width:420px;display:flex;flex-direction:column;gap:14px;">
         <div>
-          <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Select User</label>
-          <select id="cp-target-user" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;"></select>
+          <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Select User</label>
+          <select id="cp-target-user" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;appearance:none;cursor:pointer;"></select>
         </div>
         <div>
-          <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password for User</label>
-          <input type="password" id="cp-other-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
+          <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password for User</label>
+          <input type="password" id="cp-other-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;transition:border-color 0.2s;" />
         </div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
           <button class="sbtn sa-btn" onclick="resetOtherPassword()">&#128260; Reset User Password</button>
-          <div id="cp-other-msg" style="font-family:var(--mono);font-size:10px;display:none;"></div>
+          <div id="cp-other-msg" style="font-family:var(--mono);font-size:16px;display:none;"></div>
         </div>
       </div>
     </div>
   </div>
+  <!-- ── SUPERADMIN: Email / Graph API Config ──── -->
+  <div class="page" id="page-mailconfig">
+    <div class="ptitle sa">&#9993; Email Notification Settings</div>
+    <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:28px;">
+      <span style="color:var(--sa);font-size:20px;flex-shrink:0;">&#9889;</span>
+      <p style="font-size:15px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
+        Configure <strong style="color:var(--sa);">Microsoft Graph API</strong> to send automated email notifications. You need an Azure AD / Entra ID App Registration with <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 6px;border-radius:2px;">Mail.Send</code> application permission.
+        <br><span style="color:var(--warn);">&#9888; In production, move clientSecret to a backend proxy to avoid exposing credentials.</span>
+      </p>
+    </div>
+
+    <!-- Azure App Registration -->
+    <div class="inv-section" style="border-color:rgba(245,197,66,0.18);">
+      <div class="inv-section-title" style="color:var(--sa);">&#9729; Azure AD / Entra App Registration</div>
+      <div class="fg">
+        <div class="frow">
+          <div class="field">
+            <label>Tenant ID</label>
+            <input type="text" id="mc-tenantId" placeholder="e.g. contoso.onmicrosoft.com or GUID" />
+            <div class="fhint">Your Azure AD Tenant ID or domain (e.g. yourorg.onmicrosoft.com)</div>
+          </div>
+          <div class="field">
+            <label>Client (Application) ID</label>
+            <input type="text" id="mc-clientId" placeholder="e.g. 12345678-abcd-..." />
+            <div class="fhint">Found in App Registration → Overview → Application (client) ID</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Client Secret</label>
+          <input type="password" id="mc-clientSecret" placeholder="Azure app client secret value" autocomplete="new-password" />
+          <div class="fhint" style="color:var(--warn);">&#9888; Keep secret confidential. Use a backend proxy in production to avoid client-side exposure.</div>
+        </div>
+        <div class="field">
+          <label>Sender Email (Licensed M365 Mailbox)</label>
+          <input type="email" id="mc-senderEmail" placeholder="e.g. notifications@yourorg.com" />
+          <div class="fhint">The mailbox that sends notifications. Must be a licensed Microsoft 365 account.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipient Configuration -->
+    <div class="inv-section" style="border-color:rgba(245,197,66,0.18);margin-top:16px;">
+      <div class="inv-section-title" style="color:var(--sa);">&#128231; Notification Recipients</div>
+      <div class="fg">
+        <div class="field">
+          <label>Admin Notification Emails</label>
+          <textarea id="mc-adminEmails" placeholder="One email per line, e.g.:&#10;admin@yourorg.com&#10;compliance@yourorg.com" style="min-height:90px;font-family:var(--mono);font-size:15px;"></textarea>
+          <div class="fhint">These addresses receive alerts for every new report and status change.</div>
+        </div>
+        <div class="field">
+          <label>Super Admin Notification Emails</label>
+          <textarea id="mc-superAdminEmails" placeholder="One email per line, e.g.:&#10;superadmin@yourorg.com" style="min-height:70px;font-family:var(--mono);font-size:15px;"></textarea>
+          <div class="fhint">Super Admin addresses receive all notifications including investigation report submissions.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Trigger Settings -->
+    <div class="inv-section" style="border-color:rgba(245,197,66,0.18);margin-top:16px;">
+      <div class="inv-section-title" style="color:var(--sa);">&#128276; Notification Triggers</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-family:var(--mono);font-size:15px;color:var(--text2);">
+          <input type="checkbox" id="mc-notifyNewReport" checked style="width:18px;height:18px;accent-color:var(--sa);cursor:pointer;" />
+          <span><strong style="color:var(--text);">New Report Submitted</strong> — Notify admins when a whistleblower submits a new report</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-family:var(--mono);font-size:15px;color:var(--text2);">
+          <input type="checkbox" id="mc-notifyStatusChange" checked style="width:18px;height:18px;accent-color:var(--sa);cursor:pointer;" />
+          <span><strong style="color:var(--text);">Report Status Changed</strong> — Notify admins when a report status is updated (New → Reviewing → Resolved)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-family:var(--mono);font-size:15px;color:var(--text2);">
+          <input type="checkbox" id="mc-notifySioAssigned" checked style="width:18px;height:18px;accent-color:var(--sa);cursor:pointer;" />
+          <span><strong style="color:var(--text);">SIO Assignment</strong> — Notify the assigned SIO Officer and admins when an officer is assigned to a case</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-family:var(--mono);font-size:15px;color:var(--text2);">
+          <input type="checkbox" id="mc-notifyInvReport" checked style="width:18px;height:18px;accent-color:var(--sa);cursor:pointer;" />
+          <span><strong style="color:var(--text);">Investigation Report Filed</strong> — Notify admins when an SIO officer submits an investigation report</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px;">
+      <button class="sbtn sa-btn" onclick="saveMailConfig()">&#128190; Save Configuration</button>
+      <button class="sbtn" style="background:none;border:1px solid rgba(0,207,255,0.35);color:var(--sio);" onclick="testMailConfig()">&#9993; Send Test Email</button>
+      <span id="mc-saved-msg" style="display:none;font-family:var(--mono);font-size:15px;color:var(--accent);">&#10003; Configuration saved</span>
+      <span id="mc-test-msg"  style="display:none;font-family:var(--mono);font-size:15px;"></span>
+    </div>
+
+    <!-- Setup Guide -->
+    <div style="margin-top:30px;background:rgba(10,12,15,0.7);border:1px solid var(--border2);border-radius:4px;padding:20px;">
+      <div style="font-family:var(--mono);font-size:13px;color:var(--sa);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">&#128218; Azure Setup Guide</div>
+      <ol style="font-family:var(--mono);font-size:14px;color:var(--text2);line-height:2.2;padding-left:20px;">
+        <li>Go to <strong style="color:var(--text);">portal.azure.com</strong> → Azure Active Directory → App Registrations → <em>New Registration</em></li>
+        <li>Name the app (e.g. <em>SecureReport Mailer</em>), choose <em>Single tenant</em>, click Register</li>
+        <li>Go to <strong style="color:var(--text);">API Permissions</strong> → Add a Permission → Microsoft Graph → Application Permissions → <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 5px;border-radius:2px;">Mail.Send</code> → Grant Admin Consent</li>
+        <li>Go to <strong style="color:var(--text);">Certificates &amp; Secrets</strong> → New Client Secret → copy the <em>Value</em> (shown only once)</li>
+        <li>Paste Tenant ID (Overview), Client ID (Overview), and Secret Value (above) into the fields above</li>
+        <li>Set <strong style="color:var(--text);">Sender Email</strong> to any licensed Microsoft 365 mailbox in your tenant</li>
+        <li>Click <em>Save Configuration</em>, then <em>Send Test Email</em> to verify the setup</li>
+      </ol>
+    </div>
+  </div>
+
   <!-- ── SIO: My Cases ─────────────────────────── -->
   <div class="page" id="page-siocases">
     <div class="ptitle sio">&#128373; My Assigned Cases</div>
     <div style="background:rgba(0,207,255,0.04);border:1px solid rgba(0,207,255,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:22px;">
-      <span style="color:var(--sio);font-size:14px;">&#9650;</span>
-      <p style="font-size:12px;color:var(--text2);line-height:1.6;font-family:var(--mono);">You can only access cases assigned to you. Review each case, conduct your investigation, and submit your findings using the investigation report form.</p>
+      <span style="color:var(--sio);font-size:16px;">&#9650;</span>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;font-family:var(--mono);">You can only access cases assigned to you. Review each case, conduct your investigation, and submit your findings using the investigation report form.</p>
     </div>
     <div class="rgrid" id="sio-casesgrid"></div>
   </div>
@@ -788,7 +891,7 @@
   <!-- ── SIO: Investigation Report ──────────────── -->
   <div class="page" id="page-sioreport">
     <div class="ptitle sio">&#128221; Investigation Report</div>
-    <div id="sio-report-case-info" style="background:var(--surface);border:1px solid rgba(0,207,255,0.2);border-radius:4px;padding:16px 20px;margin-bottom:20px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;"></div>
+    <div id="sio-report-case-info" style="background:var(--surface);border:1px solid rgba(0,207,255,0.2);border-radius:4px;padding:16px 20px;margin-bottom:20px;font-family:var(--mono);font-size:16px;color:var(--text2);line-height:1.8;"></div>
 
     <div class="inv-section">
       <div class="inv-section-title">&#128270; Investigation Findings</div>
@@ -827,7 +930,7 @@
 
     <div class="inv-section">
       <div class="inv-section-title">&#128248; Evidence — Upload Media</div>
-      <p style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Attach photos, videos, or audio recordings collected during investigation. Files are stored as references.</p>
+      <p style="font-family:var(--mono);font-size:15px;color:var(--text3);margin-bottom:12px;">Attach photos, videos, or audio recordings collected during investigation. Files are stored as references.</p>
       <div class="media-upzone">
         <input type="file" multiple id="inv-media" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onchange="handleInvMedia(this)" />
         <div style="font-size:28px;margin-bottom:8px;">📎</div>
@@ -848,7 +951,7 @@
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-top:4px;">
       <button class="sbtn sio-btn" onclick="submitInvReport()">&#128228; Submit Investigation Report</button>
       <button class="sbtn danger-btn" onclick="showPage('siocases', document.querySelector('.nb.asio'))">&#8592; Back to My Cases</button>
-      <span id="inv-saved-msg" style="display:none;font-family:var(--mono);font-size:11px;color:var(--accent);">&#10003; Report submitted successfully</span>
+      <span id="inv-saved-msg" style="display:none;font-family:var(--mono);font-size:15px;color:var(--accent);">&#10003; Report submitted successfully</span>
     </div>
   </div>
 
@@ -857,23 +960,23 @@
 <!-- ═══════════════ ASSIGN SIO MODAL ═══════════════ -->
 <div id="assignSioModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;align-items:center;justify-content:center;padding:22px;">
   <div style="background:var(--surface2);border:1px solid rgba(0,207,255,0.25);border-radius:5px;width:100%;max-width:460px;padding:26px;display:flex;flex-direction:column;gap:16px;">
-    <h2 style="font-family:var(--mono);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sio);">&#128373; Assign Special Investigation Officer</h2>
-    <div id="sio-modal-report-info" style="font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px 13px;line-height:1.8;"></div>
+    <h2 style="font-family:var(--mono);font-size:15px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sio);">&#128373; Assign Special Investigation Officer</h2>
+    <div id="sio-modal-report-info" style="font-family:var(--mono);font-size:15px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px 13px;line-height:1.8;"></div>
     <div>
-      <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Select SIO</label>
-      <select id="sio-assign-select" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;transition:border-color 0.2s;">
+      <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Select SIO</label>
+      <select id="sio-assign-select" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;appearance:none;cursor:pointer;transition:border-color 0.2s;">
         <option value="">— Unassign / No SIO —</option>
       </select>
     </div>
     <div>
-      <label style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Assignment Note (optional)</label>
-      <textarea id="sio-assign-note" placeholder="Brief instruction or priority note for the SIO..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s;"></textarea>
+      <label style="font-family:var(--mono);font-size:16px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Assignment Note (optional)</label>
+      <textarea id="sio-assign-note" placeholder="Brief instruction or priority note for the SIO..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s;"></textarea>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px;">
       <button class="mclose" onclick="closeAssignSioModal()">Cancel</button>
-      <button class="sbtn sio-btn" style="padding:9px 20px;font-size:11px;" onclick="confirmAssignSio()">&#128373; Assign SIO</button>
+      <button class="sbtn sio-btn" style="padding:9px 20px;font-size:15px;" onclick="confirmAssignSio()">&#128373; Assign SIO</button>
     </div>
-    <div id="sio-assign-msg" style="display:none;font-family:var(--mono);font-size:10px;"></div>
+    <div id="sio-assign-msg" style="display:none;font-family:var(--mono);font-size:16px;"></div>
   </div>
 </div>
 <div id="detailModal">
@@ -884,7 +987,7 @@
 <div id="pwModal">
   <div class="pw-box">
     <h2>&#128274; Reset Password</h2>
-    <div id="pw-username-display" style="font-family:var(--mono);font-size:11px;color:var(--text2);"></div>
+    <div id="pw-username-display" style="font-family:var(--mono);font-size:15px;color:var(--text2);"></div>
     <div>
       <label>New Password</label>
       <input type="password" id="pw-new1" placeholder="Minimum 6 characters" />
@@ -897,7 +1000,7 @@
     <div class="pw-ok" id="pw-ok">&#10003; Password reset successfully.</div>
     <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px;">
       <button class="mclose" onclick="closePwModal()">Cancel</button>
-      <button class="sbtn sa-btn" style="padding:8px 18px;font-size:11px;" onclick="confirmPwReset()">Reset</button>
+      <button class="sbtn sa-btn" style="padding:8px 18px;font-size:15px;" onclick="confirmPwReset()">Reset</button>
     </div>
   </div>
 </div>
@@ -1025,26 +1128,110 @@ async function loadReports() {
 // ══════════════════════════════════════════════════════════
 //  MICROSOFT GRAPH EMAIL NOTIFICATIONS
 // ══════════════════════════════════════════════════════════
-// ── Configuration — fill these in ──────────────────────────
-const MAIL_CONFIG = {
-  // Azure AD / Entra App Registration details
-  tenantId:     'YOUR_TENANT_ID',           // e.g. "contoso.onmicrosoft.com" or GUID
-  clientId:     'YOUR_CLIENT_APP_ID',       // Azure app client ID
-  clientSecret: 'YOUR_CLIENT_SECRET',       // Azure app client secret (use backend proxy in production!)
-  senderEmail:  'notifications@yourorg.com',// Licensed M365 mailbox to send from
-  // Recipients — add/edit as needed
-  adminEmails:  ['admin@yourorg.com'],      // Notified on every new report
-  superAdminEmails: ['superadmin@yourorg.com'],
+// ── Dynamic config — stored in localStorage, editable via UI ──
+const MAIL_CONFIG_DEFAULTS = {
+  tenantId:          '',
+  clientId:          '',
+  clientSecret:      '',
+  senderEmail:       '',
+  adminEmails:       [],
+  superAdminEmails:  [],
+  notifyNewReport:   true,
+  notifyStatusChange:true,
+  notifySioAssigned: true,
+  notifyInvReport:   true,
 };
+
+function getMailConfig() {
+  try {
+    const raw = localStorage.getItem('wb_mail_config');
+    if (!raw) return { ...MAIL_CONFIG_DEFAULTS };
+    return { ...MAIL_CONFIG_DEFAULTS, ...JSON.parse(raw) };
+  } catch(e) { return { ...MAIL_CONFIG_DEFAULTS }; }
+}
+function saveMailConfigToStorage(cfg) {
+  try { localStorage.setItem('wb_mail_config', JSON.stringify(cfg)); } catch(e) {}
+}
+// Keep a live reference that functions use
+let MAIL_CONFIG = getMailConfig();
+
+// ── Mail Config Page ────────────────────────────────────────
+function renderMailConfigPage() {
+  const cfg = getMailConfig();
+  const el = id => document.getElementById(id);
+  if (el('mc-tenantId'))         el('mc-tenantId').value         = cfg.tenantId || '';
+  if (el('mc-clientId'))         el('mc-clientId').value         = cfg.clientId || '';
+  if (el('mc-clientSecret'))     el('mc-clientSecret').value     = cfg.clientSecret || '';
+  if (el('mc-senderEmail'))      el('mc-senderEmail').value      = cfg.senderEmail || '';
+  if (el('mc-adminEmails'))      el('mc-adminEmails').value      = (cfg.adminEmails||[]).join('\n');
+  if (el('mc-superAdminEmails')) el('mc-superAdminEmails').value = (cfg.superAdminEmails||[]).join('\n');
+  if (el('mc-notifyNewReport'))    el('mc-notifyNewReport').checked    = cfg.notifyNewReport !== false;
+  if (el('mc-notifyStatusChange')) el('mc-notifyStatusChange').checked = cfg.notifyStatusChange !== false;
+  if (el('mc-notifySioAssigned'))  el('mc-notifySioAssigned').checked  = cfg.notifySioAssigned !== false;
+  if (el('mc-notifyInvReport'))    el('mc-notifyInvReport').checked    = cfg.notifyInvReport !== false;
+}
+
+function saveMailConfig() {
+  const el = id => document.getElementById(id);
+  const parseEmails = raw => raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const cfg = {
+    tenantId:          (el('mc-tenantId')?.value||'').trim(),
+    clientId:          (el('mc-clientId')?.value||'').trim(),
+    clientSecret:      (el('mc-clientSecret')?.value||'').trim(),
+    senderEmail:       (el('mc-senderEmail')?.value||'').trim(),
+    adminEmails:       parseEmails(el('mc-adminEmails')?.value||''),
+    superAdminEmails:  parseEmails(el('mc-superAdminEmails')?.value||''),
+    notifyNewReport:   el('mc-notifyNewReport')?.checked !== false,
+    notifyStatusChange:el('mc-notifyStatusChange')?.checked !== false,
+    notifySioAssigned: el('mc-notifySioAssigned')?.checked !== false,
+    notifyInvReport:   el('mc-notifyInvReport')?.checked !== false,
+  };
+  saveMailConfigToStorage(cfg);
+  MAIL_CONFIG = cfg;
+  const msg = document.getElementById('mc-saved-msg');
+  if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+}
+
+async function testMailConfig() {
+  saveMailConfig(); // save first
+  const cfg = MAIL_CONFIG;
+  const testMsg = document.getElementById('mc-test-msg');
+  if (!cfg.tenantId || !cfg.clientId || !cfg.clientSecret || !cfg.senderEmail) {
+    if (testMsg) { testMsg.textContent='⚠ Please fill in all Azure credentials before testing.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
+    return;
+  }
+  const allRecipients = [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])];
+  if (!allRecipients.length) {
+    if (testMsg) { testMsg.textContent='⚠ Add at least one recipient email to test.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
+    return;
+  }
+  if (testMsg) { testMsg.textContent='⏳ Sending test email…'; testMsg.style.color='var(--text2)'; testMsg.style.display='inline'; }
+  const html = mailTemplate('Test Email — Configuration Verified ✓', [
+    ['From',    cfg.senderEmail],
+    ['Tenant',  cfg.tenantId],
+    ['App ID',  cfg.clientId],
+    ['Sent At', new Date().toLocaleString('en-IN')],
+    ['Status',  '<strong style="color:#00e5a0;">Microsoft Graph API Connected ✓</strong>'],
+  ], '#f5c542');
+  try {
+    await sendGraphMail(allRecipients, '[SecureReport] ✓ Email Configuration Test', html);
+    if (testMsg) { testMsg.textContent='✓ Test email sent successfully! Check your inbox.'; testMsg.style.color='var(--accent)'; }
+  } catch(e) {
+    if (testMsg) { testMsg.textContent='✗ Send failed — check console for details.'; testMsg.style.color='var(--danger)'; }
+  }
+  setTimeout(()=>{ if(testMsg) testMsg.style.display='none'; }, 5000);
+}
 
 // Obtain an OAuth2 access token using client credentials flow
 async function getGraphToken() {
+  const cfg = MAIL_CONFIG;
+  if (!cfg.tenantId || !cfg.clientId || !cfg.clientSecret) return null;
   try {
-    const url = `https://login.microsoftonline.com/${MAIL_CONFIG.tenantId}/oauth2/v2.0/token`;
+    const url = `https://login.microsoftonline.com/${cfg.tenantId}/oauth2/v2.0/token`;
     const body = new URLSearchParams({
       grant_type:    'client_credentials',
-      client_id:     MAIL_CONFIG.clientId,
-      client_secret: MAIL_CONFIG.clientSecret,
+      client_id:     cfg.clientId,
+      client_secret: cfg.clientSecret,
       scope:         'https://graph.microsoft.com/.default'
     });
     const res  = await fetch(url, { method:'POST', body });
@@ -1056,7 +1243,8 @@ async function getGraphToken() {
 // Send an email via Microsoft Graph /sendMail
 async function sendGraphMail(toEmails, subject, htmlBody) {
   if (!toEmails || !toEmails.length) return;
-  if (MAIL_CONFIG.tenantId === 'YOUR_TENANT_ID') {
+  const cfg = MAIL_CONFIG;
+  if (!cfg.tenantId || cfg.tenantId === 'YOUR_TENANT_ID') {
     console.info('[Mail] Config not set — skipping notification:', subject);
     return;
   }
@@ -1072,7 +1260,7 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
   };
   try {
     const res = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MAIL_CONFIG.senderEmail)}/sendMail`,
+      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(cfg.senderEmail)}/sendMail`,
       { method:'POST', headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify(payload) }
     );
     if (res.ok) console.info('[Mail] Sent:', subject);
@@ -1083,94 +1271,135 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
 // ── Email templates ────────────────────────────────────────
 function mailTemplate(title, rows, accentColor='#00e5a0') {
   const rowsHtml = rows.map(([label, value]) =>
-    `<tr><td style="padding:7px 12px;font-size:12px;color:#888;font-family:monospace;text-transform:uppercase;letter-spacing:.06em;width:130px;">${label}</td>
-     <td style="padding:7px 12px;font-size:13px;color:#e8ecf0;">${value}</td></tr>`
+    `<tr>
+       <td style="padding:10px 16px;font-size:13px;color:#8896a8;font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:.07em;width:150px;border-bottom:1px solid #1e2430;vertical-align:top;">${label}</td>
+       <td style="padding:10px 16px;font-size:15px;color:#e8ecf0;font-family:'Segoe UI',sans-serif;border-bottom:1px solid #1e2430;line-height:1.5;">${value}</td>
+     </tr>`
   ).join('');
-  return `<div style="background:#0a0c0f;padding:30px;font-family:'Segoe UI',sans-serif;max-width:560px;margin:0 auto;border:1px solid #1e2430;border-radius:6px;">
-    <div style="font-family:monospace;font-size:13px;color:${accentColor};letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;">&#128737; SecureReport</div>
-    <h2 style="color:#e8ecf0;font-size:16px;margin:0 0 18px;font-weight:500;">${title}</h2>
-    <table style="width:100%;border-collapse:collapse;background:#111318;border:1px solid #1e2430;border-radius:4px;">${rowsHtml}</table>
-    <p style="font-size:11px;color:#4a5568;margin-top:18px;font-family:monospace;">This is an automated notification from SecureReport. Do not reply to this email.</p>
+  return `
+  <div style="background:#0a0c0f;padding:0;font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #1e2430;border-radius:8px;overflow:hidden;">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#111318 0%,#181c24 100%);padding:24px 28px;border-bottom:2px solid ${accentColor};">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:22px;">&#128737;</span>
+        <span style="font-family:'Courier New',monospace;font-size:15px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:600;">SecureReport</span>
+      </div>
+      <h2 style="color:#e8ecf0;font-size:19px;margin:0;font-weight:500;line-height:1.4;">${title}</h2>
+    </div>
+    <!-- Body table -->
+    <div style="padding:6px 0;">
+      <table style="width:100%;border-collapse:collapse;">${rowsHtml}</table>
+    </div>
+    <!-- Footer -->
+    <div style="background:#111318;padding:14px 20px;border-top:1px solid #1e2430;">
+      <p style="font-size:12px;color:#4a5568;margin:0;font-family:'Courier New',monospace;line-height:1.6;">
+        &#128274; This is an automated notification from <strong style="color:#6b7280;">SecureReport</strong> — Whistleblower Portal.<br>
+        Do not reply to this email. All reports are stored securely and handled confidentially.
+      </p>
+    </div>
   </div>`;
 }
 
 // ── Trigger functions (called from app actions) ────────────
 async function notifyNewReport(report) {
-  const html = mailTemplate('New Report Submitted', [
-    ['Report ID',   report.id],
-    ['Title',       report.title],
-    ['Category',    report.category],
-    ['Severity',    `<span style="color:${report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0'}">${report.severity.toUpperCase()}</span>`],
-    ['Submitted',   new Date(report.date).toLocaleString('en-IN')],
-    ['Organisation',report.org || '—'],
+  const cfg = MAIL_CONFIG;
+  if (cfg.notifyNewReport === false) return;
+  const sevColor = report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0';
+  const html = mailTemplate('&#128228; New Whistleblower Report Submitted', [
+    ['Report ID',    `<strong style="color:#00e5a0;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',        `<strong>${report.title}</strong>`],
+    ['Category',     report.category],
+    ['Severity',     `<span style="color:${sevColor};font-weight:700;text-transform:uppercase;">${report.severity}</span>`],
+    ['Organisation', report.org || '—'],
+    ['Submitted At', new Date(report.date).toLocaleString('en-IN')],
+    ['Action',       '<span style="color:#7b8cff;">Log in to SecureReport Admin to review and assign this case.</span>'],
   ]);
   await sendGraphMail(
-    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
-    `[SecureReport] New ${report.severity.toUpperCase()} Report — ${report.id}`,
+    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    `[SecureReport] 🆕 New ${report.severity.toUpperCase()} Report — ${report.id}`,
     html
   );
 }
 
 async function notifyStatusChange(report, newStatus) {
-  const statusColors = { new:'#00e5a0', reviewing:'#ffaa00', resolved:'#4a5568' };
-  const html = mailTemplate('Report Status Updated', [
-    ['Report ID', report.id],
-    ['Title',     report.title],
-    ['New Status',`<strong style="color:${statusColors[newStatus]||'#e8ecf0'}">${newStatus.toUpperCase()}</strong>`],
-    ['Severity',  report.severity],
-    ['Updated',   new Date().toLocaleString('en-IN')],
+  const cfg = MAIL_CONFIG;
+  if (cfg.notifyStatusChange === false) return;
+  const statusColors = { new:'#00e5a0', reviewing:'#ffaa00', resolved:'#6b7280' };
+  const statusIcons  = { new:'🟢', reviewing:'🟡', resolved:'✅' };
+  const html = mailTemplate('&#128260; Report Status Updated', [
+    ['Report ID',  `<strong style="color:#00e5a0;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',      `<strong>${report.title}</strong>`],
+    ['New Status', `<strong style="color:${statusColors[newStatus]||'#e8ecf0'};font-size:16px;">${(statusIcons[newStatus]||'')} ${newStatus.toUpperCase()}</strong>`],
+    ['Severity',   report.severity.toUpperCase()],
+    ['Category',   report.category],
+    ['Updated At', new Date().toLocaleString('en-IN')],
   ], '#7b8cff');
   await sendGraphMail(
-    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
+    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
     `[SecureReport] Status → ${newStatus.toUpperCase()} — ${report.id}`,
     html
   );
 }
 
 async function notifySioAssigned(report, sioUser) {
-  // Notify SIO officer
+  const cfg = MAIL_CONFIG;
+  if (cfg.notifySioAssigned === false) return;
+  // Notify the SIO officer directly
   const users = getUsers();
   const sio   = users.find(u => u.username === sioUser);
   const sioEmail = sio && sio.email ? [sio.email] : [];
-  const html = mailTemplate('You Have Been Assigned a Case', [
-    ['Report ID',  report.id],
-    ['Title',      report.title],
-    ['Severity',   report.severity],
-    ['Assigned By',report.sioAssignedBy || 'Admin'],
+  const sioHtml = mailTemplate('&#128373; You Have Been Assigned a New Case', [
+    ['Report ID',   `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',       `<strong>${report.title}</strong>`],
+    ['Category',    report.category],
+    ['Severity',    `<strong style="color:${report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0'}">${report.severity.toUpperCase()}</strong>`],
+    ['Assigned By', report.sioAssignedBy || 'Admin'],
+    ['Note',        report.sioAssignNote || '—'],
+    ['Date',        new Date().toLocaleString('en-IN')],
+    ['Action',      '<span style="color:#00cfff;">Log in to SecureReport SIO Portal to begin your investigation.</span>'],
+  ], '#00cfff');
+  if (sioEmail.length) {
+    await sendGraphMail(sioEmail, `[SecureReport] 🕵️ New Case Assigned to You — ${report.id}`, sioHtml);
+  }
+  // Notify admins about the assignment
+  const adminHtml = mailTemplate('&#128373; SIO Assignment Confirmed', [
+    ['Report ID',  `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',      `<strong>${report.title}</strong>`],
+    ['Assigned To',`<strong style="color:#00cfff;">${sio ? sio.name : sioUser} (@${sioUser})</strong>`],
+    ['Severity',   report.severity.toUpperCase()],
     ['Note',       report.sioAssignNote || '—'],
     ['Date',       new Date().toLocaleString('en-IN')],
   ], '#00cfff');
-  if (sioEmail.length) {
-    await sendGraphMail(sioEmail, `[SecureReport] New Case Assigned — ${report.id}`, html);
-  }
-  // Also notify admins
-  const adminHtml = mailTemplate('SIO Assignment Made', [
-    ['Report ID', report.id],
-    ['Title',     report.title],
-    ['SIO',       sioUser],
-    ['Date',      new Date().toLocaleString('en-IN')],
-  ], '#00cfff');
   await sendGraphMail(
-    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
-    `[SecureReport] SIO Assigned to ${report.id}`,
+    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    `[SecureReport] SIO Assigned to ${report.id} — ${sio ? sio.name : sioUser}`,
     adminHtml
   );
 }
 
 async function notifyInvReportSubmitted(report) {
+  const cfg = MAIL_CONFIG;
+  if (cfg.notifyInvReport === false) return;
   const inv = report.invReport;
   if (!inv) return;
-  const html = mailTemplate('Investigation Report Submitted', [
-    ['Report ID',  report.id],
-    ['Title',      report.title],
-    ['Inv Status', inv.status.replace(/_/g,' ').toUpperCase()],
-    ['Summary',    inv.summary.slice(0,200)+(inv.summary.length>200?'…':'')],
-    ['Submitted By',inv.submittedBy],
-    ['Date',       new Date(inv.submittedAt).toLocaleString('en-IN')],
+  const invStatusDisplay = {
+    in_progress:'🔄 In Progress', findings_ready:'📋 Findings Ready',
+    closed_substantiated:'✅ Closed — Substantiated',
+    closed_unsubstantiated:'❌ Closed — Unsubstantiated',
+    referred_to_management:'📤 Referred to Management'
+  }[inv.status] || inv.status.replace(/_/g,' ').toUpperCase();
+  const html = mailTemplate('&#128221; Investigation Report Filed', [
+    ['Report ID',    `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',        `<strong>${report.title}</strong>`],
+    ['Inv. Status',  `<strong style="color:#00cfff;">${invStatusDisplay}</strong>`],
+    ['Summary',      `<em style="color:#c8d3de;">${inv.summary.slice(0,250)+(inv.summary.length>250?'…':'')}</em>`],
+    ['Submitted By', inv.submittedBy],
+    ['Date',         new Date(inv.submittedAt).toLocaleString('en-IN')],
+    ['Action',       '<span style="color:#00cfff;">Log in to SecureReport to review the full investigation report.</span>'],
   ], '#00cfff');
   await sendGraphMail(
-    [...MAIL_CONFIG.adminEmails, ...MAIL_CONFIG.superAdminEmails],
-    `[SecureReport] Investigation Report Filed — ${report.id}`,
+    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    `[SecureReport] 📋 Investigation Report Filed — ${report.id}`,
     html
   );
 }
@@ -1283,6 +1512,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('categories',this)">&#128193; Categories</button>
       <button class="nb" onclick="showPage('users',this)">&#128101; Users</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR</button>
+      <button class="nb" onclick="showPage('mailconfig',this)">&#9993; Email</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
     showPage('saanalytics', nav.querySelector('.asa'));
@@ -1348,6 +1578,7 @@ function showPage(name, btn) {
   if (name==='users')          renderUserPage();
   if (name==='changepassword') renderChangePwPage();
   if (name==='siocases')       renderSioCases();
+  if (name==='mailconfig')     renderMailConfigPage();
 }
 
 // ══════════════════════════════════════════════════════════
