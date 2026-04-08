@@ -1335,13 +1335,13 @@ async function testMailConfig() {
     return;
   }
   if (testMsg) { testMsg.textContent='⏳ Signing in & sending test email…'; testMsg.style.color='var(--text2)'; testMsg.style.display='inline'; }
-  const html = mailTemplate('Test Email — Configuration Verified ✓', [
-    ['From',    cfg.senderEmail],
-    ['Tenant',  cfg.tenantId],
-    ['App ID',  cfg.clientId],
-    ['Sent At', new Date().toLocaleString('en-IN')],
-    ['Status',  '<strong style="color:#00e5a0;">Microsoft Graph API Connected ✓</strong>'],
-  ], '#f5c542');
+  const html = mailTemplate('✅ Test Email — Configuration Verified', [
+    ['From',    `<span style="color:#374151;">${cfg.senderEmail}</span>`],
+    ['Tenant',  `<span style="color:#374151;">${cfg.tenantId}</span>`],
+    ['App ID',  `<span style="color:#374151;">${cfg.clientId}</span>`],
+    ['Sent At', `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
+    ['Status',  '<strong style="color:#00897b;">Microsoft Graph API Connected ✓</strong>'],
+  ], '#00897b');
   try {
     await sendGraphMail(allRecipients, '[SecureReport] ✓ Email Configuration Test', html);
     if (testMsg) { testMsg.textContent='✓ Test email sent successfully! Check your inbox.'; testMsg.style.color='var(--accent)'; }
@@ -1544,50 +1544,76 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
 }
 
 // ── Email templates ────────────────────────────────────────
-function mailTemplate(title, rows, accentColor='#00e5a0') {
+function mailTemplate(title, rows, accentColor='#00b894') {
   const rowsHtml = rows.map(([label, value]) =>
     `<tr>
-       <td style="padding:10px 16px;font-size:13px;color:#8896a8;font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:.07em;width:150px;border-bottom:1px solid #1e2430;vertical-align:top;">${label}</td>
-       <td style="padding:10px 16px;font-size:15px;color:#e8ecf0;font-family:'Segoe UI',sans-serif;border-bottom:1px solid #1e2430;line-height:1.5;">${value}</td>
+       <td style="padding:11px 18px;font-size:12px;color:#555e6e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;width:140px;border-bottom:1px solid #e8ecf2;vertical-align:top;font-weight:600;white-space:nowrap;">${label}</td>
+       <td style="padding:11px 18px;font-size:14px;color:#1a2033;font-family:'Segoe UI',Arial,sans-serif;border-bottom:1px solid #e8ecf2;line-height:1.6;">${value}</td>
      </tr>`
   ).join('');
-  return `
-  <div style="background:#0a0c0f;padding:0;font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #1e2430;border-radius:8px;overflow:hidden;">
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#111318 0%,#181c24 100%);padding:24px 28px;border-bottom:2px solid ${accentColor};">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="font-size:22px;">&#128737;</span>
-        <span style="font-family:'Courier New',monospace;font-size:15px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:600;">SecureReport</span>
-      </div>
-      <h2 style="color:#e8ecf0;font-size:19px;margin:0;font-weight:500;line-height:1.4;">${title}</h2>
-    </div>
-    <!-- Body table -->
-    <div style="padding:6px 0;">
-      <table style="width:100%;border-collapse:collapse;">${rowsHtml}</table>
-    </div>
-    <!-- Footer -->
-    <div style="background:#111318;padding:14px 20px;border-top:1px solid #1e2430;">
-      <p style="font-size:12px;color:#4a5568;margin:0;font-family:'Courier New',monospace;line-height:1.6;">
-        &#128274; This is an automated notification from <strong style="color:#6b7280;">SecureReport</strong> — Whistleblower Portal.<br>
-        Do not reply to this email. All reports are stored securely and handled confidentially.
-      </p>
-    </div>
-  </div>`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0f2f7;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f7;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);border:1px solid #dde3ee;">
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#1a2033 0%,#252d45 100%);padding:26px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td>
+                <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;">
+                  <span style="font-size:20px;">🛡</span>
+                  <span style="font-family:'Courier New',monospace;font-size:14px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:700;">SecureReport</span>
+                </div>
+                <h2 style="color:#ffffff;font-size:20px;margin:0;font-weight:600;line-height:1.4;">${title}</h2>
+              </td>
+              <td align="right" style="vertical-align:top;">
+                <div style="background:${accentColor}22;border:1px solid ${accentColor}55;border-radius:6px;padding:6px 14px;display:inline-block;">
+                  <span style="font-size:11px;color:${accentColor};font-family:'Courier New',monospace;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Whistleblower Portal</span>
+                </div>
+              </td>
+            </tr></table>
+          </td>
+        </tr>
+        <!-- Accent bar -->
+        <tr><td style="height:4px;background:linear-gradient(90deg,${accentColor},${accentColor}88);"></td></tr>
+        <!-- Body table -->
+        <tr>
+          <td style="padding:8px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${rowsHtml}</table>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f7f9fc;border-top:1px solid #e8ecf2;padding:16px 24px;">
+            <p style="font-size:12px;color:#7b8899;margin:0;font-family:Arial,sans-serif;line-height:1.7;">
+              🔒 This is an automated notification from <strong style="color:#4a5568;">SecureReport — Whistleblower Portal</strong>.<br>
+              Do not reply to this email. All reports are stored securely and handled confidentially.
+            </p>
+          </td>
+        </tr>
+      </table>
+      <p style="font-size:11px;color:#9aa5b4;margin-top:16px;font-family:Arial,sans-serif;text-align:center;">© Polyplastics — SecureReport System</p>
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 // ── Trigger functions (called from app actions) ────────────
 async function notifyNewReport(report) {
   const cfg = MAIL_CONFIG;
   if (cfg.notifyNewReport === false) return;
-  const sevColor = report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0';
-  const html = mailTemplate('&#128228; New Whistleblower Report Submitted', [
-    ['Report ID',    `<strong style="color:#00e5a0;font-family:monospace;font-size:16px;">${report.id}</strong>`],
-    ['Title',        `<strong>${report.title}</strong>`],
-    ['Category',     report.category],
-    ['Severity',     `<span style="color:${sevColor};font-weight:700;text-transform:uppercase;">${report.severity}</span>`],
-    ['Organisation', report.org || '—'],
-    ['Submitted At', new Date(report.date).toLocaleString('en-IN')],
-    ['Action',       '<span style="color:#7b8cff;">Log in to SecureReport Admin to review and assign this case.</span>'],
+  const sevColor = report.severity==='high'?'#d63031':report.severity==='medium'?'#e17055':'#00897b';
+  const html = mailTemplate('📨 New Whistleblower Report Submitted', [
+    ['Report ID',    `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',        `<strong style="color:#1a2033;">${report.title}</strong>`],
+    ['Category',     `<span style="color:#374151;">${report.category}</span>`],
+    ['Severity',     `<span style="background:${sevColor}18;color:${sevColor};font-weight:700;text-transform:uppercase;padding:2px 10px;border-radius:4px;border:1px solid ${sevColor}44;">${report.severity}</span>`],
+    ['Organisation', `<span style="color:#374151;">${report.org || '—'}</span>`],
+    ['Submitted At', `<span style="color:#374151;">${new Date(report.date).toLocaleString('en-IN')}</span>`],
+    ['Action',       '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport Admin to review and assign this case.</span>'],
   ]);
   await sendGraphMail(
     [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
@@ -1599,16 +1625,17 @@ async function notifyNewReport(report) {
 async function notifyStatusChange(report, newStatus) {
   const cfg = MAIL_CONFIG;
   if (cfg.notifyStatusChange === false) return;
-  const statusColors = { new:'#00e5a0', reviewing:'#ffaa00', resolved:'#6b7280' };
+  const statusColors = { new:'#00897b', reviewing:'#e17055', resolved:'#374151' };
   const statusIcons  = { new:'🟢', reviewing:'🟡', resolved:'✅' };
-  const html = mailTemplate('&#128260; Report Status Updated', [
-    ['Report ID',  `<strong style="color:#00e5a0;font-family:monospace;font-size:16px;">${report.id}</strong>`],
-    ['Title',      `<strong>${report.title}</strong>`],
-    ['New Status', `<strong style="color:${statusColors[newStatus]||'#e8ecf0'};font-size:16px;">${(statusIcons[newStatus]||'')} ${newStatus.toUpperCase()}</strong>`],
-    ['Severity',   report.severity.toUpperCase()],
-    ['Category',   report.category],
-    ['Updated At', new Date().toLocaleString('en-IN')],
-  ], '#7b8cff');
+  const sColor = statusColors[newStatus] || '#374151';
+  const html = mailTemplate('🔄 Report Status Updated', [
+    ['Report ID',  `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',      `<strong style="color:#1a2033;">${report.title}</strong>`],
+    ['New Status', `<strong style="background:${sColor}18;color:${sColor};font-size:15px;padding:2px 10px;border-radius:4px;border:1px solid ${sColor}44;">${(statusIcons[newStatus]||'')} ${newStatus.toUpperCase()}</strong>`],
+    ['Severity',   `<span style="color:#374151;">${report.severity.toUpperCase()}</span>`],
+    ['Category',   `<span style="color:#374151;">${report.category}</span>`],
+    ['Updated At', `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
+  ], '#6c63ff');
   await sendGraphMail(
     [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
     `[SecureReport] Status → ${newStatus.toUpperCase()} — ${report.id}`,
@@ -1619,32 +1646,31 @@ async function notifyStatusChange(report, newStatus) {
 async function notifySioAssigned(report, sioUser) {
   const cfg = MAIL_CONFIG;
   if (cfg.notifySioAssigned === false) return;
-  // Notify the SIO officer directly
   const users = getUsers();
   const sio   = users.find(u => u.username === sioUser);
   const sioEmail = sio && sio.email ? [sio.email] : [];
-  const sioHtml = mailTemplate('&#128373; You Have Been Assigned a New Case', [
-    ['Report ID',   `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
-    ['Title',       `<strong>${report.title}</strong>`],
-    ['Category',    report.category],
-    ['Severity',    `<strong style="color:${report.severity==='high'?'#ff4d6a':report.severity==='medium'?'#ffaa00':'#00c8a0'}">${report.severity.toUpperCase()}</strong>`],
-    ['Assigned By', report.sioAssignedBy || 'Admin'],
-    ['Note',        report.sioAssignNote || '—'],
-    ['Date',        new Date().toLocaleString('en-IN')],
-    ['Action',      '<span style="color:#00cfff;">Log in to SecureReport SIO Portal to begin your investigation.</span>'],
-  ], '#00cfff');
+  const sevColor = report.severity==='high'?'#d63031':report.severity==='medium'?'#e17055':'#00897b';
+  const sioHtml = mailTemplate('🕵️ You Have Been Assigned a New Case', [
+    ['Report ID',   `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',       `<strong style="color:#1a2033;">${report.title}</strong>`],
+    ['Category',    `<span style="color:#374151;">${report.category}</span>`],
+    ['Severity',    `<span style="background:${sevColor}18;color:${sevColor};font-weight:700;text-transform:uppercase;padding:2px 10px;border-radius:4px;border:1px solid ${sevColor}44;">${report.severity.toUpperCase()}</span>`],
+    ['Assigned By', `<span style="color:#374151;">${report.sioAssignedBy || 'Admin'}</span>`],
+    ['Note',        `<span style="color:#374151;">${report.sioAssignNote || '—'}</span>`],
+    ['Date',        `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
+    ['Action',      '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport SIO Portal to begin your investigation.</span>'],
+  ], '#0097a7');
   if (sioEmail.length) {
     await sendGraphMail(sioEmail, `[SecureReport] 🕵️ New Case Assigned to You — ${report.id}`, sioHtml);
   }
-  // Notify admins about the assignment
-  const adminHtml = mailTemplate('&#128373; SIO Assignment Confirmed', [
-    ['Report ID',  `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
-    ['Title',      `<strong>${report.title}</strong>`],
-    ['Assigned To',`<strong style="color:#00cfff;">${sio ? sio.name : sioUser} (@${sioUser})</strong>`],
-    ['Severity',   report.severity.toUpperCase()],
-    ['Note',       report.sioAssignNote || '—'],
-    ['Date',       new Date().toLocaleString('en-IN')],
-  ], '#00cfff');
+  const adminHtml = mailTemplate('🕵️ SIO Assignment Confirmed', [
+    ['Report ID',   `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',       `<strong style="color:#1a2033;">${report.title}</strong>`],
+    ['Assigned To', `<strong style="color:#0097a7;">${sio ? sio.name : sioUser} (@${sioUser})</strong>`],
+    ['Severity',    `<span style="color:#374151;">${report.severity.toUpperCase()}</span>`],
+    ['Note',        `<span style="color:#374151;">${report.sioAssignNote || '—'}</span>`],
+    ['Date',        `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
+  ], '#0097a7');
   await sendGraphMail(
     [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
     `[SecureReport] SIO Assigned to ${report.id} — ${sio ? sio.name : sioUser}`,
@@ -1663,15 +1689,15 @@ async function notifyInvReportSubmitted(report) {
     closed_unsubstantiated:'❌ Closed — Unsubstantiated',
     referred_to_management:'📤 Referred to Management'
   }[inv.status] || inv.status.replace(/_/g,' ').toUpperCase();
-  const html = mailTemplate('&#128221; Investigation Report Filed', [
-    ['Report ID',    `<strong style="color:#00cfff;font-family:monospace;font-size:16px;">${report.id}</strong>`],
-    ['Title',        `<strong>${report.title}</strong>`],
-    ['Inv. Status',  `<strong style="color:#00cfff;">${invStatusDisplay}</strong>`],
-    ['Summary',      `<em style="color:#c8d3de;">${inv.summary.slice(0,250)+(inv.summary.length>250?'…':'')}</em>`],
-    ['Submitted By', inv.submittedBy],
-    ['Date',         new Date(inv.submittedAt).toLocaleString('en-IN')],
-    ['Action',       '<span style="color:#00cfff;">Log in to SecureReport to review the full investigation report.</span>'],
-  ], '#00cfff');
+  const html = mailTemplate('📝 Investigation Report Filed', [
+    ['Report ID',    `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Title',        `<strong style="color:#1a2033;">${report.title}</strong>`],
+    ['Inv. Status',  `<strong style="color:#0097a7;">${invStatusDisplay}</strong>`],
+    ['Summary',      `<em style="color:#374151;">${inv.summary.slice(0,250)+(inv.summary.length>250?'…':'')}</em>`],
+    ['Submitted By', `<span style="color:#374151;">${inv.submittedBy}</span>`],
+    ['Date',         `<span style="color:#374151;">${new Date(inv.submittedAt).toLocaleString('en-IN')}</span>`],
+    ['Action',       '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport to review the full investigation report.</span>'],
+  ], '#0097a7');
   await sendGraphMail(
     [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
     `[SecureReport] 📋 Investigation Report Filed — ${report.id}`,
