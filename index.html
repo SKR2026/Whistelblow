@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SecureReport — Whistleblower Portal</title>
+<!-- Microsoft MSAL – Azure AD / Microsoft Graph token acquisition (delegated flow) -->
+<script src="https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"
+  onerror="console.error('❌ MSAL failed to load from unpkg. Trying jsDelivr fallback…');
+           var s=document.createElement('script');
+           s.src='https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js';
+           document.head.appendChild(s);"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -837,8 +843,7 @@
     <div style="background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:3px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:28px;">
       <span style="color:var(--warn);font-size:18px;flex-shrink:0;">&#9889;</span>
       <p style="font-size:13px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
-        Configure <strong style="color:var(--sa);">Microsoft Graph API</strong> to send automated email notifications via Microsoft 365. You need an Azure Entra ID App Registration with <code style="color:var(--sa);background:rgba(245,197,66,0.1);padding:2px 6px;border-radius:2px;">Mail.Send</code> application permission granted.
-        <br><span style="color:var(--warn);">&#9888; In production, proxy the token request through a backend service to protect credentials.</span>
+        Configure <strong style="color:var(--sa);">Microsoft Graph API</strong> to send automated email notifications via Microsoft 365. Uses <strong style="color:var(--accent);">MSAL delegated login</strong> — no client secret required in browser. A Microsoft login popup appears on first use; tokens are cached automatically for subsequent sends.
       </p>
     </div>
 
@@ -859,14 +864,19 @@
           </div>
         </div>
         <div class="field">
-          <label>Client Secret</label>
-          <input type="password" id="mc-clientSecret" placeholder="Azure app client secret value" autocomplete="new-password" />
-          <div class="fhint" style="color:var(--warn);">&#9888; Keep secret confidential. Use a backend proxy in production to avoid client-side exposure.</div>
-        </div>
-        <div class="field">
-          <label>Sender Email (Licensed M365 Mailbox)</label>
+          <label>Sender / From Email (Licensed M365 Mailbox)</label>
           <input type="email" id="mc-senderEmail" placeholder="e.g. notifications@yourorg.com" />
-          <div class="fhint">The mailbox that sends notifications. Must be a licensed Microsoft 365 account.</div>
+          <div class="fhint">The Microsoft 365 mailbox you sign in with. Emails are sent from this address using the signed-in user's delegated permission.</div>
+        </div>
+
+        <!-- MSAL Sign-In Status -->
+        <div style="background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:12px 16px;margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span id="msal-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0;display:inline-block;"></span>
+          <span id="msal-status-label" style="font-family:var(--mono);font-size:12px;color:var(--text2);flex:1;min-width:200px;">Save your Tenant ID &amp; Client ID, then click Sign In.</span>
+          <button id="msal-signin-btn" class="sbtn sio-btn" style="font-size:12px;padding:7px 16px;" onclick="msalSignIn()">&#128273; Sign In with Microsoft</button>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:8px;padding:7px 12px;background:rgba(0,207,255,0.04);border-radius:3px;border:1px solid rgba(0,207,255,0.12);">
+          ⚡ <strong style="color:var(--sio);">How it works:</strong> After saving your Client ID &amp; Tenant ID, click <strong>Sign In with Microsoft</strong>. A popup authenticates you once — tokens are cached silently for all future email sends. No client secret needed.
         </div>
       </div>
     </div>
@@ -921,21 +931,22 @@
 
     <!-- Setup Guide -->
     <div style="margin-top:30px;background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:22px;">
-      <div style="font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;display:flex;align-items:center;gap:10px;"><span style="display:block;width:12px;height:1px;background:var(--sa);"></span>Azure Entra ID Setup Guide</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;display:flex;align-items:center;gap:10px;"><span style="display:block;width:12px;height:1px;background:var(--sa);"></span>Azure Entra ID Setup Guide (Delegated / MSAL)</div>
       <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--warn);">
-        ⚠ Required Azure permission: <code style="background:rgba(255,184,0,0.1);padding:2px 7px;border-radius:2px;color:var(--sa);">Mail.Send</code> (Application Permission) with Admin Consent granted
+        ⚠ Required Azure permission: <code style="background:rgba(255,184,0,0.1);padding:2px 7px;border-radius:2px;color:var(--sa);">Mail.Send</code> (Delegated Permission) + register this page URL as a Redirect URI (Single-page application)
       </div>
       <ol style="font-family:var(--mono);font-size:13px;color:var(--text2);line-height:2.3;padding-left:22px;">
         <li>Sign in to <strong style="color:var(--text);">portal.azure.com</strong> → <em>Microsoft Entra ID</em> → <em>App Registrations</em> → <strong>New Registration</strong></li>
-        <li>Name the app (e.g. <em>SecureReport Mailer</em>), choose <em>Single tenant</em>, click <strong>Register</strong></li>
-        <li>Go to <strong style="color:var(--text);">API Permissions</strong> → Add Permission → Microsoft Graph → <em>Application Permissions</em> → search <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 5px;border-radius:2px;">Mail.Send</code> → Add → <strong>Grant Admin Consent</strong></li>
-        <li>Go to <strong style="color:var(--text);">Certificates &amp; Secrets</strong> → New Client Secret → set expiry → copy the <strong style="color:var(--warn);">Value</strong> (shown only once — store securely)</li>
+        <li>Name the app (e.g. <em>SecureReport Mailer</em>), choose your tenant, click <strong>Register</strong></li>
+        <li>Go to <strong style="color:var(--text);">Authentication</strong> → Add a platform → <strong>Single-page application (SPA)</strong> → paste this page's full URL as the Redirect URI → Save</li>
+        <li>Go to <strong style="color:var(--text);">API Permissions</strong> → Add Permission → Microsoft Graph → <em>Delegated Permissions</em> → search <code style="color:var(--sa);background:rgba(245,197,66,0.08);padding:1px 5px;border-radius:2px;">Mail.Send</code> → Add → <strong>Grant Admin Consent</strong></li>
         <li>From <strong style="color:var(--text);">Overview</strong>, copy the <em>Application (client) ID</em> and <em>Directory (tenant) ID</em></li>
-        <li>The <strong style="color:var(--text);">Sender Email</strong> must be a licensed Microsoft 365 mailbox in your tenant (e.g. a shared mailbox or service account)</li>
-        <li>Paste all values above, click <strong style="color:var(--sa);">Save Configuration</strong>, then <strong style="color:var(--sio);">Send Test Email</strong> to verify</li>
+        <li>Paste the IDs above, enter the sender email, click <strong style="color:var(--sa);">Save Configuration</strong></li>
+        <li>Click <strong style="color:var(--sio);">Sign In with Microsoft</strong> — authenticate once. Token is cached; all future emails send silently.</li>
+        <li>Click <strong style="color:var(--sio);">Send Test Email</strong> to verify ✓</li>
       </ol>
       <div style="margin-top:14px;background:rgba(0,216,255,0.05);border:1px solid rgba(0,216,255,0.18);border-radius:3px;padding:11px 14px;font-family:var(--mono);font-size:12px;color:var(--text3);line-height:1.8;">
-        🔒 <strong style="color:var(--sio);">Security note:</strong> For production deployments, proxy the Graph API token request through a backend server to prevent exposing <code style="color:var(--warn);">clientSecret</code> in the browser. The current configuration is suitable for internal/intranet portals.
+        🔒 <strong style="color:var(--sio);">Security note:</strong> MSAL delegated flow uses a user popup login — <strong>no client secret is stored in the browser</strong>. This is inherently safer than the client credentials flow. Tokens are cached in localStorage and refreshed silently.
       </div>
     </div>
   </div>
@@ -1194,7 +1205,6 @@ async function loadReports() {
 const MAIL_CONFIG_DEFAULTS = {
   tenantId:          '',
   clientId:          '',
-  clientSecret:      '',
   senderEmail:       '',
   adminEmails:       [],
   superAdminEmails:  [],
@@ -1222,19 +1232,29 @@ function updateMailStatusBanner() {
   const banner = document.getElementById('mc-status-banner');
   const text   = document.getElementById('mc-status-text');
   if (!banner || !text) return;
-  const isConfigured = cfg.tenantId && cfg.clientId && cfg.clientSecret && cfg.senderEmail;
-  if (isConfigured) {
-    banner.style.background = 'rgba(0,240,168,0.07)';
+  const isConfigured = cfg.tenantId && cfg.clientId && cfg.senderEmail;
+  const inst = getMsalInstance && getMsalInstance();
+  const isSignedIn = inst && inst.getAllAccounts().length > 0;
+  if (isConfigured && isSignedIn) {
+    banner.style.background  = 'rgba(0,240,168,0.07)';
     banner.style.borderColor = 'rgba(0,240,168,0.28)';
-    banner.querySelector('span').style.background = 'var(--accent)';
-    banner.querySelector('span').style.boxShadow = '0 0 6px var(--accent)';
+    banner.querySelector('span').style.background  = 'var(--accent)';
+    banner.querySelector('span').style.boxShadow   = '0 0 6px var(--accent)';
     text.style.color = 'var(--accent)';
-    text.textContent = `Microsoft Graph API — Configured ✓  Sender: ${cfg.senderEmail}  |  Recipients: ${[...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[])].length} address(es)`;
+    const username = inst.getAllAccounts()[0]?.username || cfg.senderEmail;
+    text.textContent = `Microsoft Graph API — Active ✓  Signed in as: ${username}  |  Recipients: ${[...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[])].length} address(es)`;
+  } else if (isConfigured) {
+    banner.style.background  = 'rgba(255,184,0,0.07)';
+    banner.style.borderColor = 'rgba(255,184,0,0.28)';
+    banner.querySelector('span').style.background  = 'rgba(255,184,0,0.8)';
+    banner.querySelector('span').style.boxShadow   = '0 0 6px rgba(255,184,0,0.5)';
+    text.style.color = 'var(--warn)';
+    text.textContent = `Microsoft Graph API — Credentials saved. Click "Sign In with Microsoft" to activate email notifications.`;
   } else {
-    banner.style.background = 'rgba(99,112,128,0.1)';
+    banner.style.background  = 'rgba(99,112,128,0.1)';
     banner.style.borderColor = 'rgba(99,112,128,0.3)';
-    banner.querySelector('span').style.background = 'var(--text3)';
-    banner.querySelector('span').style.boxShadow = 'none';
+    banner.querySelector('span').style.background  = 'var(--text3)';
+    banner.querySelector('span').style.boxShadow   = 'none';
     text.style.color = 'var(--text3)';
     text.textContent = 'Microsoft Graph API — Not configured. Fill in credentials below and save to activate email notifications.';
   }
@@ -1247,7 +1267,6 @@ function renderMailConfigPage() {
   const el = id => document.getElementById(id);
   if (el('mc-tenantId'))         el('mc-tenantId').value         = cfg.tenantId || '';
   if (el('mc-clientId'))         el('mc-clientId').value         = cfg.clientId || '';
-  if (el('mc-clientSecret'))     el('mc-clientSecret').value     = cfg.clientSecret || '';
   if (el('mc-senderEmail'))      el('mc-senderEmail').value      = cfg.senderEmail || '';
   if (el('mc-adminEmails'))      el('mc-adminEmails').value      = (cfg.adminEmails||[]).join('\n');
   if (el('mc-superAdminEmails')) el('mc-superAdminEmails').value = (cfg.superAdminEmails||[]).join('\n');
@@ -1256,6 +1275,18 @@ function renderMailConfigPage() {
   if (el('mc-notifySioAssigned'))  el('mc-notifySioAssigned').checked  = cfg.notifySioAssigned !== false;
   if (el('mc-notifyInvReport'))    el('mc-notifyInvReport').checked    = cfg.notifyInvReport !== false;
   updateMailStatusBanner();
+  // Restore MSAL sign-in status badge
+  const inst = getMsalInstance && getMsalInstance();
+  if (inst) {
+    const accounts = inst.getAllAccounts();
+    if (accounts.length > 0) updateMsalStatusBadge('signed-in', accounts[0].username);
+    else if (cfg.clientId && cfg.tenantId) updateMsalStatusBadge('signed-out');
+    else updateMsalStatusBadge('unconfigured');
+  } else if (cfg.clientId && cfg.tenantId) {
+    updateMsalStatusBadge('signed-out');
+  } else {
+    updateMsalStatusBadge('unconfigured');
+  }
 }
 
 function saveMailConfig() {
@@ -1264,7 +1295,6 @@ function saveMailConfig() {
   const cfg = {
     tenantId:          (el('mc-tenantId')?.value||'').trim(),
     clientId:          (el('mc-clientId')?.value||'').trim(),
-    clientSecret:      (el('mc-clientSecret')?.value||'').trim(),
     senderEmail:       (el('mc-senderEmail')?.value||'').trim(),
     adminEmails:       parseEmails(el('mc-adminEmails')?.value||''),
     superAdminEmails:  parseEmails(el('mc-superAdminEmails')?.value||''),
@@ -1276,6 +1306,17 @@ function saveMailConfig() {
   saveMailConfigToStorage(cfg);
   MAIL_CONFIG = cfg;
   updateMailStatusBanner();
+  // Update MSAL badge — if credentials changed, the new cacheKey will auto-create fresh instance
+  const inst = getMsalInstance();
+  if (inst) {
+    const accounts = inst.getAllAccounts();
+    if (accounts.length > 0) updateMsalStatusBadge('signed-in', accounts[0].username);
+    else updateMsalStatusBadge('signed-out');
+  } else if (cfg.clientId && cfg.tenantId) {
+    updateMsalStatusBadge('signed-out');
+  } else {
+    updateMsalStatusBadge('unconfigured');
+  }
   const msg = document.getElementById('mc-saved-msg');
   if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
 }
@@ -1284,8 +1325,8 @@ async function testMailConfig() {
   saveMailConfig(); // save first
   const cfg = MAIL_CONFIG;
   const testMsg = document.getElementById('mc-test-msg');
-  if (!cfg.tenantId || !cfg.clientId || !cfg.clientSecret || !cfg.senderEmail) {
-    if (testMsg) { testMsg.textContent='⚠ Please fill in all Azure credentials before testing.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
+  if (!cfg.tenantId || !cfg.clientId || !cfg.senderEmail) {
+    if (testMsg) { testMsg.textContent='⚠ Please fill in Tenant ID, Client ID, and Sender Email before testing.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
     return;
   }
   const allRecipients = [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])];
@@ -1293,7 +1334,7 @@ async function testMailConfig() {
     if (testMsg) { testMsg.textContent='⚠ Add at least one recipient email to test.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
     return;
   }
-  if (testMsg) { testMsg.textContent='⏳ Sending test email…'; testMsg.style.color='var(--text2)'; testMsg.style.display='inline'; }
+  if (testMsg) { testMsg.textContent='⏳ Signing in & sending test email…'; testMsg.style.color='var(--text2)'; testMsg.style.display='inline'; }
   const html = mailTemplate('Test Email — Configuration Verified ✓', [
     ['From',    cfg.senderEmail],
     ['Tenant',  cfg.tenantId],
@@ -1304,58 +1345,186 @@ async function testMailConfig() {
   try {
     await sendGraphMail(allRecipients, '[SecureReport] ✓ Email Configuration Test', html);
     if (testMsg) { testMsg.textContent='✓ Test email sent successfully! Check your inbox.'; testMsg.style.color='var(--accent)'; }
+    updateMsalStatusBadge('signed-in', getMsalInstance()?.getAllAccounts()[0]?.username || cfg.senderEmail);
+    updateMailStatusBanner();
   } catch(e) {
-    if (testMsg) { testMsg.textContent='✗ Send failed — check console for details.'; testMsg.style.color='var(--danger)'; }
+    if (testMsg) { testMsg.textContent='✗ Send failed: ' + (e.message||'check console for details.'); testMsg.style.color='var(--danger)'; }
   }
-  setTimeout(()=>{ if(testMsg) testMsg.style.display='none'; }, 5000);
+  setTimeout(()=>{ if(testMsg) testMsg.style.display='none'; }, 6000);
 }
 
-// Obtain an OAuth2 access token using client credentials flow
+// ══════════════════════════════════════════════════════════
+//  MICROSOFT GRAPH — MSAL Delegated Flow (ported from Legal app)
+//
+//  WHY THIS REPLACES client_credentials:
+//  1. client_credentials requires posting clientSecret from the browser
+//     → Azure blocks this with CORS (tokenUrl returns no CORS headers)
+//     → CORS proxy workarounds are unreliable and a security risk
+//  2. MSAL delegated flow uses a popup login (no secret in browser)
+//     → CORS-safe, token cached silently after first login
+//  3. Singleton cache prevents "interaction_in_progress" errors from
+//     multiple PublicClientApplication instances fighting over localStorage
+// ══════════════════════════════════════════════════════════
+
+// Singleton cache: one MSAL instance per clientId::tenantId pair
+const _msalInstances = {};
+
+/**
+ * getMSGraphToken(cfg)
+ * Acquires a delegated Mail.Send token via silent → popup flow.
+ * cfg must have: { clientId, tenantId }
+ */
+async function getMSGraphToken(cfg) {
+  if (typeof msal === 'undefined') {
+    throw new Error(
+      'MSAL library failed to load. Check your internet connection and refresh the page. ' +
+      'Ensure your network allows access to unpkg.com or cdn.jsdelivr.net.'
+    );
+  }
+  if (!cfg.clientId || !cfg.tenantId) {
+    throw new Error('Azure App (Client) ID and Tenant ID are required. Save your settings first.');
+  }
+
+  // Full page URL (no hash/query) — must match the Redirect URI registered in Azure AD
+  const redirectUri = window.location.href.split('?')[0].split('#')[0];
+  const cacheKey    = `${cfg.clientId}::${cfg.tenantId}`;
+
+  if (!_msalInstances[cacheKey]) {
+    const inst = new msal.PublicClientApplication({
+      auth: {
+        clientId:    cfg.clientId,
+        authority:   `https://login.microsoftonline.com/${cfg.tenantId}`,
+        redirectUri,
+      },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false },
+    });
+    // initialize() is required before any interactive call in MSAL v2
+    await inst.initialize();
+    _msalInstances[cacheKey] = inst;
+    console.log(`🔑 [MSAL] Instance created — redirectUri: ${redirectUri}`);
+  }
+
+  const inst    = _msalInstances[cacheKey];
+  const request = { scopes: ['Mail.Send', 'User.Read'] };
+  const accounts = inst.getAllAccounts();
+
+  // Try silent first (uses cached token — no popup)
+  if (accounts.length > 0) {
+    try {
+      const silent = await inst.acquireTokenSilent({ ...request, account: accounts[0] });
+      return silent.accessToken;
+    } catch (_) { /* token expired or interaction required — fall through to popup */ }
+  }
+
+  // Interactive popup login
+  const popup = await inst.loginPopup(request);
+  return popup.accessToken;
+}
+
+/**
+ * getMsalInstance()
+ * Returns the cached MSAL instance for current credentials, or null.
+ * Used by sign-in status badge and sign-out.
+ */
+function getMsalInstance() {
+  const cfg = getMailConfig();
+  if (!cfg.clientId || !cfg.tenantId) return null;
+  return _msalInstances[`${cfg.clientId}::${cfg.tenantId}`] || null;
+}
+
+// ── Sign-in / sign-out helpers for the Settings UI ─────────
+async function msalSignIn() {
+  const cfg = getMailConfig();
+  if (!cfg.clientId || !cfg.tenantId) {
+    updateMsalStatusBadge('unconfigured');
+    showMsalMsg('⚠ Save your Tenant ID and Client ID first, then click Sign In.', 'var(--warn)');
+    return;
+  }
+  const btn = document.getElementById('msal-signin-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Opening Microsoft login…'; }
+  try {
+    const token = await getMSGraphToken(cfg);
+    if (token) {
+      const inst     = getMsalInstance();
+      const accounts = inst ? inst.getAllAccounts() : [];
+      const username = accounts.length ? accounts[0].username : cfg.senderEmail || cfg.clientId;
+      updateMsalStatusBadge('signed-in', username);
+      showMsalMsg('✅ Signed in! Emails will send automatically.', 'var(--accent)');
+    }
+  } catch(e) {
+    console.error('[MSAL] Sign-in error:', e.message);
+    const isFile = window.location.protocol === 'file:';
+    const hint   = isFile ? ' — Note: Microsoft sign-in requires the page to be served over HTTPS, not opened as a local file.' : '';
+    updateMsalStatusBadge('signed-out');
+    showMsalMsg('❌ Sign-in failed: ' + e.message.slice(0, 120) + hint, 'var(--danger)');
+  } finally {
+    if (btn) { btn.disabled = false; }
+  }
+}
+
+async function msalSignOut() {
+  const inst = getMsalInstance();
+  if (inst) {
+    try { await inst.clearCache(); } catch(_) {}
+  }
+  updateMsalStatusBadge('signed-out');
+  showMsalMsg('Signed out from Microsoft.', 'var(--text3)');
+}
+
+function updateMsalStatusBadge(state, username = '') {
+  const dot = document.getElementById('msal-status-dot');
+  const lbl = document.getElementById('msal-status-label');
+  const btn = document.getElementById('msal-signin-btn');
+  if (!dot) return;
+  if (state === 'signed-in') {
+    dot.style.background  = 'var(--accent)';
+    dot.style.boxShadow   = '0 0 6px var(--accent)';
+    if (lbl) lbl.textContent = '✅ Signed in as: ' + username;
+    if (btn) { btn.textContent = '⎋ Sign Out'; btn.onclick = msalSignOut; btn.style.borderColor = 'rgba(0,240,168,0.4)'; }
+  } else if (state === 'unconfigured') {
+    dot.style.background  = 'var(--text3)';
+    dot.style.boxShadow   = 'none';
+    if (lbl) lbl.textContent = '⚠ Enter Tenant ID & Client ID above and click Save first.';
+    if (btn) { btn.textContent = '🔑 Sign In with Microsoft'; btn.onclick = msalSignIn; }
+  } else {
+    dot.style.background  = 'rgba(255,184,0,0.8)';
+    dot.style.boxShadow   = '0 0 6px rgba(255,184,0,0.6)';
+    if (lbl) lbl.textContent = '⚠ Not signed in — click Sign In with Microsoft to authorize';
+    if (btn) { btn.textContent = '🔑 Sign In with Microsoft'; btn.onclick = msalSignIn; }
+  }
+}
+
+function showMsalMsg(msg, color) {
+  const el = document.getElementById('mc-test-msg');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color   = color || 'var(--text2)';
+  el.style.display = 'inline';
+  setTimeout(() => { if (el) el.style.display = 'none'; }, 5000);
+}
+
+// ── Obtain an access token (used by all send functions) ────
 async function getGraphToken() {
   const cfg = MAIL_CONFIG;
-  if (!cfg.tenantId || !cfg.clientId || !cfg.clientSecret) return null;
-  // Primary: direct Microsoft OAuth endpoint (works in same-tenant intranet / when CORS is allowed)
-  const tokenUrl = `https://login.microsoftonline.com/${cfg.tenantId}/oauth2/v2.0/token`;
-  const body = new URLSearchParams({
-    grant_type:    'client_credentials',
-    client_id:     cfg.clientId,
-    client_secret: cfg.clientSecret,
-    scope:         'https://graph.microsoft.com/.default'
-  });
-  // Try direct first
-  try {
-    const res  = await fetch(tokenUrl, { method:'POST', body, headers:{'Content-Type':'application/x-www-form-urlencoded'} });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.access_token) { console.info('[Mail] Token obtained via direct flow'); return data.access_token; }
-      console.warn('[Mail] Direct token error:', data.error_description || data.error);
-    }
-  } catch(e) {
-    console.warn('[Mail] Direct token fetch failed (possible CORS), trying proxy:', e.message);
-  }
-  // Fallback: CORS proxy (corsproxy.io — suitable for internal portals; swap with your own proxy in production)
-  try {
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(tokenUrl)}`;
-    const res2 = await fetch(proxyUrl, { method:'POST', body, headers:{'Content-Type':'application/x-www-form-urlencoded'} });
-    if (res2.ok) {
-      const data2 = await res2.json();
-      if (data2.access_token) { console.info('[Mail] Token obtained via CORS proxy'); return data2.access_token; }
-      console.warn('[Mail] Proxy token error:', data2.error_description || data2.error);
-    }
-  } catch(e2) { console.warn('[Mail] Proxy token fetch also failed:', e2.message); }
-  return null;
+  return getMSGraphToken({ clientId: cfg.clientId, tenantId: cfg.tenantId });
 }
 
-// Send an email via Microsoft Graph /sendMail
+// ── Send an email via Microsoft Graph /me/sendMail ─────────
+// Uses /me/sendMail (delegated) instead of /users/{email}/sendMail (app-only)
 async function sendGraphMail(toEmails, subject, htmlBody) {
   if (!toEmails || !toEmails.length) return;
   const cfg = MAIL_CONFIG;
-  if (!cfg.tenantId || cfg.tenantId === 'YOUR_TENANT_ID') {
+  if (!cfg.tenantId || cfg.tenantId === 'YOUR_TENANT_ID' || !cfg.clientId) {
     console.info('[Mail] Config not set — skipping notification:', subject);
     return;
   }
-  const token = await getGraphToken();
-  if (!token) { console.warn('[Mail] Could not obtain Graph token'); return; }
+  let token;
+  try {
+    token = await getGraphToken();
+  } catch(e) {
+    console.warn('[Mail] Could not obtain Graph token:', e.message);
+    return;
+  }
   const payload = {
     message: {
       subject,
@@ -1366,11 +1535,11 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
   };
   try {
     const res = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(cfg.senderEmail)}/sendMail`,
+      'https://graph.microsoft.com/v1.0/me/sendMail',
       { method:'POST', headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify(payload) }
     );
     if (res.ok) console.info('[Mail] Sent:', subject);
-    else { const err = await res.json(); console.warn('[Mail] Send failed:', err); }
+    else { const err = await res.json().catch(()=>res.text()); console.warn('[Mail] Send failed:', err); }
   } catch(e) { console.warn('[Mail] Fetch error:', e); }
 }
 
