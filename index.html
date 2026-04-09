@@ -1230,6 +1230,14 @@ function getPlants() {
   } catch(e) { return DEFAULT_PLANTS; }
 }
 function savePlants(plants) { try { localStorage.setItem('wb_plants', JSON.stringify(plants)); } catch(e) {} }
+async function savePlantsWithSync(plants) {
+  savePlants(plants);
+  if (!_fbReady || !_db) return;
+  for (const p of plants) {
+    try { await _db.collection('wb_plants').doc(p.id).set(p); }
+    catch(e) { console.warn('Firestore plant sync failed:', e); }
+  }
+}
 
 /** Returns plant object for the current user (admin / planthead), or null for superadmin/topmgmt */
 function getCurrentUserPlant() {
@@ -1295,6 +1303,36 @@ async function loadReports() {
     console.warn('Firestore load failed (using local):', e);
     try { reports = JSON.parse(localStorage.getItem('wb_reports')||'[]'); } catch(e2) { reports = []; }
   }
+}
+
+// ── Plant Firestore helpers ────────────────────────────────
+async function savePlantToFirestore(plant) {
+  if (!_fbReady || !_db) return;
+  try { await _db.collection('wb_plants').doc(plant.id).set(plant); }
+  catch(e) { console.warn('Firestore plant write failed:', e); }
+}
+
+async function deletePlantFromFirestore(id) {
+  if (!_fbReady || !_db) return;
+  try { await _db.collection('wb_plants').doc(id).delete(); }
+  catch(e) { console.warn('Firestore plant delete failed:', e); }
+}
+
+async function loadPlantsFromFirestore() {
+  if (!_fbReady || !_db) return;
+  try {
+    const snap = await _db.collection('wb_plants').get();
+    if (snap.empty) {
+      // First time — seed defaults into Firestore
+      for (const p of DEFAULT_PLANTS) {
+        await _db.collection('wb_plants').doc(p.id).set(p);
+      }
+      savePlants(DEFAULT_PLANTS);
+      return;
+    }
+    const plants = snap.docs.map(d => d.data());
+    savePlants(plants);
+  } catch(e) { console.warn('Firestore plant load failed (using local):', e); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1846,6 +1884,7 @@ async function enterReporter(fromQR) {
   role = 'user'; currentUser = null;
   document.getElementById('roleScreen').style.display = 'none';
   await loadReports();
+  await loadPlantsFromFirestore(); // ensure latest plant names/list is loaded
   initApp('user', fromQR);
 }
 
@@ -1885,6 +1924,7 @@ async function doLogin() {
     role = found.role;
     currentUser = found;
     await loadReports();
+    await loadPlantsFromFirestore();
     initApp(role);
   } else {
     document.getElementById('lerr').style.display = 'block';
@@ -2225,7 +2265,7 @@ function cancelPlantRename(i) {
   document.getElementById('plant-rename-btn-'+i).style.display = '';
 }
 
-function savePlantRename(i) {
+async function savePlantRename(i) {
   const nameVal = (document.getElementById('plant-name-input-'+i)?.value||'').trim();
   const locVal  = (document.getElementById('plant-loc-input-'+i)?.value||'').trim();
   const msgEl   = document.getElementById('plant-rename-msg-'+i);
@@ -2234,35 +2274,35 @@ function savePlantRename(i) {
     return;
   }
   const plants = getPlants();
-  // Check duplicate (excluding self)
   if (plants.some((p,idx) => idx!==i && p.name.toLowerCase()===nameVal.toLowerCase())) {
     if (msgEl) { msgEl.textContent='A plant with this name already exists.'; msgEl.style.color='var(--danger)'; msgEl.style.display='block'; }
     return;
   }
-  // Also rename in existing reports so plantName stays in sync
-  const oldName = plants[i].name;
   plants[i].name = nameVal;
   plants[i].location = locVal;
-  savePlants(plants);
-  // Update all reports that referenced the old plantId to use new name
-  reports.forEach(r => {
-    if (r.plantId === plants[i].id) { r.plantName = nameVal; }
-  });
-  try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
+  // Sync plant to Firestore
+  await savePlantsWithSync(plants);
+  // Update existing reports plantName in Firestore too
+  const affectedReports = reports.filter(r => r.plantId === plants[i].id);
+  for (const r of affectedReports) {
+    r.plantName = nameVal;
+    await saveReport(r);
+  }
   renderPlantPage();
   populateCategoryDropdowns();
   showPlantMsg('Plant renamed to "' + nameVal + '" successfully.', 'ok');
 }
 
-function addPlant() {
+async function addPlant() {
   const name     = document.getElementById('newPlantName').value.trim();
   const location = document.getElementById('newPlantLocation').value.trim();
   if (!name) { showPlantMsg('Plant name cannot be empty.', 'danger'); return; }
   const plants = getPlants();
   if (plants.find(p => p.name.toLowerCase() === name.toLowerCase())) { showPlantMsg('A plant with this name already exists.', 'danger'); return; }
   const id = 'plant-' + Date.now();
-  plants.push({ id, name, location: location||'', createdBy: currentUser ? currentUser.username : 'superadmin' });
-  savePlants(plants);
+  const newPlant = { id, name, location: location||'', createdBy: currentUser ? currentUser.username : 'superadmin' };
+  plants.push(newPlant);
+  await savePlantsWithSync(plants);
   document.getElementById('newPlantName').value = '';
   document.getElementById('newPlantLocation').value = '';
   renderPlantPage();
@@ -2270,7 +2310,7 @@ function addPlant() {
   showPlantMsg('Plant "' + name + '" added successfully.', 'ok');
 }
 
-function deletePlant(idx) {
+async function deletePlant(idx) {
   const plants = getPlants();
   const p = plants[idx];
   if (DEFAULT_PLANTS.some(dp => dp.id === p.id)) { alert('Default plants cannot be deleted.'); return; }
@@ -2279,7 +2319,8 @@ function deletePlant(idx) {
   if (assigned.length) { alert('Cannot delete: ' + assigned.length + ' user(s) are assigned to this plant. Reassign or delete them first.'); return; }
   if (!confirm('Delete plant "' + p.name + '"? This cannot be undone.')) return;
   plants.splice(idx, 1);
-  savePlants(plants);
+  await savePlantsWithSync(plants);
+  await deletePlantFromFirestore(p.id);
   renderPlantPage();
   populateCategoryDropdowns();
   showPlantMsg('Plant deleted.', 'ok');
