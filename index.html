@@ -1336,6 +1336,65 @@ async function loadPlantsFromFirestore() {
 }
 
 // ══════════════════════════════════════════════════════════
+//  PENDING EMAIL NOTIFICATION QUEUE (Firestore-backed)
+//  Reporter devices have no MSAL token, so they write a
+//  pending doc to Firestore. Any logged-in admin session
+//  picks it up, sends the email with its own token, then
+//  deletes the pending doc.
+// ══════════════════════════════════════════════════════════
+let _notifUnsubscribe = null;
+
+async function queueEmailNotification(type, payload) {
+  if (!_fbReady || !_db) {
+    // Firestore unavailable — try direct send if MSAL token exists
+    try { if (type === 'new_report') await notifyNewReport(payload); } catch(e) {}
+    return;
+  }
+  try {
+    await _db.collection('wb_pending_notifications').add({
+      type,
+      payload,
+      createdAt: new Date().toISOString(),
+      attempts: 0
+    });
+  } catch(e) {
+    console.warn('[Queue] Could not queue notification:', e);
+    // Fallback: try direct send
+    try { if (type === 'new_report') await notifyNewReport(payload); } catch(e2) {}
+  }
+}
+
+function subscribePendingNotifications() {
+  if (!_fbReady || !_db) return;
+  if (_notifUnsubscribe) _notifUnsubscribe();
+  _notifUnsubscribe = _db.collection('wb_pending_notifications')
+    .onSnapshot(async snap => {
+      for (const docSnap of snap.docs) {
+        const n = docSnap.data();
+        if ((n.attempts || 0) >= 3) {
+          // Give up after 3 tries — delete to avoid infinite loop
+          try { await docSnap.ref.delete(); } catch(e) {}
+          continue;
+        }
+        // Check MSAL token is available before attempting send
+        const inst = getMsalInstance && getMsalInstance();
+        if (!inst || inst.getAllAccounts().length === 0) continue;
+        try {
+          if      (n.type === 'new_report')    await notifyNewReport(n.payload);
+          else if (n.type === 'status_change') await notifyStatusChange(n.payload.report, n.payload.newStatus);
+          else if (n.type === 'sio_assigned')  await notifySioAssigned(n.payload.report, n.payload.sioUser);
+          else if (n.type === 'inv_report')    await notifyInvReportSubmitted(n.payload);
+          // Success — delete the pending doc
+          await docSnap.ref.delete();
+        } catch(e) {
+          console.warn('[Queue] Notification send failed, incrementing attempt:', e);
+          try { await docSnap.ref.update({ attempts: (n.attempts||0) + 1 }); } catch(e2) {}
+        }
+      }
+    }, err => console.warn('[Queue] Snapshot error:', err));
+}
+
+// ══════════════════════════════════════════════════════════
 //  MICROSOFT GRAPH EMAIL NOTIFICATIONS
 // ══════════════════════════════════════════════════════════
 // ── Dynamic config — stored in localStorage, editable via UI ──
@@ -1682,57 +1741,115 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
 
 // ── Email templates ────────────────────────────────────────
 function mailTemplate(title, rows, accentColor='#00b894') {
-  const rowsHtml = rows.map(([label, value]) =>
-    `<tr>
-       <td style="padding:11px 18px;font-size:14px;color:#555e6e;font-family:'Times New Roman',Times,serif;text-transform:uppercase;letter-spacing:.06em;width:150px;border-bottom:1px solid #e8ecf2;vertical-align:top;font-weight:700;white-space:nowrap;">${label}</td>
-       <td style="padding:11px 18px;font-size:14px;color:#1a2033;font-family:'Times New Roman',Times,serif;border-bottom:1px solid #e8ecf2;line-height:1.7;">${value}</td>
+  const rowsHtml = rows.map(([label, value], idx) =>
+    `<tr style="background:${idx%2===0?'#ffffff':'#f8fafd'};">
+       <td style="padding:13px 22px;font-size:14px;color:#4a5568;font-family:'Times New Roman',Times,serif;text-transform:uppercase;letter-spacing:.07em;width:160px;border-bottom:1px solid #edf0f7;vertical-align:top;font-weight:700;white-space:nowrap;border-right:3px solid ${accentColor}22;">${label}</td>
+       <td style="padding:13px 22px;font-size:14px;color:#1a2033;font-family:'Times New Roman',Times,serif;border-bottom:1px solid #edf0f7;line-height:1.75;">${value}</td>
      </tr>`
   ).join('');
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#e8ecf4;font-family:'Times New Roman',Times,serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8ecf4;padding:40px 0;">
-    <tr><td align="center">
-      <table width="620" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,0.12);border:1px solid #d4daea;">
-        <!-- Header -->
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+</head>
+<body style="margin:0;padding:0;background:#dfe5f0;font-family:'Times New Roman',Times,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#dfe5f0;padding:44px 0;">
+    <tr><td align="center" style="padding:0 16px;">
+
+      <!-- Outer card -->
+      <table width="640" cellpadding="0" cellspacing="0" role="presentation"
+             style="max-width:640px;width:100%;background:#ffffff;border-radius:20px;
+                    overflow:hidden;box-shadow:0 8px 40px rgba(30,40,80,0.14);
+                    border:1px solid #cdd5e0;">
+
+        <!-- ── Header ── -->
         <tr>
-          <td style="background:linear-gradient(135deg,#1a2033 0%,#252d45 100%);padding:28px 36px;border-radius:18px 18px 0 0;">
-            <table width="100%" cellpadding="0" cellspacing="0"><tr>
-              <td>
-                <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;">
-                  <span style="font-size:22px;">🛡</span>
-                  <span style="font-family:'Times New Roman',Times,serif;font-size:16px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:700;">SecureReport</span>
-                </div>
-                <h2 style="color:#ffffff;font-size:22px;margin:0;font-weight:700;line-height:1.4;font-family:'Times New Roman',Times,serif;">${title}</h2>
-              </td>
-              <td align="right" style="vertical-align:top;">
-                <div style="background:${accentColor}22;border:1px solid ${accentColor}55;border-radius:10px;padding:7px 16px;display:inline-block;">
-                  <span style="font-size:12px;color:${accentColor};font-family:'Times New Roman',Times,serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Whistleblower Portal</span>
-                </div>
-              </td>
-            </tr></table>
+          <td style="background:linear-gradient(135deg,#141c30 0%,#1f2d4a 60%,#263550 100%);
+                     padding:30px 36px 26px;border-radius:20px 20px 0 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="vertical-align:middle;">
+                  <table cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                      <td style="vertical-align:middle;padding-right:10px;">
+                        <div style="width:40px;height:40px;background:${accentColor}22;border:2px solid ${accentColor}66;
+                                    border-radius:10px;text-align:center;line-height:40px;font-size:20px;">🛡️</div>
+                      </td>
+                      <td style="vertical-align:middle;">
+                        <div style="font-family:'Times New Roman',Times,serif;font-size:13px;color:${accentColor};
+                                    letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin-bottom:2px;">SecureReport</div>
+                        <div style="font-family:'Times New Roman',Times,serif;font-size:11px;color:#7a8faa;
+                                    letter-spacing:.1em;text-transform:uppercase;">Whistleblower Portal</div>
+                      </td>
+                    </tr>
+                  </table>
+                  <h2 style="color:#ffffff;font-size:22px;margin:16px 0 0;font-weight:700;
+                              line-height:1.4;font-family:'Times New Roman',Times,serif;">${title}</h2>
+                </td>
+                <td align="right" style="vertical-align:top;">
+                  <div style="background:${accentColor}18;border:1px solid ${accentColor}44;
+                               border-radius:12px;padding:8px 16px;display:inline-block;margin-top:4px;">
+                    <span style="font-size:12px;color:${accentColor};font-family:'Times New Roman',Times,serif;
+                                 font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Automated Alert</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
-        <!-- Accent bar -->
-        <tr><td style="height:5px;background:linear-gradient(90deg,${accentColor},${accentColor}88);"></td></tr>
-        <!-- Body table -->
+
+        <!-- ── Accent bar ── -->
         <tr>
-          <td style="padding:10px 0;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${rowsHtml}</table>
+          <td style="height:5px;background:linear-gradient(90deg,${accentColor} 0%,${accentColor}55 100%);"></td>
+        </tr>
+
+        <!-- ── Section label ── -->
+        <tr>
+          <td style="padding:18px 28px 4px;">
+            <div style="font-family:'Times New Roman',Times,serif;font-size:11px;color:#8a95a8;
+                        text-transform:uppercase;letter-spacing:.14em;font-weight:700;
+                        border-left:3px solid ${accentColor};padding-left:10px;">Report Details</div>
           </td>
         </tr>
-        <!-- Footer -->
+
+        <!-- ── Data rows ── -->
         <tr>
-          <td style="background:#f4f7fc;border-top:1px solid #e8ecf2;padding:18px 28px;border-radius:0 0 18px 18px;">
-            <p style="font-size:14px;color:#7b8899;margin:0;font-family:'Times New Roman',Times,serif;line-height:1.8;">
-              🔒 This is an automated notification from <strong style="color:#4a5568;">SecureReport — Whistleblower Portal</strong>.<br>
-              Do not reply to this email. All reports are stored securely and handled confidentially.
-            </p>
+          <td style="padding:4px 20px 16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                   style="border-collapse:collapse;border-radius:12px;overflow:hidden;
+                          border:1px solid #e4e9f2;">${rowsHtml}</table>
           </td>
         </tr>
+
+        <!-- ── Footer ── -->
+        <tr>
+          <td style="background:linear-gradient(180deg,#f4f7fc 0%,#edf1f8 100%);
+                     border-top:1px solid #dde3ef;padding:20px 30px 22px;
+                     border-radius:0 0 20px 20px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              <tr>
+                <td style="vertical-align:middle;padding-right:14px;">
+                  <span style="font-size:20px;">🔒</span>
+                </td>
+                <td>
+                  <p style="font-size:14px;color:#6b7a8d;margin:0;font-family:'Times New Roman',Times,serif;line-height:1.85;">
+                    This is an automated notification from
+                    <strong style="color:#3d4f6b;">SecureReport — Whistleblower Portal</strong>.<br>
+                    Do not reply to this email. All reports are stored securely and handled confidentially.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
       </table>
-      <p style="font-size:13px;color:#9aa5b4;margin-top:18px;font-family:'Times New Roman',Times,serif;text-align:center;">© Polyplastics — SecureReport System</p>
+      <!-- ── Tagline ── -->
+      <p style="font-size:13px;color:#8a95a8;margin-top:20px;font-family:'Times New Roman',Times,serif;
+                text-align:center;letter-spacing:.04em;">
+        © Polyplastics — SecureReport System &nbsp;|&nbsp; Confidential
+      </p>
+
     </td></tr>
   </table>
 </body></html>`;
@@ -1965,6 +2082,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR Code</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    subscribePendingNotifications();
     showPage('dashboard', nav.querySelector('.aa'));
 
   } else if (r === 'planthead') {
@@ -1976,6 +2094,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    subscribePendingNotifications();
     showPage('dashboard', nav.querySelector('.aa'));
 
   } else if (r === 'superadmin') {
@@ -1992,6 +2111,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('mailconfig',this)">&#9993; Email</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    subscribePendingNotifications();
     showPage('saanalytics', nav.querySelector('.asa'));
 
   } else if (r === 'topmanagement') {
@@ -2002,6 +2122,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    subscribePendingNotifications();
     showPage('topmgmt', nav.querySelector('.atm'));
 
   } else if (r === 'sio') {
@@ -2011,6 +2132,7 @@ function initApp(r) {
       <button class="nb asio" onclick="showPage('siocases',this)">&#128373; My Cases</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    subscribePendingNotifications();
     showPage('siocases', nav.querySelector('.asio'));
   }
 }
@@ -2028,6 +2150,7 @@ function onRealtimeUpdate() {
 
 function lockApp() {
   if(_unsubscribe) { _unsubscribe(); _unsubscribe = null; }
+  if(_notifUnsubscribe) { _notifUnsubscribe(); _notifUnsubscribe = null; }
   document.getElementById('app').style.display = 'none';
   document.getElementById('roleScreen').style.display = 'flex';
   role = null; currentUser = null;
@@ -2455,7 +2578,8 @@ async function submitReport() {
   const btn = document.querySelector('#submitForm .sbtn');
   if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting...'; }
   await saveReport(report);
-  notifyNewReport(report); // fire-and-forget email
+  // Queue email notification via Firestore — works even when reporter has no MSAL token
+  await queueEmailNotification('new_report', report);
   if(btn){ btn.disabled=false; btn.textContent='▶ Submit Report'; }
   document.getElementById('submitForm').style.display = 'none';
   document.getElementById('sc').classList.add('show');
@@ -2615,7 +2739,7 @@ function cardHTML(r, idx) {
 async function updStatus(i, s) {
   reports[i].status = s;
   await saveReport(reports[i]);
-  notifyStatusChange(reports[i], s); // fire-and-forget email
+  await queueEmailNotification('status_change', { report: reports[i], newStatus: s });
   if(document.getElementById('page-dashboard').classList.contains('active')) renderDash(); else renderAll();
 }
 
@@ -3079,7 +3203,7 @@ async function submitInvReport() {
   const btn = document.querySelector('#page-sioreport .sbtn.sio-btn');
   if (btn) { btn.disabled=true; btn.textContent='⏳ Saving...'; }
   await saveReport(r);
-  notifyInvReportSubmitted(r); // fire-and-forget email
+  await queueEmailNotification('inv_report', r);
   if (btn) { btn.disabled=false; btn.textContent='📨 Submit Investigation Report'; }
   const msg = document.getElementById('inv-saved-msg');
   if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 3000); }
@@ -3120,7 +3244,7 @@ async function confirmAssignSio() {
   const msg = document.getElementById('sio-assign-msg');
   msg.style.display = 'none';
   await saveReport(r);
-  if (sel) notifySioAssigned(r, sel); // fire-and-forget email
+  if (sel) await queueEmailNotification('sio_assigned', { report: r, sioUser: sel });
   msg.textContent = sel ? `✓ Assigned to ${sel}` : '✓ SIO assignment removed';
   msg.style.color = 'var(--accent)';
   msg.style.display = 'block';
