@@ -764,7 +764,7 @@
     <div class="ptitle sa">User Management</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
       <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong></p>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong> Use <strong style="color:var(--accent);">&#9998; Edit</strong> on any account (including SuperAdmin) to update the display name and notification email.</p>
     </div>
     <div class="sec-label">All Staff Accounts</div>
     <div class="user-list" id="userList"></div>
@@ -2267,16 +2267,31 @@ function renderUserPage() {
   document.getElementById('userList').innerHTML = users.map((u,i) => {
     const plantInfo = u.plantId ? plants.find(p=>p.id===u.plantId) : null;
     const plantLabel = plantInfo ? ` &nbsp;|&nbsp; <span style="color:var(--adm);">&#127968; ${plantInfo.name}</span>` : '';
+    const isSA = u.role === 'superadmin';
     return `
-    <div class="user-item">
-      <div class="user-info">
+    <div class="user-item" id="user-item-${i}">
+      <div class="user-info" id="user-view-${i}">
         <div class="un">${u.name} <span style="color:var(--text3);font-size:10px;">@${u.username}</span></div>
         <div class="ud">Created by: ${u.createdBy} &nbsp;|&nbsp; Role: ${u.role}${u.email?` &nbsp;|&nbsp; <span style="color:var(--sio);">✉ ${u.email}</span>`:' &nbsp;|&nbsp; <span style="color:var(--text3);">No email set</span>'}${plantLabel}</div>
       </div>
+      <div id="user-edit-${i}" style="display:none;flex:1;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input id="ue-name-${i}" value="${u.name.replace(/"/g,'&quot;')}" placeholder="Full name"
+            style="background:var(--bg);border:1px solid var(--sa);border-radius:3px;padding:6px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;width:180px;" />
+          <input id="ue-email-${i}" type="email" value="${(u.email||'').replace(/"/g,'&quot;')}" placeholder="Email for notifications"
+            style="background:var(--bg);border:1px solid var(--sio);border-radius:3px;padding:6px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;width:220px;" />
+          <button onclick="saveUserEdit(${i})"
+            style="background:var(--sa);color:#000;border:none;border-radius:3px;padding:6px 14px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">&#10003; Save</button>
+          <button onclick="cancelUserEdit(${i})"
+            style="background:none;border:1px solid var(--border2);border-radius:3px;padding:6px 11px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;">Cancel</button>
+        </div>
+        <div id="ue-msg-${i}" style="display:none;font-family:var(--mono);font-size:11px;"></div>
+      </div>
       <span class="role-tag ${u.role}">${roleLabel(u.role)}</span>
       <div class="user-actions">
+        <button class="rpw-btn" id="user-editbtn-${i}" onclick="startUserEdit(${i})">&#9998; Edit</button>
         <button class="rpw-btn" onclick="openPwModal('${u.username}')">&#128274; Reset PW</button>
-        ${u.role!=='superadmin'?`<button class="del-btn" onclick="deleteUser(${i})">&#215; Delete</button>`:'<button disabled style="opacity:0.2;cursor:not-allowed;background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:9px;color:var(--text3);">&#128274; Protected</button>'}
+        ${!isSA?`<button class="del-btn" onclick="deleteUser(${i})">&#215; Delete</button>`:'<button disabled style="opacity:0.2;cursor:not-allowed;background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:9px;color:var(--text3);">&#128274; Protected</button>'}
       </div>
     </div>`;
   }).join('');
@@ -2332,6 +2347,50 @@ function deleteUser(idx) {
   users.splice(idx, 1);
   saveUsers(users);
   renderUserPage();
+}
+
+function startUserEdit(i) {
+  document.getElementById('user-view-'+i).style.display = 'none';
+  const editDiv = document.getElementById('user-edit-'+i);
+  editDiv.style.display = 'flex';
+  document.getElementById('user-editbtn-'+i).style.display = 'none';
+  document.getElementById('ue-name-'+i).focus();
+}
+
+function cancelUserEdit(i) {
+  document.getElementById('user-view-'+i).style.display = '';
+  document.getElementById('user-edit-'+i).style.display = 'none';
+  document.getElementById('user-editbtn-'+i).style.display = '';
+}
+
+function saveUserEdit(i) {
+  const nameVal  = (document.getElementById('ue-name-'+i)?.value||'').trim();
+  const emailVal = (document.getElementById('ue-email-'+i)?.value||'').trim();
+  const msgEl    = document.getElementById('ue-msg-'+i);
+  if (!nameVal) {
+    if(msgEl){msgEl.textContent='Name cannot be empty.';msgEl.style.color='var(--danger)';msgEl.style.display='block';}
+    return;
+  }
+  const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (emailVal && !emailRx.test(emailVal)) {
+    if(msgEl){msgEl.textContent='Please enter a valid email address.';msgEl.style.color='var(--danger)';msgEl.style.display='block';}
+    return;
+  }
+  const users = getUsers();
+  users[i].name  = nameVal;
+  users[i].email = emailVal;
+  saveUsers(users);
+  // If editing the currently logged-in user, update currentUser too
+  if (currentUser && currentUser.username === users[i].username) {
+    currentUser.name  = nameVal;
+    currentUser.email = emailVal;
+  }
+  renderUserPage();
+  // Show brief success flash
+  setTimeout(() => {
+    const msg = document.getElementById('ue-msg-'+i);
+    // already re-rendered, nothing to do — renderUserPage already refreshed
+  }, 100);
 }
 
 // ══════════════════════════════════════════════════════════
