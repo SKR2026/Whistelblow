@@ -1364,31 +1364,45 @@ async function queueEmailNotification(type, payload) {
   }
 }
 
+const _processingNotifs = new Set(); // guard against double-processing
+
 function subscribePendingNotifications() {
   if (!_fbReady || !_db) return;
   if (_notifUnsubscribe) _notifUnsubscribe();
   _notifUnsubscribe = _db.collection('wb_pending_notifications')
     .onSnapshot(async snap => {
+      // Refresh MAIL_CONFIG from localStorage before processing any notification
+      MAIL_CONFIG = getMailConfig();
+
       for (const docSnap of snap.docs) {
+        const docId = docSnap.id;
+        if (_processingNotifs.has(docId)) continue; // already being handled
+
         const n = docSnap.data();
+        if (n._sent) continue; // already marked sent
+
         if ((n.attempts || 0) >= 3) {
-          // Give up after 3 tries — delete to avoid infinite loop
           try { await docSnap.ref.delete(); } catch(e) {}
           continue;
         }
-        // Check MSAL token is available before attempting send
+
+        // Require MSAL sign-in
         const inst = getMsalInstance && getMsalInstance();
         if (!inst || inst.getAllAccounts().length === 0) continue;
+
+        _processingNotifs.add(docId);
         try {
-          if      (n.type === 'new_report')    await notifyNewReport(n.payload);
-          else if (n.type === 'status_change') await notifyStatusChange(n.payload.report, n.payload.newStatus);
-          else if (n.type === 'sio_assigned')  await notifySioAssigned(n.payload.report, n.payload.sioUser);
-          else if (n.type === 'inv_report')    await notifyInvReportSubmitted(n.payload);
+          if      (n.type === 'new_report')    await notifyNewReport(n.payload, true);
+          else if (n.type === 'status_change') await notifyStatusChange(n.payload.report, n.payload.newStatus, true);
+          else if (n.type === 'sio_assigned')  await notifySioAssigned(n.payload.report, n.payload.sioUser, true);
+          else if (n.type === 'inv_report')    await notifyInvReportSubmitted(n.payload, true);
           // Success — delete the pending doc
           await docSnap.ref.delete();
         } catch(e) {
-          console.warn('[Queue] Notification send failed, incrementing attempt:', e);
+          console.warn('[Queue] Notification send failed:', e);
           try { await docSnap.ref.update({ attempts: (n.attempts||0) + 1 }); } catch(e2) {}
+        } finally {
+          _processingNotifs.delete(docId);
         }
       }
     }, err => console.warn('[Queue] Snapshot error:', err));
@@ -1438,7 +1452,10 @@ function updateMailStatusBanner() {
     banner.querySelector('span').style.boxShadow   = '0 0 6px var(--accent)';
     text.style.color = 'var(--accent)';
     const username = inst.getAllAccounts()[0]?.username || cfg.senderEmail;
-    text.textContent = `Microsoft Graph API — Active ✓  Signed in as: ${username}  |  Recipients: ${[...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[])].length} address(es)`;
+    const allU = getUsers();
+    const uEmails = allU.filter(u=>(u.role==='superadmin'||u.role==='topmanagement')&&u.email).map(u=>u.email);
+    const totalRecipients = new Set([...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[]),...uEmails]).size;
+    text.textContent = `Microsoft Graph API — Active ✓  Signed in as: ${username}  |  Recipients: ${totalRecipients} address(es)`;
   } else if (isConfigured) {
     banner.style.background  = 'rgba(255,184,0,0.07)';
     banner.style.borderColor = 'rgba(255,184,0,0.28)';
@@ -1519,15 +1536,19 @@ function saveMailConfig() {
 
 async function testMailConfig() {
   saveMailConfig(); // save first
-  const cfg = MAIL_CONFIG;
+  const cfg = getMailConfig();
   const testMsg = document.getElementById('mc-test-msg');
   if (!cfg.tenantId || !cfg.clientId || !cfg.senderEmail) {
     if (testMsg) { testMsg.textContent='⚠ Please fill in Tenant ID, Client ID, and Sender Email before testing.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
     return;
   }
-  const allRecipients = [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])];
+  const allUsers = getUsers();
+  const userEmails = allUsers
+    .filter(u => (u.role === 'superadmin' || u.role === 'topmanagement') && u.email)
+    .map(u => u.email);
+  const allRecipients = [...new Set([...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[]), ...userEmails])];
   if (!allRecipients.length) {
-    if (testMsg) { testMsg.textContent='⚠ Add at least one recipient email to test.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
+    if (testMsg) { testMsg.textContent='⚠ Add at least one recipient email (or set an email on a user account) to test.'; testMsg.style.color='var(--warn)'; testMsg.style.display='inline'; }
     return;
   }
   if (testMsg) { testMsg.textContent='⏳ Signing in & sending test email…'; testMsg.style.color='var(--text2)'; testMsg.style.display='inline'; }
@@ -1570,7 +1591,7 @@ const _msalInstances = {};
  * Acquires a delegated Mail.Send token via silent → popup flow.
  * cfg must have: { clientId, tenantId }
  */
-async function getMSGraphToken(cfg) {
+async function getMSGraphToken(cfg, silentOnly = false) {
   if (typeof msal === 'undefined') {
     throw new Error(
       'MSAL library failed to load. Check your internet connection and refresh the page. ' +
@@ -1609,10 +1630,15 @@ async function getMSGraphToken(cfg) {
     try {
       const silent = await inst.acquireTokenSilent({ ...request, account: accounts[0] });
       return silent.accessToken;
-    } catch (_) { /* token expired or interaction required — fall through to popup */ }
+    } catch (_) { /* token expired or interaction required — fall through */ }
   }
 
-  // Interactive popup login
+  // If silentOnly (called from background queue), do not open popup
+  if (silentOnly) {
+    throw new Error('No cached MSAL token available — admin must be signed in for background email sending.');
+  }
+
+  // Interactive popup login (only for manual/foreground calls)
   const popup = await inst.loginPopup(request);
   return popup.accessToken;
 }
@@ -1700,23 +1726,26 @@ function showMsalMsg(msg, color) {
 }
 
 // ── Obtain an access token (used by all send functions) ────
-async function getGraphToken() {
-  const cfg = MAIL_CONFIG;
-  return getMSGraphToken({ clientId: cfg.clientId, tenantId: cfg.tenantId });
+async function getGraphToken(silentOnly = false) {
+  const cfg = getMailConfig();
+  return getMSGraphToken({ clientId: cfg.clientId, tenantId: cfg.tenantId }, silentOnly);
 }
 
 // ── Send an email via Microsoft Graph /me/sendMail ─────────
 // Uses /me/sendMail (delegated) instead of /users/{email}/sendMail (app-only)
-async function sendGraphMail(toEmails, subject, htmlBody) {
-  if (!toEmails || !toEmails.length) return;
-  const cfg = MAIL_CONFIG;
+async function sendGraphMail(toEmails, subject, htmlBody, silentOnly = false) {
+  if (!toEmails || !toEmails.length) {
+    console.warn('[Mail] No recipients — skipping:', subject);
+    return;
+  }
+  const cfg = getMailConfig();
   if (!cfg.tenantId || cfg.tenantId === 'YOUR_TENANT_ID' || !cfg.clientId) {
     console.info('[Mail] Config not set — skipping notification:', subject);
     return;
   }
   let token;
   try {
-    token = await getGraphToken();
+    token = await getGraphToken(silentOnly);
   } catch(e) {
     console.warn('[Mail] Could not obtain Graph token:', e.message);
     return;
@@ -1734,7 +1763,7 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
       'https://graph.microsoft.com/v1.0/me/sendMail',
       { method:'POST', headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body:JSON.stringify(payload) }
     );
-    if (res.ok) console.info('[Mail] Sent:', subject);
+    if (res.ok) console.info('[Mail] ✓ Sent to', toEmails.join(', '), '—', subject);
     else { const err = await res.json().catch(()=>res.text()); console.warn('[Mail] Send failed:', err); }
   } catch(e) { console.warn('[Mail] Fetch error:', e); }
 }
@@ -1859,27 +1888,33 @@ function mailTemplate(title, rows, accentColor='#00b894') {
 
 /** Get recipients for a report: superadmin/topmgmt always, admin/planthead only if same plant */
 function getReportRecipients(report) {
-  const cfg = MAIL_CONFIG;
+  const cfg = getMailConfig(); // always read fresh from localStorage
   const allUsers = getUsers();
-  // SuperAdmin & Top Management emails from config (always)
+
+  // 1. SuperAdmin emails — from config textarea AND from any superadmin user with email set
   const globalEmails = [...(cfg.superAdminEmails||[])];
-  // Top Management users with email
-  allUsers.filter(u=>u.role==='topmanagement'&&u.email).forEach(u=>{ if(!globalEmails.includes(u.email)) globalEmails.push(u.email); });
-  // Admin & PlantHead emails — only if same plant as report
+  allUsers.filter(u => u.role === 'superadmin' && u.email)
+    .forEach(u => { if (!globalEmails.includes(u.email)) globalEmails.push(u.email); });
+
+  // 2. Top Management emails — from user accounts with email set
+  allUsers.filter(u => u.role === 'topmanagement' && u.email)
+    .forEach(u => { if (!globalEmails.includes(u.email)) globalEmails.push(u.email); });
+
+  // 3. Admin & PlantHead emails — only for same plant as report
   const plantEmails = [];
-  allUsers.filter(u=>(u.role==='admin'||u.role==='planthead')&&u.email&&u.plantId&&u.plantId===report.plantId)
-    .forEach(u=>{ if(!plantEmails.includes(u.email)) plantEmails.push(u.email); });
-  // Also include configured adminEmails (treated as global fallback if no plantId filtering configured)
-  const cfgAdminEmails = (cfg.adminEmails||[]).filter(e => {
-    // If there are plant-assigned admins for this report, skip raw config emails to avoid double-notify
-    // unless no plant-specific admins exist
-    return plantEmails.length === 0;
-  });
-  return [...new Set([...globalEmails, ...plantEmails, ...cfgAdminEmails])];
+  allUsers.filter(u => (u.role==='admin' || u.role==='planthead') && u.email && u.plantId && u.plantId === report.plantId)
+    .forEach(u => { if (!plantEmails.includes(u.email)) plantEmails.push(u.email); });
+
+  // 4. Global adminEmails from config — only used as fallback when no plant-specific admins exist
+  const cfgAdminEmails = (cfg.adminEmails||[]).filter(() => plantEmails.length === 0);
+
+  const result = [...new Set([...globalEmails, ...plantEmails, ...cfgAdminEmails])];
+  console.log('[Mail] Recipients for', report.id, '→', result);
+  return result;
 }
 
-async function notifyNewReport(report) {
-  const cfg = MAIL_CONFIG;
+async function notifyNewReport(report, silentOnly = false) {
+  const cfg = getMailConfig();
   if (cfg.notifyNewReport === false) return;
   const sevColor = report.severity==='high'?'#d63031':report.severity==='medium'?'#e17055':'#00897b';
   const html = mailTemplate('📨 New Whistleblower Report Submitted', [
@@ -1895,12 +1930,12 @@ async function notifyNewReport(report) {
   await sendGraphMail(
     getReportRecipients(report),
     `[SecureReport] 🆕 New ${report.severity.toUpperCase()} Report — ${report.id}${report.plantName?' ('+report.plantName+')':''}`,
-    html
+    html, silentOnly
   );
 }
 
-async function notifyStatusChange(report, newStatus) {
-  const cfg = MAIL_CONFIG;
+async function notifyStatusChange(report, newStatus, silentOnly = false) {
+  const cfg = getMailConfig();
   if (cfg.notifyStatusChange === false) return;
   const statusColors = { new:'#00897b', reviewing:'#e17055', resolved:'#374151' };
   const statusIcons  = { new:'🟢', reviewing:'🟡', resolved:'✅' };
@@ -1916,12 +1951,12 @@ async function notifyStatusChange(report, newStatus) {
   await sendGraphMail(
     getReportRecipients(report),
     `[SecureReport] Status → ${newStatus.toUpperCase()} — ${report.id}`,
-    html
+    html, silentOnly
   );
 }
 
-async function notifySioAssigned(report, sioUser) {
-  const cfg = MAIL_CONFIG;
+async function notifySioAssigned(report, sioUser, silentOnly = false) {
+  const cfg = getMailConfig();
   if (cfg.notifySioAssigned === false) return;
   const users = getUsers();
   const sio   = users.find(u => u.username === sioUser);
@@ -1938,7 +1973,7 @@ async function notifySioAssigned(report, sioUser) {
     ['Action',      '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport SIO Portal to begin your investigation.</span>'],
   ], '#0097a7');
   if (sioEmail.length) {
-    await sendGraphMail(sioEmail, `[SecureReport] 🕵️ New Case Assigned to You — ${report.id}`, sioHtml);
+    await sendGraphMail(sioEmail, `[SecureReport] 🕵️ New Case Assigned to You — ${report.id}`, sioHtml, silentOnly);
   }
   const adminHtml = mailTemplate('🕵️ SIO Assignment Confirmed', [
     ['Report ID',   `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
@@ -1951,12 +1986,12 @@ async function notifySioAssigned(report, sioUser) {
   await sendGraphMail(
     getReportRecipients(report),
     `[SecureReport] SIO Assigned to ${report.id} — ${sio ? sio.name : sioUser}`,
-    adminHtml
+    adminHtml, silentOnly
   );
 }
 
-async function notifyInvReportSubmitted(report) {
-  const cfg = MAIL_CONFIG;
+async function notifyInvReportSubmitted(report, silentOnly = false) {
+  const cfg = getMailConfig();
   if (cfg.notifyInvReport === false) return;
   const inv = report.invReport;
   if (!inv) return;
@@ -1978,7 +2013,7 @@ async function notifyInvReportSubmitted(report) {
   await sendGraphMail(
     getReportRecipients(report),
     `[SecureReport] 📋 Investigation Report Filed — ${report.id}`,
-    html
+    html, silentOnly
   );
 }
 
