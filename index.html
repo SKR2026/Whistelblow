@@ -322,6 +322,14 @@
   .cat-item .cat-tag{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;background:rgba(245,197,66,0.08);color:var(--sa);border:1px solid rgba(245,197,66,0.2);}
   .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .cat-item .cat-del:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
+  .plant-rename-btn{background:none;border:1px solid rgba(139,157,255,0.35);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--adm);cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+  .plant-rename-btn:hover{background:rgba(139,157,255,0.09);border-color:var(--adm);}
+  .plant-rename-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px;}
+  .plant-rename-input{background:var(--bg);border:1px solid var(--adm);border-radius:3px;padding:6px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;flex:1;min-width:180px;}
+  .plant-rename-save{background:var(--adm);color:#fff;border:none;border-radius:2px;padding:6px 13px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}
+  .plant-rename-save:hover{background:var(--adm2);}
+  .plant-rename-cancel{background:none;border:1px solid var(--border2);border-radius:2px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;}
+  .plant-rename-cancel:hover{border-color:var(--text2);color:var(--text2);}
   .cat-add-row{display:flex;gap:10px;align-items:center;}
   .cat-add-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;}
   .cat-add-row input:focus{border-color:var(--sa);}
@@ -627,6 +635,10 @@
   <!-- ── ADMIN / SUPERADMIN: QR Code ──────── -->
   <div class="page" id="page-qrcode">
     <div class="ptitle a">QR Code — Premises Poster</div>
+    <div style="background:rgba(139,157,255,0.05);border:1px solid rgba(139,157,255,0.2);border-radius:4px;padding:11px 15px;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="color:var(--adm);font-size:15px;flex-shrink:0;">&#127968;</span>
+      <p style="font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7;"><strong style="color:var(--adm);">Universal QR — works for all plants.</strong> This single QR code opens the report form for your entire organisation. At the time of submitting a report, the reporter will be asked to <strong style="color:var(--text);">select their plant</strong> from a dropdown. No separate QR per plant is needed.</p>
+    </div>
     <div class="qr-wrap">
       <div class="qr-card">
         <div class="qr-canvas-wrap"><div id="qrcode"></div></div>
@@ -635,6 +647,7 @@
           <p>Print and paste this QR code throughout your premises. Anyone who scans it is taken <strong>directly to the anonymous report form</strong> — no password, no login required.</p>
           <ul>
             <li>Opens reporter portal instantly on scan</li>
+            <li>Reporter selects their plant at submission</li>
             <li>100% anonymous — no identity captured</li>
             <li>Reporter receives unique Report ID</li>
             <li>Track status anytime with Report ID only</li>
@@ -2172,16 +2185,73 @@ function renderPlantPage() {
       ? admins.map(u=>`<span style="font-family:var(--mono);font-size:10px;color:var(--adm);background:rgba(139,157,255,0.09);border:1px solid rgba(139,157,255,0.22);border-radius:2px;padding:2px 7px;margin-right:4px;">${roleLabel(u.role)}: ${u.name}</span>`).join('')
       : `<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">No admin/plant head assigned yet</span>`;
     const isDefault = DEFAULT_PLANTS.some(dp => dp.id === p.id);
-    return `<div class="cat-item">
+    return `<div class="cat-item" id="plant-item-${i}">
       <div style="flex:1;">
-        <span class="cat-name">&#127968; ${p.name}</span>
-        ${p.location ? `<span style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:8px;">&#128205; ${p.location}</span>` : ''}
+        <div id="plant-view-${i}" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="cat-name">&#127968; ${p.name}</span>
+          ${p.location ? `<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">&#128205; ${p.location}</span>` : ''}
+          ${isDefault ? '<span class="cat-tag">Default</span>' : ''}
+        </div>
+        <div id="plant-edit-${i}" style="display:none;">
+          <div class="plant-rename-row">
+            <input class="plant-rename-input" id="plant-name-input-${i}" value="${p.name.replace(/"/g,'&quot;')}" placeholder="Plant name" />
+            <input class="plant-rename-input" id="plant-loc-input-${i}" value="${(p.location||'').replace(/"/g,'&quot;')}" placeholder="Location (optional)" style="max-width:200px;" />
+            <button class="plant-rename-save" onclick="savePlantRename(${i})">&#10003; Save</button>
+            <button class="plant-rename-cancel" onclick="cancelPlantRename(${i})">Cancel</button>
+          </div>
+          <div id="plant-rename-msg-${i}" style="display:none;font-family:var(--mono);font-size:11px;margin-top:5px;"></div>
+        </div>
         <div style="margin-top:6px;">${adminsHtml}</div>
       </div>
-      ${isDefault ? '<span class="cat-tag">Default</span>' : ''}
-      <button class="cat-del" onclick="deletePlant(${i})" ${isDefault?'disabled style="opacity:0.3;cursor:not-allowed;"':''}>&#215; Delete</button>
+      <div style="display:flex;gap:7px;align-items:flex-start;flex-shrink:0;">
+        <button class="plant-rename-btn" id="plant-rename-btn-${i}" onclick="startPlantRename(${i})">&#9998; Rename</button>
+        <button class="cat-del" onclick="deletePlant(${i})" ${isDefault?'disabled style="opacity:0.3;cursor:not-allowed;"':''}>&#215; Delete</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+function startPlantRename(i) {
+  document.getElementById('plant-view-'+i).style.display = 'none';
+  document.getElementById('plant-edit-'+i).style.display = 'block';
+  document.getElementById('plant-rename-btn-'+i).style.display = 'none';
+  const inp = document.getElementById('plant-name-input-'+i);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function cancelPlantRename(i) {
+  document.getElementById('plant-view-'+i).style.display = 'flex';
+  document.getElementById('plant-edit-'+i).style.display = 'none';
+  document.getElementById('plant-rename-btn-'+i).style.display = '';
+}
+
+function savePlantRename(i) {
+  const nameVal = (document.getElementById('plant-name-input-'+i)?.value||'').trim();
+  const locVal  = (document.getElementById('plant-loc-input-'+i)?.value||'').trim();
+  const msgEl   = document.getElementById('plant-rename-msg-'+i);
+  if (!nameVal) {
+    if (msgEl) { msgEl.textContent='Plant name cannot be empty.'; msgEl.style.color='var(--danger)'; msgEl.style.display='block'; }
+    return;
+  }
+  const plants = getPlants();
+  // Check duplicate (excluding self)
+  if (plants.some((p,idx) => idx!==i && p.name.toLowerCase()===nameVal.toLowerCase())) {
+    if (msgEl) { msgEl.textContent='A plant with this name already exists.'; msgEl.style.color='var(--danger)'; msgEl.style.display='block'; }
+    return;
+  }
+  // Also rename in existing reports so plantName stays in sync
+  const oldName = plants[i].name;
+  plants[i].name = nameVal;
+  plants[i].location = locVal;
+  savePlants(plants);
+  // Update all reports that referenced the old plantId to use new name
+  reports.forEach(r => {
+    if (r.plantId === plants[i].id) { r.plantName = nameVal; }
+  });
+  try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
+  renderPlantPage();
+  populateCategoryDropdowns();
+  showPlantMsg('Plant renamed to "' + nameVal + '" successfully.', 'ok');
 }
 
 function addPlant() {
@@ -2831,12 +2901,15 @@ document.addEventListener('DOMContentLoaded', () => {
 //  QR CODE
 // ══════════════════════════════════════════════════════════
 function renderQR() {
-  if(qrGenerated) return;
-  qrGenerated = true;
+  // Always regenerate QR (clear previous and redraw)
+  const qrEl = document.getElementById('qrcode');
+  if (qrEl) qrEl.innerHTML = '';
+  qrGenerated = false;
   const base = window.location.href.split('?')[0];
   const url  = base + '?report=true';
   document.getElementById('qrUrlDisplay').textContent = url;
-  new QRCode(document.getElementById('qrcode'), { text:url, width:164, height:164, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H });
+  new QRCode(qrEl, { text:url, width:164, height:164, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H });
+  qrGenerated = true;
 }
 function downloadQR() {
   setTimeout(()=>{
