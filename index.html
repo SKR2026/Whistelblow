@@ -515,6 +515,12 @@
           <select id="f-cat"><option value="">Select category...</option></select>
         </div>
         <div class="field">
+          <label>Plant / Location *</label>
+          <select id="f-plant"><option value="">Select plant...</option></select>
+        </div>
+      </div>
+      <div class="frow" style="margin-top:-4px;">
+        <div class="field">
           <label>Organization / Dept (optional)</label>
           <input type="text" id="f-org" placeholder="e.g. Finance Dept, Acme Corp" />
         </div>
@@ -609,6 +615,9 @@
         </select>
         <select class="fsel" id="fcat" onchange="renderAll()">
           <option value="">All Categories</option>
+        </select>
+        <select class="fsel" id="fplant" onchange="renderAll()">
+          <option value="">All Plants</option>
         </select>
       </div>
     </div>
@@ -770,19 +779,56 @@
         </div>
         <div>
           <label>Role</label>
-          <select id="au-role">
+          <select id="au-role" onchange="togglePlantField()">
             <option value="">Select role...</option>
             <option value="admin">Admin</option>
+            <option value="planthead">Plant Head</option>
             <option value="topmanagement">Top Management</option>
             <option value="sio">Special Investigation Officer (SIO)</option>
           </select>
         </div>
+      </div>
+      <div id="au-plant-row" style="display:none;">
+        <label>Assign to Plant <span style="color:var(--danger);">*</span></label>
+        <select id="au-plant">
+          <option value="">Select plant...</option>
+        </select>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:4px;">Admin & Plant Head will only receive notifications and see reports for their assigned plant.</div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <button class="sbtn sa-btn" onclick="addUser()">&#43; Create Account</button>
         <div class="au-err" id="au-err"></div>
         <div class="au-ok" id="au-ok"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── SUPERADMIN: Plant Management ─────── -->
+  <div class="page" id="page-plants">
+    <div class="ptitle sa">&#127968; Plant Management</div>
+    <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
+      <span style="color:var(--sa);font-size:14px;">&#9670;</span>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Manage plant locations. Each plant can have its own <strong style="color:var(--sa);">Admin</strong> and <strong style="color:var(--sa);">Plant Head</strong> who will only receive notifications for their assigned plant. SuperAdmin &amp; Top Management receive notifications for all plants.</p>
+    </div>
+    <div class="sec-label">Active Plants</div>
+    <div class="cat-list" id="plantList"></div>
+    <hr class="section-sep">
+    <div class="sec-label">Add New Plant</div>
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:520px;">
+      <div class="frow">
+        <div>
+          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:6px;">Plant Name *</label>
+          <input type="text" id="newPlantName" placeholder="e.g. Plant 3 — South Unit" maxlength="80" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;" />
+        </div>
+        <div>
+          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:6px;">Location / Site</label>
+          <input type="text" id="newPlantLocation" placeholder="e.g. South Industrial Area" maxlength="80" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;" />
+        </div>
+      </div>
+      <div>
+        <button class="sbtn sa-btn" onclick="addPlant()">&#43; Add Plant</button>
+      </div>
+      <div id="plant-msg" style="font-family:var(--mono);font-size:14px;display:none;"></div>
     </div>
   </div>
 
@@ -884,16 +930,20 @@
     <!-- Recipient Configuration -->
     <div class="inv-section" style="border-color:rgba(245,197,66,0.18);margin-top:16px;">
       <div class="inv-section-title" style="color:var(--sa);">&#128231; Notification Recipients</div>
+      <div style="background:rgba(139,157,255,0.06);border:1px solid rgba(139,157,255,0.2);border-radius:3px;padding:11px 15px;margin-bottom:16px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;">
+        &#127968; <strong style="color:var(--adm);">Plant-scoped notifications:</strong> Admin &amp; Plant Head users (created in User Management with a plant assignment) automatically receive emails only for their plant. SuperAdmin and Top Management receive all notifications.<br>
+        Use the fields below to add extra global recipient emails (e.g. compliance inbox) that receive all notifications regardless of plant.
+      </div>
       <div class="fg">
         <div class="field">
-          <label>Admin Notification Emails</label>
-          <textarea id="mc-adminEmails" placeholder="One email per line, e.g.:&#10;admin@yourorg.com&#10;compliance@yourorg.com" style="min-height:90px;font-family:var(--mono);font-size:13px;"></textarea>
-          <div class="fhint">These addresses receive alerts for every new report and status change.</div>
+          <label>Global Admin Notification Emails</label>
+          <textarea id="mc-adminEmails" placeholder="One email per line, e.g.:&#10;compliance@yourorg.com&#10;globaladmin@yourorg.com" style="min-height:90px;font-family:var(--mono);font-size:13px;"></textarea>
+          <div class="fhint">These addresses receive alerts for every new report and status change across all plants.</div>
         </div>
         <div class="field">
           <label>Super Admin Notification Emails</label>
           <textarea id="mc-superAdminEmails" placeholder="One email per line, e.g.:&#10;superadmin@yourorg.com" style="min-height:70px;font-family:var(--mono);font-size:13px;"></textarea>
-          <div class="fhint">Super Admin addresses receive all notifications including investigation report submissions.</div>
+          <div class="fhint">Super Admin addresses receive all notifications including investigation report submissions across all plants.</div>
         </div>
       </div>
     </div>
@@ -1117,9 +1167,14 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_USERS = [
   { username:'superadmin', password:'super123',  role:'superadmin',    name:'Super Admin',       createdBy:'system' },
-  { username:'admin',      password:'admin123',  role:'admin',         name:'Admin User',        createdBy:'system' },
+  { username:'admin',      password:'admin123',  role:'admin',         name:'Admin User',        createdBy:'system', plantId:'' },
   { username:'topmgmt',    password:'topmgmt123',role:'topmanagement', name:'Top Management',    createdBy:'system' },
-  { username:'sio1',       password:'sio123',    role:'sio',           name:'SIO',       createdBy:'system' }
+  { username:'sio1',       password:'sio123',    role:'sio',           name:'SIO',               createdBy:'system' }
+];
+
+const DEFAULT_PLANTS = [
+  { id:'plant-1', name:'Plant 1 — Main Facility', location:'Main Site', createdBy:'system' },
+  { id:'plant-2', name:'Plant 2 — North Unit',    location:'North Site', createdBy:'system' }
 ];
 
 // ══════════════════════════════════════════════════════════
@@ -1152,6 +1207,37 @@ function getCategories() {
   } catch(e) { return DEFAULT_CATEGORIES; }
 }
 function saveCategories(cats) { try { localStorage.setItem('wb_categories', JSON.stringify(cats)); } catch(e) {} }
+
+// ── Plants ─────────────────────────────────────────────────
+function getPlants() {
+  try {
+    const raw = localStorage.getItem('wb_plants');
+    if (!raw) { localStorage.setItem('wb_plants', JSON.stringify(DEFAULT_PLANTS)); return DEFAULT_PLANTS; }
+    return JSON.parse(raw);
+  } catch(e) { return DEFAULT_PLANTS; }
+}
+function savePlants(plants) { try { localStorage.setItem('wb_plants', JSON.stringify(plants)); } catch(e) {} }
+
+/** Returns plant object for the current user (admin / planthead), or null for superadmin/topmgmt */
+function getCurrentUserPlant() {
+  if (!currentUser) return null;
+  if (['superadmin','topmanagement'].includes(currentUser.role)) return null; // sees all
+  if ((currentUser.role==='admin'||currentUser.role==='planthead') && currentUser.plantId)
+    return getPlants().find(p => p.id === currentUser.plantId) || null;
+  return null;
+}
+
+/** Filter reports for current user's plant scope */
+function filterReportsByPlantScope(rpts) {
+  const plant = getCurrentUserPlant();
+  if (!plant) return rpts; // superadmin / topmanagement — all plants
+  return rpts.filter(r => r.plantId === plant.id);
+}
+
+/** Returns true if current user can see all plants */
+function isGlobalRole() {
+  return currentUser && ['superadmin','topmanagement'].includes(currentUser.role);
+}
 
 // ══════════════════════════════════════════════════════════
 //  FIREBASE HELPERS
@@ -1547,67 +1633,90 @@ async function sendGraphMail(toEmails, subject, htmlBody) {
 function mailTemplate(title, rows, accentColor='#00b894') {
   const rowsHtml = rows.map(([label, value]) =>
     `<tr>
-       <td style="padding:11px 18px;font-size:12px;color:#555e6e;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;width:140px;border-bottom:1px solid #e8ecf2;vertical-align:top;font-weight:600;white-space:nowrap;">${label}</td>
-       <td style="padding:11px 18px;font-size:14px;color:#1a2033;font-family:'Segoe UI',Arial,sans-serif;border-bottom:1px solid #e8ecf2;line-height:1.6;">${value}</td>
+       <td style="padding:11px 18px;font-size:14px;color:#555e6e;font-family:'Times New Roman',Times,serif;text-transform:uppercase;letter-spacing:.06em;width:150px;border-bottom:1px solid #e8ecf2;vertical-align:top;font-weight:700;white-space:nowrap;">${label}</td>
+       <td style="padding:11px 18px;font-size:14px;color:#1a2033;font-family:'Times New Roman',Times,serif;border-bottom:1px solid #e8ecf2;line-height:1.7;">${value}</td>
      </tr>`
   ).join('');
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f2f7;font-family:'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f7;padding:32px 0;">
+<body style="margin:0;padding:0;background:#e8ecf4;font-family:'Times New Roman',Times,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8ecf4;padding:40px 0;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);border:1px solid #dde3ee;">
+      <table width="620" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,0.12);border:1px solid #d4daea;">
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#1a2033 0%,#252d45 100%);padding:26px 32px;">
+          <td style="background:linear-gradient(135deg,#1a2033 0%,#252d45 100%);padding:28px 36px;border-radius:18px 18px 0 0;">
             <table width="100%" cellpadding="0" cellspacing="0"><tr>
               <td>
                 <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;">
-                  <span style="font-size:20px;">🛡</span>
-                  <span style="font-family:'Courier New',monospace;font-size:14px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:700;">SecureReport</span>
+                  <span style="font-size:22px;">🛡</span>
+                  <span style="font-family:'Times New Roman',Times,serif;font-size:16px;color:${accentColor};letter-spacing:.14em;text-transform:uppercase;font-weight:700;">SecureReport</span>
                 </div>
-                <h2 style="color:#ffffff;font-size:20px;margin:0;font-weight:600;line-height:1.4;">${title}</h2>
+                <h2 style="color:#ffffff;font-size:22px;margin:0;font-weight:700;line-height:1.4;font-family:'Times New Roman',Times,serif;">${title}</h2>
               </td>
               <td align="right" style="vertical-align:top;">
-                <div style="background:${accentColor}22;border:1px solid ${accentColor}55;border-radius:6px;padding:6px 14px;display:inline-block;">
-                  <span style="font-size:11px;color:${accentColor};font-family:'Courier New',monospace;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Whistleblower Portal</span>
+                <div style="background:${accentColor}22;border:1px solid ${accentColor}55;border-radius:10px;padding:7px 16px;display:inline-block;">
+                  <span style="font-size:12px;color:${accentColor};font-family:'Times New Roman',Times,serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Whistleblower Portal</span>
                 </div>
               </td>
             </tr></table>
           </td>
         </tr>
         <!-- Accent bar -->
-        <tr><td style="height:4px;background:linear-gradient(90deg,${accentColor},${accentColor}88);"></td></tr>
+        <tr><td style="height:5px;background:linear-gradient(90deg,${accentColor},${accentColor}88);"></td></tr>
         <!-- Body table -->
         <tr>
-          <td style="padding:8px 0;">
+          <td style="padding:10px 0;">
             <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${rowsHtml}</table>
           </td>
         </tr>
         <!-- Footer -->
         <tr>
-          <td style="background:#f7f9fc;border-top:1px solid #e8ecf2;padding:16px 24px;">
-            <p style="font-size:12px;color:#7b8899;margin:0;font-family:Arial,sans-serif;line-height:1.7;">
+          <td style="background:#f4f7fc;border-top:1px solid #e8ecf2;padding:18px 28px;border-radius:0 0 18px 18px;">
+            <p style="font-size:14px;color:#7b8899;margin:0;font-family:'Times New Roman',Times,serif;line-height:1.8;">
               🔒 This is an automated notification from <strong style="color:#4a5568;">SecureReport — Whistleblower Portal</strong>.<br>
               Do not reply to this email. All reports are stored securely and handled confidentially.
             </p>
           </td>
         </tr>
       </table>
-      <p style="font-size:11px;color:#9aa5b4;margin-top:16px;font-family:Arial,sans-serif;text-align:center;">© Polyplastics — SecureReport System</p>
+      <p style="font-size:13px;color:#9aa5b4;margin-top:18px;font-family:'Times New Roman',Times,serif;text-align:center;">© Polyplastics — SecureReport System</p>
     </td></tr>
   </table>
 </body></html>`;
 }
 
 // ── Trigger functions (called from app actions) ────────────
+
+/** Get recipients for a report: superadmin/topmgmt always, admin/planthead only if same plant */
+function getReportRecipients(report) {
+  const cfg = MAIL_CONFIG;
+  const allUsers = getUsers();
+  // SuperAdmin & Top Management emails from config (always)
+  const globalEmails = [...(cfg.superAdminEmails||[])];
+  // Top Management users with email
+  allUsers.filter(u=>u.role==='topmanagement'&&u.email).forEach(u=>{ if(!globalEmails.includes(u.email)) globalEmails.push(u.email); });
+  // Admin & PlantHead emails — only if same plant as report
+  const plantEmails = [];
+  allUsers.filter(u=>(u.role==='admin'||u.role==='planthead')&&u.email&&u.plantId&&u.plantId===report.plantId)
+    .forEach(u=>{ if(!plantEmails.includes(u.email)) plantEmails.push(u.email); });
+  // Also include configured adminEmails (treated as global fallback if no plantId filtering configured)
+  const cfgAdminEmails = (cfg.adminEmails||[]).filter(e => {
+    // If there are plant-assigned admins for this report, skip raw config emails to avoid double-notify
+    // unless no plant-specific admins exist
+    return plantEmails.length === 0;
+  });
+  return [...new Set([...globalEmails, ...plantEmails, ...cfgAdminEmails])];
+}
+
 async function notifyNewReport(report) {
   const cfg = MAIL_CONFIG;
   if (cfg.notifyNewReport === false) return;
   const sevColor = report.severity==='high'?'#d63031':report.severity==='medium'?'#e17055':'#00897b';
   const html = mailTemplate('📨 New Whistleblower Report Submitted', [
     ['Report ID',    `<strong style="color:#2d3a8c;font-family:monospace;font-size:16px;">${report.id}</strong>`],
+    ['Plant',        `<strong style="color:#6c63ff;">${report.plantName || '—'}</strong>`],
     ['Title',        `<strong style="color:#1a2033;">${report.title}</strong>`],
     ['Category',     `<span style="color:#374151;">${report.category}</span>`],
     ['Severity',     `<span style="background:${sevColor}18;color:${sevColor};font-weight:700;text-transform:uppercase;padding:2px 10px;border-radius:4px;border:1px solid ${sevColor}44;">${report.severity}</span>`],
@@ -1616,8 +1725,8 @@ async function notifyNewReport(report) {
     ['Action',       '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport Admin to review and assign this case.</span>'],
   ]);
   await sendGraphMail(
-    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
-    `[SecureReport] 🆕 New ${report.severity.toUpperCase()} Report — ${report.id}`,
+    getReportRecipients(report),
+    `[SecureReport] 🆕 New ${report.severity.toUpperCase()} Report — ${report.id}${report.plantName?' ('+report.plantName+')':''}`,
     html
   );
 }
@@ -1637,7 +1746,7 @@ async function notifyStatusChange(report, newStatus) {
     ['Updated At', `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
   ], '#6c63ff');
   await sendGraphMail(
-    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    getReportRecipients(report),
     `[SecureReport] Status → ${newStatus.toUpperCase()} — ${report.id}`,
     html
   );
@@ -1672,7 +1781,7 @@ async function notifySioAssigned(report, sioUser) {
     ['Date',        `<span style="color:#374151;">${new Date().toLocaleString('en-IN')}</span>`],
   ], '#0097a7');
   await sendGraphMail(
-    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    getReportRecipients(report),
     `[SecureReport] SIO Assigned to ${report.id} — ${sio ? sio.name : sioUser}`,
     adminHtml
   );
@@ -1699,7 +1808,7 @@ async function notifyInvReportSubmitted(report) {
     ['Action',       '<span style="color:#2d3a8c;font-weight:600;">Log in to SecureReport to review the full investigation report.</span>'],
   ], '#0097a7');
   await sendGraphMail(
-    [...(cfg.adminEmails||[]), ...(cfg.superAdminEmails||[])],
+    getReportRecipients(report),
     `[SecureReport] 📋 Investigation Report Filed — ${report.id}`,
     html
   );
@@ -1712,6 +1821,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initFirebase();
   getUsers();       // seed defaults if needed
   getCategories();  // seed defaults if needed
+  getPlants();      // seed default plants if needed
   const params = new URLSearchParams(window.location.search);
   if(params.get('report') === 'true') enterReporter(true);
 });
@@ -1794,11 +1904,23 @@ function initApp(r) {
 
   } else if (r === 'admin') {
     hdot.className = 'dot da'; ht.className = 'a'; ht.textContent = 'SecureReport — Admin';
-    rb.className = 'rbadge a'; rb.textContent = 'Admin';
+    const plantLabel = currentUser.plantId ? (' — ' + (getPlants().find(p=>p.id===currentUser.plantId)||{name:'?'}).name) : '';
+    rb.className = 'rbadge a'; rb.textContent = 'Admin' + plantLabel;
     nav.innerHTML = `
       <button class="nb aa" onclick="showPage('dashboard',this)">Dashboard</button>
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR Code</button>
+      <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
+    subscribeReports(onRealtimeUpdate);
+    showPage('dashboard', nav.querySelector('.aa'));
+
+  } else if (r === 'planthead') {
+    hdot.className = 'dot da'; ht.className = 'a'; ht.textContent = 'SecureReport — Plant Head';
+    const plantLabel = currentUser.plantId ? (' — ' + (getPlants().find(p=>p.id===currentUser.plantId)||{name:'?'}).name) : '';
+    rb.className = 'rbadge a'; rb.textContent = 'Plant Head' + plantLabel;
+    nav.innerHTML = `
+      <button class="nb aa" onclick="showPage('dashboard',this)">Dashboard</button>
+      <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
     showPage('dashboard', nav.querySelector('.aa'));
@@ -1812,6 +1934,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
       <button class="nb" onclick="showPage('categories',this)">&#128193; Categories</button>
       <button class="nb" onclick="showPage('users',this)">&#128101; Users</button>
+      <button class="nb" onclick="showPage('plants',this)">&#127968; Plants</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR</button>
       <button class="nb" onclick="showPage('mailconfig',this)">&#9993; Email</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
@@ -1877,6 +2000,7 @@ function showPage(name, btn) {
   if (name==='saanalytics')    renderSAAnalytics();
   if (name==='categories')     renderCatPage();
   if (name==='users')          renderUserPage();
+  if (name==='plants')         renderPlantPage();
   if (name==='changepassword') renderChangePwPage();
   if (name==='siocases')       renderSioCases();
   if (name==='mailconfig')     renderMailConfigPage();
@@ -1896,6 +2020,17 @@ function populateCategoryDropdowns() {
   const fcat = document.getElementById('fcat');
   if (fcat) {
     fcat.innerHTML = '<option value="">All Categories</option>' + cats.map(c=>`<option>${c}</option>`).join('');
+  }
+  // Plant dropdown on submit form
+  const fp = document.getElementById('f-plant');
+  const plants = getPlants();
+  if (fp) {
+    fp.innerHTML = '<option value="">Select plant...</option>' + plants.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  }
+  // Plant filter on All Reports page
+  const fplant = document.getElementById('fplant');
+  if (fplant) {
+    fplant.innerHTML = '<option value="">All Plants</option>' + plants.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
   }
 }
 
@@ -1948,22 +2083,39 @@ function showCatMsg(text, type) {
 // ══════════════════════════════════════════════════════════
 function renderUserPage() {
   const users = getUsers();
-  document.getElementById('userList').innerHTML = users.map((u,i) => `
+  const plants = getPlants();
+  // Populate au-plant dropdown
+  const auPlant = document.getElementById('au-plant');
+  if (auPlant) auPlant.innerHTML = '<option value="">Select plant...</option>' + plants.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+
+  document.getElementById('userList').innerHTML = users.map((u,i) => {
+    const plantInfo = u.plantId ? plants.find(p=>p.id===u.plantId) : null;
+    const plantLabel = plantInfo ? ` &nbsp;|&nbsp; <span style="color:var(--adm);">&#127968; ${plantInfo.name}</span>` : '';
+    return `
     <div class="user-item">
       <div class="user-info">
         <div class="un">${u.name} <span style="color:var(--text3);font-size:10px;">@${u.username}</span></div>
-        <div class="ud">Created by: ${u.createdBy} &nbsp;|&nbsp; Role: ${u.role}${u.email?` &nbsp;|&nbsp; <span style="color:var(--sio);">✉ ${u.email}</span>`:' &nbsp;|&nbsp; <span style="color:var(--text3);">No email set</span>'}</div>
+        <div class="ud">Created by: ${u.createdBy} &nbsp;|&nbsp; Role: ${u.role}${u.email?` &nbsp;|&nbsp; <span style="color:var(--sio);">✉ ${u.email}</span>`:' &nbsp;|&nbsp; <span style="color:var(--text3);">No email set</span>'}${plantLabel}</div>
       </div>
       <span class="role-tag ${u.role}">${roleLabel(u.role)}</span>
       <div class="user-actions">
         <button class="rpw-btn" onclick="openPwModal('${u.username}')">&#128274; Reset PW</button>
         ${u.role!=='superadmin'?`<button class="del-btn" onclick="deleteUser(${i})">&#215; Delete</button>`:'<button disabled style="opacity:0.2;cursor:not-allowed;background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:9px;color:var(--text3);">&#128274; Protected</button>'}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function roleLabel(r){
-  return r==='superadmin'?'SuperAdmin':r==='topmanagement'?'Top Mgmt':r==='admin'?'Admin':r==='sio'?'SIO':r;
+  return r==='superadmin'?'SuperAdmin':r==='topmanagement'?'Top Mgmt':r==='admin'?'Admin':r==='planthead'?'Plant Head':r==='sio'?'SIO':r;
+}
+
+function togglePlantField() {
+  const rl = document.getElementById('au-role').value;
+  const row = document.getElementById('au-plant-row');
+  if (row) row.style.display = (rl==='admin'||rl==='planthead') ? 'flex' : 'none';
+  if (row) row.style.flexDirection = 'column';
+  if (row) row.style.gap = '6px';
 }
 
 function addUser() {
@@ -1972,19 +2124,25 @@ function addUser() {
   const pw    = document.getElementById('au-pass').value;
   const rl    = document.getElementById('au-role').value;
   const email = document.getElementById('au-email').value.trim();
+  const plantId = document.getElementById('au-plant')?.value || '';
   const err   = document.getElementById('au-err');
   const ok    = document.getElementById('au-ok');
   err.style.display='none'; ok.style.display='none';
 
   if(!name||!uname||!pw||!rl){ err.textContent='All fields are required.'; err.style.display='block'; return; }
   if(pw.length < 6){ err.textContent='Password must be at least 6 characters.'; err.style.display='block'; return; }
+  if((rl==='admin'||rl==='planthead') && !plantId){ err.textContent='Please assign a plant for Admin / Plant Head role.'; err.style.display='block'; return; }
   const users = getUsers();
   if(users.find(u=>u.username===uname)){ err.textContent=`Username "${uname}" already exists.`; err.style.display='block'; return; }
 
-  users.push({ username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' });
+  const newUser = { username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' };
+  if (rl==='admin'||rl==='planthead') newUser.plantId = plantId;
+  users.push(newUser);
   saveUsers(users);
   ['au-name','au-user','au-pass','au-email'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('au-role').value='';
+  const auPlantRow = document.getElementById('au-plant-row');
+  if (auPlantRow) auPlantRow.style.display='none';
   renderUserPage();
   ok.textContent = `Account "${uname}" created successfully.`;
   ok.style.display='block';
@@ -1998,6 +2156,72 @@ function deleteUser(idx) {
   users.splice(idx, 1);
   saveUsers(users);
   renderUserPage();
+}
+
+// ══════════════════════════════════════════════════════════
+//  PLANT MANAGEMENT
+// ══════════════════════════════════════════════════════════
+function renderPlantPage() {
+  const plants = getPlants();
+  const users  = getUsers();
+  const list   = document.getElementById('plantList');
+  if (!list) return;
+  list.innerHTML = plants.map((p, i) => {
+    const admins = users.filter(u => (u.role==='admin'||u.role==='planthead') && u.plantId===p.id);
+    const adminsHtml = admins.length
+      ? admins.map(u=>`<span style="font-family:var(--mono);font-size:10px;color:var(--adm);background:rgba(139,157,255,0.09);border:1px solid rgba(139,157,255,0.22);border-radius:2px;padding:2px 7px;margin-right:4px;">${roleLabel(u.role)}: ${u.name}</span>`).join('')
+      : `<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">No admin/plant head assigned yet</span>`;
+    const isDefault = DEFAULT_PLANTS.some(dp => dp.id === p.id);
+    return `<div class="cat-item">
+      <div style="flex:1;">
+        <span class="cat-name">&#127968; ${p.name}</span>
+        ${p.location ? `<span style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:8px;">&#128205; ${p.location}</span>` : ''}
+        <div style="margin-top:6px;">${adminsHtml}</div>
+      </div>
+      ${isDefault ? '<span class="cat-tag">Default</span>' : ''}
+      <button class="cat-del" onclick="deletePlant(${i})" ${isDefault?'disabled style="opacity:0.3;cursor:not-allowed;"':''}>&#215; Delete</button>
+    </div>`;
+  }).join('');
+}
+
+function addPlant() {
+  const name     = document.getElementById('newPlantName').value.trim();
+  const location = document.getElementById('newPlantLocation').value.trim();
+  if (!name) { showPlantMsg('Plant name cannot be empty.', 'danger'); return; }
+  const plants = getPlants();
+  if (plants.find(p => p.name.toLowerCase() === name.toLowerCase())) { showPlantMsg('A plant with this name already exists.', 'danger'); return; }
+  const id = 'plant-' + Date.now();
+  plants.push({ id, name, location: location||'', createdBy: currentUser ? currentUser.username : 'superadmin' });
+  savePlants(plants);
+  document.getElementById('newPlantName').value = '';
+  document.getElementById('newPlantLocation').value = '';
+  renderPlantPage();
+  populateCategoryDropdowns();
+  showPlantMsg('Plant "' + name + '" added successfully.', 'ok');
+}
+
+function deletePlant(idx) {
+  const plants = getPlants();
+  const p = plants[idx];
+  if (DEFAULT_PLANTS.some(dp => dp.id === p.id)) { alert('Default plants cannot be deleted.'); return; }
+  const users = getUsers();
+  const assigned = users.filter(u => u.plantId === p.id);
+  if (assigned.length) { alert('Cannot delete: ' + assigned.length + ' user(s) are assigned to this plant. Reassign or delete them first.'); return; }
+  if (!confirm('Delete plant "' + p.name + '"? This cannot be undone.')) return;
+  plants.splice(idx, 1);
+  savePlants(plants);
+  renderPlantPage();
+  populateCategoryDropdowns();
+  showPlantMsg('Plant deleted.', 'ok');
+}
+
+function showPlantMsg(text, type) {
+  const el = document.getElementById('plant-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = type==='ok' ? 'var(--accent)' : 'var(--danger)';
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display='none'; }, 3500);
 }
 
 // ── PW MODAL (from user list) ──
@@ -2111,9 +2335,12 @@ async function submitReport() {
   const t = document.getElementById('f-title').value.trim();
   const d = document.getElementById('f-desc').value.trim();
   const c = document.getElementById('f-cat').value;
-  if(!t||!d||!c||!selSevVal) { alert('Please fill all required fields and select a severity level.'); return; }
+  const plantId = document.getElementById('f-plant').value;
+  const plants = getPlants();
+  const plantName = plantId ? (plants.find(p=>p.id===plantId)||{name:'Unknown'}).name : '';
+  if(!t||!d||!c||!selSevVal||!plantId) { alert('Please fill all required fields, select a plant, and select a severity level.'); return; }
   const id = genId();
-  const report = { id, title:t, description:d, category:c, org:document.getElementById('f-org').value.trim(), severity:selSevVal, files:files.map(f=>f.name), status:'new', date:new Date().toISOString(), adminNotes:'' };
+  const report = { id, title:t, description:d, category:c, plantId, plantName, org:document.getElementById('f-org').value.trim(), severity:selSevVal, files:files.map(f=>f.name), status:'new', date:new Date().toISOString(), adminNotes:'' };
   const btn = document.querySelector('#submitForm .sbtn');
   if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting...'; }
   await saveReport(report);
@@ -2127,6 +2354,7 @@ async function submitReport() {
 function resetForm() {
   ['f-title','f-desc','f-org'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   const fc=document.getElementById('f-cat'); if(fc) fc.value='';
+  const fp=document.getElementById('f-plant'); if(fp) fp.value='';
   document.querySelectorAll('.so').forEach(s=>s.classList.remove('sel'));
   selSevVal=''; files=[];
   const fl=document.getElementById('flist'); if(fl) fl.innerHTML='';
@@ -2214,21 +2442,27 @@ document.addEventListener('DOMContentLoaded',()=>{
 //  ADMIN / SUPERADMIN DASHBOARD
 // ══════════════════════════════════════════════════════════
 function renderDash() {
-  const t=reports.length, n=reports.filter(r=>r.status==='new').length, rv=reports.filter(r=>r.status==='reviewing').length, rs=reports.filter(r=>r.status==='resolved').length, hi=reports.filter(r=>r.severity==='high').length;
+  const scoped = filterReportsByPlantScope(reports);
+  const t=scoped.length, n=scoped.filter(r=>r.status==='new').length, rv=scoped.filter(r=>r.status==='reviewing').length, rs=scoped.filter(r=>r.status==='resolved').length;
+  const plant = getCurrentUserPlant();
+  const plantBanner = plant ? `<div style="font-family:var(--mono);font-size:11px;color:var(--adm);background:rgba(139,157,255,0.07);border:1px solid rgba(139,157,255,0.2);border-radius:3px;padding:6px 14px;margin-bottom:14px;display:inline-block;">&#127968; Showing: ${plant.name}</div>` : '';
+  document.getElementById('srow').insertAdjacentHTML('beforebegin', plantBanner);
   document.getElementById('srow').innerHTML = `
     <div class="scard tall"><div class="sl">Total Reports</div><div class="sv">${t}</div></div>
     <div class="scard snew"><div class="sl">New</div><div class="sv">${n}</div></div>
     <div class="scard srev"><div class="sl">Reviewing</div><div class="sv">${rv}</div></div>
     <div class="scard sres"><div class="sl">Resolved</div><div class="sv">${rs}</div></div>`;
-  const recent = [...reports].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  const recent = [...scoped].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
   document.getElementById('dashGrid').innerHTML = recent.length
     ? recent.map(r=>cardHTML(r,reports.indexOf(r))).join('')
     : '<div class="empty"><div class="ei">&#128196;</div><div>No reports yet</div></div>';
 }
 
 function renderAll() {
+  const scoped = filterReportsByPlantScope(reports);
   const sf=document.getElementById('fsev').value, st=document.getElementById('fst').value, sc=document.getElementById('fcat').value;
-  let f = reports.filter(r=>(!sf||r.severity===sf)&&(!st||r.status===st)&&(!sc||r.category===sc));
+  const sp = document.getElementById('fplant')?.value || '';
+  let f = scoped.filter(r=>(!sf||r.severity===sf)&&(!st||r.status===st)&&(!sc||r.category===sc)&&(!sp||r.plantId===sp));
   document.getElementById('allGrid').innerHTML = f.length
     ? f.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>cardHTML(r,reports.indexOf(r))).join('')
     : '<div class="empty"><div class="ei">&#128196;</div><div>No reports match filters</div></div>';
@@ -2251,6 +2485,7 @@ function cardHTML(r, idx) {
     <div class="rcb">
       <h3>${r.title}</h3>
       <p>${r.description}</p>
+      ${r.plantName ? `<span style="font-family:var(--mono);font-size:9px;color:var(--adm);background:rgba(139,157,255,0.08);border:1px solid rgba(139,157,255,0.2);border-radius:2px;padding:2px 7px;display:inline-block;margin-bottom:4px;">&#127968; ${r.plantName}</span>` : ''}
       ${sioRow}
       <div class="stup" onclick="event.stopPropagation()">
         <button onclick="updStatus(${idx},'new')">New</button>
@@ -2538,6 +2773,7 @@ function openDetail(i) {
   document.getElementById('mbox').innerHTML = `
     <h2>${r.id}</h2>
     <div class="mrow"><span class="lbl">Title</span><span class="val">${r.title}</span></div>
+    <div class="mrow"><span class="lbl">Plant</span><span class="val"><span style="color:var(--adm);font-family:var(--mono);font-size:12px;">&#127968; ${r.plantName||'—'}</span></span></div>
     <div class="mrow"><span class="lbl">Category</span><span class="val">${r.category}</span></div>
     <div class="mrow"><span class="lbl">Organization</span><span class="val">${r.org||'—'}</span></div>
     <div class="mrow"><span class="lbl">Severity</span><span class="val"><span class="sevb ${r.severity}">${r.severity}</span></span></div>
@@ -2792,7 +3028,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── SIO: role tag CSS ──────────────────────────────────────
 (function(){
   const style = document.createElement('style');
-  style.textContent = '.role-tag.sio{color:var(--sio);border-color:rgba(0,207,255,0.3);background:rgba(0,207,255,0.06);}';
+  style.textContent = `
+    .role-tag.sio{color:var(--sio);border-color:rgba(0,207,255,0.3);background:rgba(0,207,255,0.06);}
+    .role-tag.planthead{color:var(--adm);border-color:rgba(139,157,255,0.3);background:rgba(139,157,255,0.06);}
+    [data-theme="light"] .role-tag.planthead{color:#5a47d6;}
+  `;
   document.head.appendChild(style);
 })();
 
