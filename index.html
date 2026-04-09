@@ -628,6 +628,14 @@
   <div class="page" id="page-qrcode">
     <div class="ptitle a">QR Code — Premises Poster</div>
     <div class="qr-wrap">
+      <!-- Plant selector for QR -->
+      <div style="display:flex;flex-direction:column;gap:6px;max-width:420px;margin-bottom:22px;">
+        <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-weight:500;">&#127968; Select Plant for QR Code</label>
+        <select id="qr-plant-select" onchange="renderQR(true)" style="background:var(--surface);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;transition:border-color 0.2s;">
+          <option value="">— All Plants (no plant pre-selected) —</option>
+        </select>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">The selected plant will be pre-filled in the report form when the QR is scanned.</span>
+      </div>
       <div class="qr-card">
         <div class="qr-canvas-wrap"><div id="qrcode"></div></div>
         <div class="qr-info">
@@ -1823,17 +1831,17 @@ window.addEventListener('DOMContentLoaded', () => {
   getCategories();  // seed defaults if needed
   getPlants();      // seed default plants if needed
   const params = new URLSearchParams(window.location.search);
-  if(params.get('report') === 'true') enterReporter(true);
+  if(params.get('report') === 'true') enterReporter(true, params.get('plant') || '');
 });
 
 // ══════════════════════════════════════════════════════════
 //  ROLE / LOGIN
 // ══════════════════════════════════════════════════════════
-async function enterReporter(fromQR) {
+async function enterReporter(fromQR, qrPlantId) {
   role = 'user'; currentUser = null;
   document.getElementById('roleScreen').style.display = 'none';
   await loadReports();
-  initApp('user', fromQR);
+  initApp('user', fromQR, qrPlantId);
 }
 
 function switchToTrack() {
@@ -1879,7 +1887,7 @@ async function doLogin() {
   }
 }
 
-function initApp(r) {
+function initApp(r, fromQR, qrPlantId) {
   try { reports = JSON.parse(localStorage.getItem('wb_reports')||'[]'); } catch(e) { reports = []; }
   document.getElementById('app').style.display = 'block';
   populateCategoryDropdowns();
@@ -1901,6 +1909,11 @@ function initApp(r) {
     // Show track banner if arrived via QR scan
     const qrBanner = document.getElementById('track-from-qr');
     if (qrBanner) qrBanner.style.display = fromQR ? 'flex' : 'none';
+    // Pre-select plant from QR URL param
+    if (qrPlantId) {
+      const fp = document.getElementById('f-plant');
+      if (fp) fp.value = qrPlantId;
+    }
 
   } else if (r === 'admin') {
     hdot.className = 'dot da'; ht.className = 'a'; ht.textContent = 'SecureReport — Admin';
@@ -1979,6 +1992,8 @@ function lockApp() {
   document.getElementById('roleScreen').style.display = 'flex';
   role = null; currentUser = null;
   qrGenerated = false;
+  const qrEl = document.getElementById('qrcode'); if (qrEl) qrEl.innerHTML = '';
+  const qrSel = document.getElementById('qr-plant-select'); if (qrSel) qrSel.value = '';
   invMediaFiles = [];
   _sioCurrentCaseId = null;
   resetForm();
@@ -2197,6 +2212,7 @@ function addPlant() {
   document.getElementById('newPlantLocation').value = '';
   renderPlantPage();
   populateCategoryDropdowns();
+  refreshQRPlantDropdown();
   showPlantMsg('Plant "' + name + '" added successfully.', 'ok');
 }
 
@@ -2212,6 +2228,7 @@ function deletePlant(idx) {
   savePlants(plants);
   renderPlantPage();
   populateCategoryDropdowns();
+  refreshQRPlantDropdown();
   showPlantMsg('Plant deleted.', 'ok');
 }
 
@@ -2830,14 +2847,47 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════════════════════
 //  QR CODE
 // ══════════════════════════════════════════════════════════
-function renderQR() {
-  if(qrGenerated) return;
+function renderQR(forceRegen) {
+  // Populate plant selector with all current plants every time the page opens
+  const sel = document.getElementById('qr-plant-select');
+  if (sel) {
+    const plants = getPlants();
+    const currentVal = sel.value; // preserve selection if already set
+    sel.innerHTML = '<option value="">— All Plants (no plant pre-selected) —</option>'
+      + plants.map(p => `<option value="${p.id}" ${currentVal === p.id ? 'selected' : ''}>${p.name}${p.location ? ' — ' + p.location : ''}</option>`).join('');
+    // Restore selection after innerHTML replace
+    if (currentVal) sel.value = currentVal;
+  }
+
+  // Build URL: embed plantId as query param if one is selected
+  const base    = window.location.href.split('?')[0];
+  const plantId = sel ? sel.value : '';
+  const url     = base + '?report=true' + (plantId ? '&plant=' + encodeURIComponent(plantId) : '');
+
+  // If URL hasn't changed since last render, skip regeneration (unless forced)
+  const urlDisplay = document.getElementById('qrUrlDisplay');
+  if (!forceRegen && qrGenerated && urlDisplay && urlDisplay.textContent === url) return;
+
   qrGenerated = true;
-  const base = window.location.href.split('?')[0];
-  const url  = base + '?report=true';
-  document.getElementById('qrUrlDisplay').textContent = url;
-  new QRCode(document.getElementById('qrcode'), { text:url, width:164, height:164, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H });
+  if (urlDisplay) urlDisplay.textContent = url;
+
+  // Clear old QR and regenerate
+  const qrEl = document.getElementById('qrcode');
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, { text: url, width: 164, height: 164, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
 }
+/** Refresh the QR page plant dropdown without regenerating the QR image */
+function refreshQRPlantDropdown() {
+  const sel = document.getElementById('qr-plant-select');
+  if (!sel) return; // QR page not yet rendered
+  const plants = getPlants();
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="">— All Plants (no plant pre-selected) —</option>'
+    + plants.map(p => `<option value="${p.id}">${p.name}${p.location ? ' — ' + p.location : ''}</option>`).join('');
+  // Re-select previous value if it still exists
+  if (currentVal && plants.find(p => p.id === currentVal)) sel.value = currentVal;
+}
+
 function downloadQR() {
   setTimeout(()=>{
     const canvas = document.querySelector('#qrcode canvas');
