@@ -931,11 +931,11 @@
         <!-- MSAL Sign-In Status -->
         <div style="background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:12px 16px;margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <span id="msal-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0;display:inline-block;"></span>
-          <span id="msal-status-label" style="font-family:var(--mono);font-size:12px;color:var(--text2);flex:1;min-width:200px;">Save your Tenant ID &amp; Client ID, then click Sign In.</span>
+          <span id="msal-status-label" style="font-family:var(--mono);font-size:12px;color:var(--text2);flex:1;min-width:200px;">Fill in your Tenant ID &amp; Client ID above, then click Sign In — settings are saved automatically.</span>
           <button id="msal-signin-btn" class="sbtn sio-btn" style="font-size:12px;padding:7px 16px;" onclick="msalSignIn()">&#128273; Sign In with Microsoft</button>
         </div>
         <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:8px;padding:7px 12px;background:rgba(0,207,255,0.04);border-radius:3px;border:1px solid rgba(0,207,255,0.12);">
-          ⚡ <strong style="color:var(--sio);">How it works:</strong> After saving your Client ID &amp; Tenant ID, click <strong>Sign In with Microsoft</strong>. A popup authenticates you once — tokens are cached silently for all future email sends. No client secret needed.
+          ⚡ <strong style="color:var(--sio);">How it works:</strong> Fill in your Client ID &amp; Tenant ID, then click <strong>Sign In with Microsoft</strong> — settings are auto-saved before the login popup opens. Tokens are cached silently for all future email sends. No client secret needed.
         </div>
       </div>
     </div>
@@ -1656,10 +1656,20 @@ function getMsalInstance() {
 
 // ── Sign-in / sign-out helpers for the Settings UI ─────────
 async function msalSignIn() {
+  // Read live field values so Sign In works even if Save hasn't been clicked yet
+  const liveTenantId  = (document.getElementById('mc-tenantId')?.value  || '').trim();
+  const liveClientId  = (document.getElementById('mc-clientId')?.value  || '').trim();
+  const liveSender    = (document.getElementById('mc-senderEmail')?.value|| '').trim();
+
+  if (liveTenantId || liveClientId || liveSender) {
+    // Auto-save whatever is currently in the fields before attempting sign-in
+    saveMailConfig();
+  }
+
   const cfg = getMailConfig();
   if (!cfg.clientId || !cfg.tenantId) {
     updateMsalStatusBadge('unconfigured');
-    showMsalMsg('⚠ Save your Tenant ID and Client ID first, then click Sign In.', 'var(--warn)');
+    showMsalMsg('⚠ Enter your Tenant ID and Client ID above, then click Sign In.', 'var(--warn)');
     return;
   }
   const btn = document.getElementById('msal-signin-btn');
