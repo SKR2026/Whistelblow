@@ -228,14 +228,25 @@
 
   /* ─── ADMIN STATS ──────────────────────────────────────── */
   .srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:26px;}
-  .scard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:15px 17px;}
-  .scard .sl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:15px 17px;cursor:pointer;transition:border-color 0.18s,box-shadow 0.18s,transform 0.12s;user-select:none;position:relative;}
+  .scard:hover{border-color:var(--border2);box-shadow:0 2px 12px rgba(0,0,0,0.18);transform:translateY(-1px);}
+  .scard.active-sort{box-shadow:0 0 0 1.5px currentColor;}
+  .scard.tall.active-sort{box-shadow:0 0 0 1.5px var(--text);}
+  .scard.snew.active-sort{box-shadow:0 0 0 1.5px var(--accent);border-color:var(--accent);}
+  .scard.srev.active-sort{box-shadow:0 0 0 1.5px var(--warn);border-color:var(--warn);}
+  .scard.sres.active-sort{box-shadow:0 0 0 1.5px var(--text3);border-color:var(--text3);}
+  .scard.shigh.active-sort{box-shadow:0 0 0 1.5px var(--danger);border-color:var(--danger);}
+  .scard .sl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
   .scard .sv{font-family:var(--mono);font-size:20px;font-weight:600;}
   .scard.tall .sv{color:var(--text);}
   .scard.snew .sv{color:var(--accent);}
   .scard.srev .sv{color:var(--warn);}
   .scard.sres .sv{color:var(--text3);}
   .scard.shigh .sv{color:var(--danger);}
+  .sort-hint{font-size:9px;opacity:0.45;letter-spacing:0.04em;transition:opacity 0.15s;white-space:nowrap;}
+  .scard:hover .sort-hint,.scard.active-sort .sort-hint{opacity:1;}
+  .scard.active-sort .sort-hint{font-weight:700;}
+  .sort-arrow{font-size:10px;margin-left:3px;}
 
   /* ─── TOP MANAGEMENT ANALYTICS ─────────────────────────── */
   .tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
@@ -2253,7 +2264,7 @@ function onRealtimeUpdate() {
   const active = document.querySelector('.page.active');
   if (!active) return;
   const pid = active.id;
-  if (pid==='page-dashboard') renderDash();
+  if (pid==='page-dashboard') renderDash(); // preserves _dashSort / _dashSortDir
   else if (pid==='page-allreports') renderAll();
   else if (pid==='page-topmgmt') renderTopMgmt();
   else if (pid==='page-saanalytics') renderSAAnalytics();
@@ -2281,7 +2292,7 @@ function showPage(name, btn) {
     const cls = role==='user'?'au':role==='admin'?'aa':role==='superadmin'?'asa':role==='sio'?'asio':'atm';
     btn.classList.add(cls);
   }
-  if (name==='dashboard')      renderDash();
+  if (name==='dashboard')      { _dashSort = null; _dashSortDir = 'desc'; renderDash(); }
   if (name==='allreports')     renderAll();
   if (name==='qrcode')         renderQR();
   if (name==='topmgmt')        renderTopMgmt();
@@ -2847,21 +2858,89 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ══════════════════════════════════════════════════════════
 //  ADMIN / SUPERADMIN DASHBOARD
 // ══════════════════════════════════════════════════════════
+
+// Dashboard sort state: null = latest-first (default), or one of 'all'|'new'|'reviewing'|'resolved'
+let _dashSort = null;
+let _dashSortDir = 'desc'; // 'asc' or 'desc' — toggled on repeated click of same card
+
 function renderDash() {
   const scoped = filterReportsByPlantScope(reports);
   const t=scoped.length, n=scoped.filter(r=>r.status==='new').length, rv=scoped.filter(r=>r.status==='reviewing').length, rs=scoped.filter(r=>r.status==='resolved').length;
   const plant = getCurrentUserPlant();
-  const plantBanner = plant ? `<div style="font-family:var(--mono);font-size:11px;color:var(--adm);background:rgba(139,157,255,0.07);border:1px solid rgba(139,157,255,0.2);border-radius:3px;padding:6px 14px;margin-bottom:14px;display:inline-block;">&#127968; Showing: ${plant.name}</div>` : '';
-  document.getElementById('srow').insertAdjacentHTML('beforebegin', plantBanner);
+
+  // Remove any old plant banner before reinserting
+  const oldBanner = document.getElementById('dash-plant-banner');
+  if (oldBanner) oldBanner.remove();
+  if (plant) {
+    const banner = document.createElement('div');
+    banner.id = 'dash-plant-banner';
+    banner.style.cssText = 'font-family:var(--mono);font-size:11px;color:var(--adm);background:rgba(139,157,255,0.07);border:1px solid rgba(139,157,255,0.2);border-radius:3px;padding:6px 14px;margin-bottom:14px;display:inline-block;';
+    banner.innerHTML = '&#127968; Showing: ' + plant.name;
+    document.getElementById('srow').insertAdjacentElement('beforebegin', banner);
+  }
+
+  const sortDir = s => _dashSort===s ? (_dashSortDir==='desc' ? ' ▼' : ' ▲') : '';
+  const activeClass = s => _dashSort===s ? ' active-sort' : '';
+  const hintText = s => _dashSort===s ? (_dashSortDir==='desc' ? 'Sorted ▼' : 'Sorted ▲') : 'Click to sort';
+
   document.getElementById('srow').innerHTML = `
-    <div class="scard tall"><div class="sl">Total Reports</div><div class="sv">${t}</div></div>
-    <div class="scard snew"><div class="sl">New</div><div class="sv">${n}</div></div>
-    <div class="scard srev"><div class="sl">Reviewing</div><div class="sv">${rv}</div></div>
-    <div class="scard sres"><div class="sl">Resolved</div><div class="sv">${rs}</div></div>`;
-  const recent = [...scoped].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
-  document.getElementById('dashGrid').innerHTML = recent.length
-    ? recent.map(r=>cardHTML(r,reports.indexOf(r))).join('')
-    : '<div class="empty"><div class="ei">&#128196;</div><div>No reports yet</div></div>';
+    <div class="scard tall${activeClass('all')}" onclick="dashSortBy('all')" title="Sort by date (latest first)">
+      <div class="sl">Total Reports<span class="sort-hint">${hintText('all')}</span></div>
+      <div class="sv">${t}</div>
+    </div>
+    <div class="scard snew${activeClass('new')}" onclick="dashSortBy('new')" title="Show & sort New reports">
+      <div class="sl">New<span class="sort-hint">${hintText('new')}</span></div>
+      <div class="sv">${n}</div>
+    </div>
+    <div class="scard srev${activeClass('reviewing')}" onclick="dashSortBy('reviewing')" title="Show & sort Reviewing reports">
+      <div class="sl">Reviewing<span class="sort-hint">${hintText('reviewing')}</span></div>
+      <div class="sv">${rv}</div>
+    </div>
+    <div class="scard sres${activeClass('resolved')}" onclick="dashSortBy('resolved')" title="Show & sort Resolved reports">
+      <div class="sl">Resolved<span class="sort-hint">${hintText('resolved')}</span></div>
+      <div class="sv">${rs}</div>
+    </div>`;
+
+  // Build the list based on current sort
+  let list;
+  if (!_dashSort || _dashSort === 'all') {
+    list = [...scoped].sort((a,b)=> _dashSortDir==='desc'
+      ? new Date(b.date)-new Date(a.date)
+      : new Date(a.date)-new Date(b.date));
+  } else {
+    list = [...scoped]
+      .filter(r => r.status === _dashSort)
+      .sort((a,b)=> _dashSortDir==='desc'
+        ? new Date(b.date)-new Date(a.date)
+        : new Date(a.date)-new Date(b.date));
+  }
+
+  // Update section label to reflect active sort
+  const dashLabel = document.querySelector('#page-dashboard .ptitle.a:last-of-type');
+  if (dashLabel) {
+    if (!_dashSort || _dashSort === 'all') {
+      dashLabel.textContent = 'Recent Reports';
+      list = list.slice(0, 5);
+    } else {
+      const labelMap = { new: 'New', reviewing: 'Reviewing', resolved: 'Resolved' };
+      dashLabel.textContent = labelMap[_dashSort] + ' Reports' + (_dashSortDir==='desc' ? ' — Latest First' : ' — Oldest First');
+    }
+  }
+
+  document.getElementById('dashGrid').innerHTML = list.length
+    ? list.map(r=>cardHTML(r,reports.indexOf(r))).join('')
+    : `<div class="empty"><div class="ei">&#128196;</div><div>No ${_dashSort && _dashSort!=='all' ? _dashSort : ''} reports</div></div>`;
+}
+
+function dashSortBy(key) {
+  if (_dashSort === key) {
+    // Toggle direction on repeated click of the same card
+    _dashSortDir = _dashSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    _dashSort = key;
+    _dashSortDir = 'desc';
+  }
+  renderDash();
 }
 
 function renderAll() {
