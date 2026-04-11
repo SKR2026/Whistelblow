@@ -1444,14 +1444,17 @@ function updateMailStatusBanner() {
   if (!banner || !text) return;
   const isConfigured = cfg.tenantId && cfg.clientId && cfg.senderEmail;
   const inst = getMsalInstance && getMsalInstance();
-  const isSignedIn = inst && inst.getAllAccounts().length > 0;
+  const isSignedIn = (inst && inst.getAllAccounts().length > 0) || !!window._msalRestoredUsername;
+  const signedInUser = inst && inst.getAllAccounts().length > 0
+    ? inst.getAllAccounts()[0]?.username
+    : (window._msalRestoredUsername || cfg.senderEmail);
   if (isConfigured && isSignedIn) {
     banner.style.background  = 'rgba(0,240,168,0.07)';
     banner.style.borderColor = 'rgba(0,240,168,0.28)';
     banner.querySelector('span').style.background  = 'var(--accent)';
     banner.querySelector('span').style.boxShadow   = '0 0 6px var(--accent)';
     text.style.color = 'var(--accent)';
-    const username = inst.getAllAccounts()[0]?.username || cfg.senderEmail;
+    const username = signedInUser;
     const allU = getUsers();
     const uEmails = allU.filter(u=>(u.role==='superadmin'||u.role==='topmanagement')&&u.email).map(u=>u.email);
     const totalRecipients = new Set([...(cfg.adminEmails||[]),...(cfg.superAdminEmails||[]),...uEmails]).size;
@@ -1492,9 +1495,18 @@ function renderMailConfigPage() {
   const inst = getMsalInstance && getMsalInstance();
   if (inst) {
     const accounts = inst.getAllAccounts();
-    if (accounts.length > 0) updateMsalStatusBadge('signed-in', accounts[0].username);
-    else if (cfg.clientId && cfg.tenantId) updateMsalStatusBadge('signed-out');
-    else updateMsalStatusBadge('unconfigured');
+    if (accounts.length > 0) {
+      updateMsalStatusBadge('signed-in', accounts[0].username);
+      window._msalRestoredUsername = null; // consumed
+    } else if (cfg.clientId && cfg.tenantId) {
+      updateMsalStatusBadge('signed-out');
+    } else {
+      updateMsalStatusBadge('unconfigured');
+    }
+  } else if (window._msalRestoredUsername) {
+    // MSAL instance restored in background — reflect it in the badge
+    updateMsalStatusBadge('signed-in', window._msalRestoredUsername);
+    window._msalRestoredUsername = null;
   } else if (cfg.clientId && cfg.tenantId) {
     updateMsalStatusBadge('signed-out');
   } else {
@@ -2037,7 +2049,62 @@ window.addEventListener('DOMContentLoaded', () => {
   getPlants();      // seed default plants if needed
   const params = new URLSearchParams(window.location.search);
   if(params.get('report') === 'true') enterReporter(true);
+  // Auto-restore Microsoft sign-in session from cached MSAL tokens
+  autoRestoreMsalSession();
 });
+
+/**
+ * autoRestoreMsalSession()
+ * On every page load, if Tenant ID + Client ID are saved in localStorage,
+ * this re-initialises the MSAL PublicClientApplication so it picks up any
+ * tokens that MSAL already persisted in localStorage from a previous sign-in.
+ * If a cached account is found, the Sign-In button stays hidden and the
+ * "Signed in as …" badge is shown — no popup required.
+ */
+async function autoRestoreMsalSession() {
+  if (typeof msal === 'undefined') return; // MSAL library not yet loaded
+  const cfg = getMailConfig();
+  if (!cfg.clientId || !cfg.tenantId) return; // not configured yet
+
+  const redirectUri = window.location.href.split('?')[0].split('#')[0];
+  const cacheKey    = `${cfg.clientId}::${cfg.tenantId}`;
+
+  // Only create if not already in our singleton cache
+  if (!_msalInstances[cacheKey]) {
+    try {
+      const inst = new msal.PublicClientApplication({
+        auth: {
+          clientId:    cfg.clientId,
+          authority:   `https://login.microsoftonline.com/${cfg.tenantId}`,
+          redirectUri,
+        },
+        cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false },
+      });
+      await inst.initialize();
+      _msalInstances[cacheKey] = inst;
+    } catch(e) {
+      console.warn('[MSAL] Auto-restore init failed:', e.message);
+      return;
+    }
+  }
+
+  const inst     = _msalInstances[cacheKey];
+  const accounts = inst.getAllAccounts();
+
+  if (accounts.length > 0) {
+    // Cached session found — try a silent token refresh to confirm it's still valid
+    try {
+      await inst.acquireTokenSilent({ scopes: ['Mail.Send', 'User.Read'], account: accounts[0] });
+      console.log('[MSAL] Session restored silently for', accounts[0].username);
+      // Update UI badge when the mail config page is eventually rendered
+      // (updateMsalStatusBadge reads DOM elements that may not exist yet)
+      window._msalRestoredUsername = accounts[0].username;
+    } catch(_) {
+      // Token expired or revoked — user will need to sign in again
+      console.info('[MSAL] Cached token expired — sign-in required.');
+    }
+  }
+}
 
 // ══════════════════════════════════════════════════════════
 //  ROLE / LOGIN
