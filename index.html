@@ -345,6 +345,16 @@
   .cat-item .cat-tag{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;background:rgba(245,197,66,0.08);color:var(--sa);border:1px solid rgba(245,197,66,0.2);}
   .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .cat-item .cat-del:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
+  .cat-item .cat-edit{background:none;border:1px solid rgba(245,197,66,0.3);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--sa);transition:all 0.15s;}
+  .cat-item .cat-edit:hover{background:rgba(245,197,66,0.08);border-color:var(--sa);}
+  .cat-item-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+  .cat-edit-row{display:none;margin-top:8px;gap:7px;align-items:center;flex-wrap:wrap;}
+  .cat-edit-row.open{display:flex;}
+  .cat-edit-input{flex:1;background:var(--bg);border:1px solid var(--sa);border-radius:3px;padding:7px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;min-width:200px;}
+  .cat-save-btn{background:var(--sa);color:#000;border:none;border-radius:2px;padding:6px 13px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;}
+  .cat-save-btn:hover{background:var(--sa2);}
+  .cat-cancel-btn{background:none;border:1px solid var(--border2);border-radius:2px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;}
+  .cat-cancel-btn:hover{border-color:var(--text2);color:var(--text2);}
   .plant-rename-btn{background:none;border:1px solid rgba(139,157,255,0.35);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--adm);cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.01em;white-space:nowrap;}
   .plant-rename-btn:hover{background:rgba(139,157,255,0.09);border-color:var(--adm);}
   .plant-rename-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px;}
@@ -773,7 +783,7 @@
     <div class="ptitle sa">Category Management</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
       <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Categories are available in the reporter submission form and all report filters. <strong style="color:var(--sa);">Changes apply immediately.</strong> Default categories cannot be deleted.</p>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Categories are available in the reporter submission form and all report filters. <strong style="color:var(--sa);">Changes apply immediately.</strong> As SuperAdmin you can rename or delete any category — including defaults. Renaming also updates all existing reports.</p>
     </div>
     <div class="sec-label">Active Categories</div>
     <div class="cat-list" id="catList"></div>
@@ -1198,7 +1208,7 @@ function initFirebase() {
       _fbReady = true;
       console.log('Firebase connected ✓ — auth OK');
       getUsers();
-      getCategories();
+      loadCategoriesFromFirestore().then(cats => { populateCategoryDropdowns(); });
       getPlants();
     })
     .catch(err => {
@@ -1296,6 +1306,29 @@ function getCategories() {
   } catch(e) { return DEFAULT_CATEGORIES; }
 }
 function saveCategories(cats) { try { localStorage.setItem('wb_categories', JSON.stringify(cats)); } catch(e) {} }
+
+// Firestore sync for categories (single doc approach)
+async function saveCategoriesToFirestore(cats) {
+  try {
+    await _db.collection('wb_config').doc('categories').set({ list: cats, updatedAt: new Date().toISOString() });
+  } catch(e) { console.warn('Firestore category sync failed:', e); }
+}
+async function loadCategoriesFromFirestore() {
+  try {
+    const doc = await _db.collection('wb_config').doc('categories').get();
+    if (doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
+      saveCategories(doc.data().list);
+      return doc.data().list;
+    }
+    // Not in Firestore yet — seed it
+    const cats = getCategories();
+    await saveCategoriesToFirestore(cats);
+    return cats;
+  } catch(e) {
+    console.warn('Firestore category load failed (using local):', e);
+    return getCategories();
+  }
+}
 
 // ── Plants ─────────────────────────────────────────────────
 function getPlants() {
@@ -2415,14 +2448,89 @@ function populateCategoryDropdowns() {
 
 function renderCatPage() {
   const cats = getCategories();
-  document.getElementById('catList').innerHTML = cats.map((c,i) => {
+  document.getElementById('catList').innerHTML = cats.map((c, i) => {
     const isDefault = DEFAULT_CATEGORIES.includes(c);
-    return `<div class="cat-item">
-      <span class="cat-name">${c}</span>
-      ${isDefault ? '<span class="cat-tag">Default</span>' : ''}
-      <button class="cat-del" onclick="deleteCategory(${i})" ${isDefault?'disabled style="opacity:0.3;cursor:not-allowed;"':''}>&#215; Delete</button>
+    const safeC = c.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    return `<div class="cat-item" id="cat-item-${i}" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span class="cat-name" id="cat-name-${i}">${c}</span>
+        ${isDefault ? '<span class="cat-tag">Default</span>' : ''}
+        <div class="cat-item-btns">
+          <button class="cat-edit" onclick="openCatEdit(${i})" title="Rename category">&#9998; Edit</button>
+          <button class="cat-del" onclick="deleteCategoryAdmin(${i})" title="Delete category">&#215; Delete</button>
+        </div>
+      </div>
+      <div class="cat-edit-row" id="cat-edit-row-${i}">
+        <input class="cat-edit-input" id="cat-edit-input-${i}" type="text" value="${safeC}" maxlength="60"
+          onkeydown="if(event.key==='Enter')saveCatEdit(${i});if(event.key==='Escape')closeCatEdit(${i});" />
+        <button class="cat-save-btn" onclick="saveCatEdit(${i})">&#10003; Save</button>
+        <button class="cat-cancel-btn" onclick="closeCatEdit(${i})">Cancel</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+function openCatEdit(i) {
+  // Close any other open edit rows first
+  document.querySelectorAll('.cat-edit-row.open').forEach(el => {
+    if (el.id !== `cat-edit-row-${i}`) el.classList.remove('open');
+  });
+  const row = document.getElementById(`cat-edit-row-${i}`);
+  if (row) {
+    row.classList.add('open');
+    const inp = document.getElementById(`cat-edit-input-${i}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }
+}
+
+function closeCatEdit(i) {
+  const row = document.getElementById(`cat-edit-row-${i}`);
+  if (row) row.classList.remove('open');
+}
+
+async function saveCatEdit(i) {
+  const inp = document.getElementById(`cat-edit-input-${i}`);
+  if (!inp) return;
+  const newName = inp.value.trim();
+  if (!newName) { showCatMsg('Category name cannot be empty.', 'danger'); return; }
+  const cats = getCategories();
+  const oldName = cats[i];
+  if (newName === oldName) { closeCatEdit(i); return; }
+  if (cats.find((c, idx) => idx !== i && c.toLowerCase() === newName.toLowerCase())) {
+    showCatMsg('A category with that name already exists.', 'danger'); return;
+  }
+  // Rename in list
+  cats[i] = newName;
+  saveCategories(cats);
+  // Also sync to Firestore
+  await saveCategoriesToFirestore(cats);
+  // Update all existing reports that used the old category name
+  let updated = 0;
+  reports.forEach(r => { if (r.category === oldName) { r.category = newName; updated++; } });
+  if (updated > 0) {
+    // Save updated reports locally
+    try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
+    // Sync changed reports to Firestore
+    for (const r of reports) { if (r.category === newName) { try { await saveReport(r); } catch(e) {} } }
+  }
+  closeCatEdit(i);
+  renderCatPage();
+  populateCategoryDropdowns();
+  showCatMsg(`Renamed to "${newName}"${updated > 0 ? ` · ${updated} report${updated>1?'s':''} updated` : ''}.`, 'ok');
+}
+
+function deleteCategoryAdmin(idx) {
+  const cats = getCategories();
+  const name = cats[idx];
+  const isDefault = DEFAULT_CATEGORIES.includes(name);
+  const warn = isDefault ? `⚠️ "${name}" is a default category.\n\n` : '';
+  if (!confirm(`${warn}Delete category "${name}"?\n\nExisting reports using this category will retain the value but it will no longer appear in dropdowns.`)) return;
+  cats.splice(idx, 1);
+  saveCategories(cats);
+  saveCategoriesToFirestore(cats);
+  renderCatPage();
+  populateCategoryDropdowns();
+  showCatMsg(`Category "${name}" deleted.`, 'ok');
 }
 
 function addCategory() {
@@ -2433,6 +2541,7 @@ function addCategory() {
   if (cats.find(c=>c.toLowerCase()===val.toLowerCase())) { showCatMsg('Category already exists.','danger'); return; }
   cats.push(val);
   saveCategories(cats);
+  saveCategoriesToFirestore(cats);
   document.getElementById('newCatInput').value = '';
   renderCatPage();
   populateCategoryDropdowns();
@@ -2440,13 +2549,8 @@ function addCategory() {
 }
 
 function deleteCategory(idx) {
-  const cats = getCategories();
-  if (DEFAULT_CATEGORIES.includes(cats[idx])) { alert('Default categories cannot be deleted.'); return; }
-  if (!confirm(`Delete category "${cats[idx]}"?`)) return;
-  cats.splice(idx, 1);
-  saveCategories(cats);
-  renderCatPage();
-  populateCategoryDropdowns();
+  // Legacy: called only if somehow invoked outside superadmin context
+  deleteCategoryAdmin(idx);
 }
 
 function showCatMsg(text, type) {
