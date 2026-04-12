@@ -1196,19 +1196,15 @@ const _fbConfig = {
 if (!firebase.apps.length) firebase.initializeApp(_fbConfig);
 const _db = firebase.firestore();
 let _fbReady = false, _unsubscribe = null, _notifUnsubscribe = null;
+let _fbReadyPromise = null; // resolves when Firebase auth is settled
 
 function initFirebase() {
-  // Sign in anonymously to satisfy Firestore auth rules (request.auth != null)
-  // Exact same pattern as Plant Visit app:
-  //   firebase.auth().signInAnonymously()
-  //     .then(() => initFirestoreListeners())
-  //     .catch(err => { console.error(...); initFirestoreListeners(); });
-  firebase.auth().signInAnonymously()
+  _fbReadyPromise = firebase.auth().signInAnonymously()
     .then(() => {
       _fbReady = true;
       console.log('Firebase connected ✓ — auth OK');
       getUsers();
-      loadCategoriesFromFirestore().then(cats => { populateCategoryDropdowns(); });
+      loadCategoriesFromFirestore().then(() => { populateCategoryDropdowns(); });
       getPlants();
     })
     .catch(err => {
@@ -1218,6 +1214,7 @@ function initFirebase() {
       getCategories();
       getPlants();
     });
+  return _fbReadyPromise;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2169,10 +2166,14 @@ async function notifyInvReportSubmitted(report, silentOnly = false) {
 // ══════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  initFirebase(); // signs in anonymously then calls getUsers/getCategories/getPlants
+window.addEventListener('DOMContentLoaded', async () => {
+  const fbPromise = initFirebase(); // signs in anonymously then loads users/categories/plants
   const params = new URLSearchParams(window.location.search);
-  if(params.get('report') === 'true') enterReporter(true);
+  if (params.get('report') === 'true') {
+    // Wait for Firebase auth + category load to complete before entering reporter
+    await fbPromise.catch(() => {}); // swallow error — enterReporter handles fallback
+    enterReporter(true);
+  }
   // Auto-restore Microsoft sign-in session from cached MSAL tokens
   autoRestoreMsalSession();
 });
@@ -2237,8 +2238,8 @@ async function enterReporter(fromQR) {
   role = 'user'; currentUser = null;
   document.getElementById('roleScreen').style.display = 'none';
   await loadReports();
-  await loadPlantsFromFirestore();       // ensure latest plant names/list is loaded
-  await loadCategoriesFromFirestore();   // ensure latest categories are loaded
+  await loadPlantsFromFirestore();     // ensure latest plant names/list is loaded
+  await loadCategoriesFromFirestore(); // ensure latest categories are loaded from Firestore
   initApp('user', fromQR);
 }
 
