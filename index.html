@@ -2350,6 +2350,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('mailconfig',this)">&#9993; Email</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
+    saveCategoriesToFirestore(getCategories()); // sync superadmin's categories to Firestore on login
     subscribePendingNotifications();
     showPage('saanalytics', nav.querySelector('.asa'));
 
