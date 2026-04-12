@@ -14,7 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:#07090d; --surface:#0f1219; --surface2:#161b25;
@@ -26,45 +26,45 @@
     --danger:#ff4f6d; --warn:#ffb800;
     --sio:#00d8ff; --sio2:#00a8cc;
     --text:#f0f4f8; --text2:#a8b8cc; --text3:#637080;
-    --mono:'IBM Plex Mono','Courier New',monospace; --sans:'IBM Plex Sans','Segoe UI',sans-serif;
+    --mono:'DM Sans','Segoe UI',sans-serif; --sans:'Inter','Segoe UI',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;overflow-x:hidden;letter-spacing:0.01em;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden;letter-spacing:0.01em;}
   body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,168,0.006) 2px,rgba(0,240,168,0.006) 4px);pointer-events:none;z-index:999;}
 
   /* ─── ROLE SCREEN ─────────────────────────────────────── */
   #roleScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:40px;}
   .rs-logo{text-align:center;}
   .rs-logo svg{width:58px;height:58px;display:block;margin:0 auto 14px;}
-  .rs-logo h1{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
-  .rs-logo p{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.06em;margin-top:4px;}
+  .rs-logo h1{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;}
+  .rs-logo p{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.01em;margin-top:4px;}
   .rs-cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
   .rs-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:28px 32px;width:190px;text-align:center;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:12px;}
   .rs-card:hover{transform:translateY(-3px);}
   .rs-card.uc:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(0,229,160,0.1);}
   .rs-card.ac:hover{border-color:var(--adm);box-shadow:0 0 24px rgba(123,140,255,0.12);}
   .rs-card .rci{font-size:28px;}
-  .rs-card h2{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
+  .rs-card h2{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;}
   .rs-card.uc h2{color:var(--accent);}
   .rs-card.ac h2{color:var(--adm);}
   .rs-card p{font-size:12px;color:var(--text2);line-height:1.5;}
-  .no-pass{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:2px;padding:3px 7px;text-transform:uppercase;letter-spacing:0.06em;}
+  .no-pass{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:2px;padding:3px 7px;text-transform:uppercase;letter-spacing:0.01em;}
 
   /* ─── LOGIN ────────────────────────────────────────────── */
   #loginScreen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:190;flex-direction:column;gap:26px;}
-  .login-back{font-family:var(--mono);font-size:14px;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.15s;}
+  .login-back{font-family:var(--mono);font-size:14px;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:0.02em;transition:color 0.15s;}
   .login-back:hover{color:var(--text2);}
   .login-box{background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:30px;width:360px;display:flex;flex-direction:column;gap:16px;}
-  .ltitle{font-family:var(--mono);font-size:14px;letter-spacing:0.1em;text-transform:uppercase;padding-bottom:13px;border-bottom:1px solid var(--border);color:var(--adm);}
-  .login-box label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:500;}
+  .ltitle{font-family:var(--mono);font-size:14px;letter-spacing:0.03em;text-transform:uppercase;padding-bottom:13px;border-bottom:1px solid var(--border);color:var(--adm);}
+  .login-box label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:500;}
   .login-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;}
   .login-box input:focus{border-color:var(--adm);}
   .lhint{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;}
   .lerr{font-family:var(--mono);font-size:12px;color:var(--danger);text-align:center;display:none;padding:8px;background:rgba(255,77,106,0.07);border:1px solid rgba(255,77,106,0.2);border-radius:3px;}
-  .btn-a{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:12px;width:100%;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .btn-a{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:12px;width:100%;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .btn-a:hover{background:var(--adm2);}
   .role-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;}
-  .rpill{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:2px;border:1px solid;letter-spacing:0.06em;text-transform:uppercase;}
+  .rpill{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:2px;border:1px solid;letter-spacing:0.01em;text-transform:uppercase;}
   .rpill.sa{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .rpill.adm{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
   .rpill.tm{color:var(--tm);border-color:rgba(176,111,255,0.3);background:rgba(176,111,255,0.06);}
@@ -86,11 +86,11 @@
 
   /* Investigation report */
   .inv-section{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:14px;}
-  .inv-section-title{font-family:var(--mono);font-size:14px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .inv-section-title{font-family:var(--mono);font-size:14px;color:var(--sio);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .inv-section-title::before{content:'';display:block;width:10px;height:1px;background:var(--sio);}
 
   /* Feedback buttons */
-  .fb-btn{flex:1;padding:12px;border-radius:3px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1px solid;}
+  .fb-btn{flex:1;padding:12px;border-radius:3px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1px solid;}
   .fb-btn.satisfied{border-color:rgba(0,229,160,0.4);color:var(--accent);background:rgba(0,229,160,0.06);}
   .fb-btn.satisfied:hover,.fb-btn.satisfied.sel{background:rgba(0,229,160,0.14);border-color:var(--accent);}
   .fb-btn.unsatisfied{border-color:rgba(255,77,106,0.4);color:var(--danger);background:rgba(255,77,106,0.06);}
@@ -134,31 +134,31 @@
   .dsa{background:var(--sa);box-shadow:0 0 7px var(--sa);}
   .dtm{background:var(--tm);box-shadow:0 0 7px var(--tm);}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
-  .hb h1{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;}
+  .hb h1{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;}
   .hb h1.u{color:var(--accent);}
   .hb h1.a{color:var(--adm);}
   .hb h1.sa{color:var(--sa);}
   .hb h1.tm{color:var(--tm);}
   .hnav{display:flex;gap:4px;flex-wrap:wrap;}
-  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;font-weight:500;}
+  .nb{background:none;border:1px solid transparent;border-radius:3px;padding:6px 14px;color:var(--text2);font-family:var(--mono);font-size:11px;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;font-weight:500;}
   .nb:hover{border-color:var(--border2);color:var(--text);}
   .nb.au{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,0.06);}
   .nb.aa{border-color:var(--adm);color:var(--adm);background:rgba(123,140,255,0.06);}
   .nb.asa{border-color:var(--sa);color:var(--sa);background:rgba(245,197,66,0.06);}
   .nb.atm{border-color:var(--tm);color:var(--tm);background:rgba(176,111,255,0.06);}
   .hr{display:flex;align-items:center;gap:10px;}
-  .rbadge{font-family:var(--mono);font-size:14px;letter-spacing:0.08em;border-radius:2px;padding:4px 10px;text-transform:uppercase;border:1px solid;}
+  .rbadge{font-family:var(--mono);font-size:14px;letter-spacing:0.02em;border-radius:2px;padding:4px 10px;text-transform:uppercase;border:1px solid;}
   .rbadge.u{color:var(--accent);background:rgba(0,229,160,0.08);border-color:rgba(0,229,160,0.2);}
   .rbadge.a{color:var(--adm);background:rgba(123,140,255,0.08);border-color:rgba(123,140,255,0.2);}
   .rbadge.sa{color:var(--sa);background:rgba(245,197,66,0.08);border-color:rgba(245,197,66,0.2);}
   .rbadge.tm{color:var(--tm);background:rgba(176,111,255,0.08);border-color:rgba(176,111,255,0.2);}
-  .lkbtn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;color:var(--text3);font-family:var(--mono);font-size:14px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;}
+  .lkbtn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;color:var(--text3);font-family:var(--mono);font-size:14px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.01em;}
   .lkbtn:hover{border-color:var(--danger);color:var(--danger);}
 
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
-  .ptitle{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-weight:600;}
+  .ptitle{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-weight:600;}
   .ptitle::before{content:'';display:block;width:14px;height:1px;}
   .ptitle.u::before{background:var(--accent);}
   .ptitle.a::before{background:var(--adm);}
@@ -169,7 +169,7 @@
   .fg{display:flex;flex-direction:column;gap:20px;}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .field{display:flex;flex-direction:column;gap:6px;}
-  .field label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
+  .field label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;font-weight:500;}
   .field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
   .field textarea{resize:vertical;min-height:120px;line-height:1.6;}
@@ -180,7 +180,7 @@
   .anotice p{font-size:13px;color:var(--text2);line-height:1.6;font-family:var(--mono);}
   .anotice p strong{color:var(--accent);font-weight:600;}
   .sevs{display:flex;gap:8px;}
-  .so{flex:1;padding:8px;border:1px solid var(--border);border-radius:3px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:14px;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;color:var(--text3);}
+  .so{flex:1;padding:8px;border:1px solid var(--border);border-radius:3px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:14px;letter-spacing:0.01em;text-transform:uppercase;transition:all 0.15s;color:var(--text3);}
   .so.low:hover,.so.low.sel{border-color:#00c8a0;color:#00c8a0;background:rgba(0,200,160,0.06);}
   .so.med:hover,.so.med.sel{border-color:var(--warn);color:var(--warn);background:rgba(255,170,0,0.06);}
   .so.high:hover,.so.high.sel{border-color:var(--danger);color:var(--danger);background:rgba(255,77,106,0.06);}
@@ -193,7 +193,7 @@
   .flist{display:flex;flex-direction:column;gap:5px;margin-top:7px;}
   .fi{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:7px 11px;font-family:var(--mono);font-size:12px;color:var(--text2);}
   .fi .rmf{color:var(--danger);cursor:pointer;background:none;border:none;font-size:14px;}
-  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:11px 22px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
+  .sbtn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:11px 22px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;align-self:flex-start;}
   .sbtn:hover{background:var(--accent2);transform:translateY(-1px);}
   .sbtn.sa-btn{background:var(--sa);color:#000;}
   .sbtn.sa-btn:hover{background:var(--sa2);}
@@ -207,7 +207,7 @@
   /* ─── SUCCESS ──────────────────────────────────────────── */
   #sc{display:none;background:var(--surface);border:1px solid rgba(0,229,160,0.18);border-radius:4px;padding:34px;text-align:center;flex-direction:column;align-items:center;gap:13px;}
   #sc.show{display:flex;}
-  #sc h2{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:0.08em;}
+  #sc h2{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:0.02em;}
   #sc p{font-size:12px;color:var(--text2);line-height:1.6;}
   .rid{background:var(--bg);border:1px solid var(--accent);border-radius:3px;padding:12px 24px;font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);letter-spacing:0.15em;}
 
@@ -220,17 +220,17 @@
   .rcb h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
   .rcb p{font-size:13px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .rcm{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-  .sevb{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid;}
+  .sevb{font-family:var(--mono);font-size:12px;letter-spacing:0.02em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid;}
   .sevb.low{color:#00c8a0;border-color:#00c8a0;background:rgba(0,200,160,0.08);}
   .sevb.medium{color:var(--warn);border-color:var(--warn);background:rgba(255,170,0,0.08);}
   .sevb.high{color:var(--danger);border-color:var(--danger);background:rgba(255,77,106,0.08);}
   .rdate{font-family:var(--mono);font-size:11px;color:var(--text2);}
-  .stbadge{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+  .stbadge{font-family:var(--mono);font-size:12px;letter-spacing:0.01em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
   .stbadge.new{background:rgba(0,229,160,0.1);color:var(--accent);}
   .stbadge.reviewing{background:rgba(255,170,0,0.1);color:var(--warn);}
   .stbadge.resolved{background:rgba(74,85,104,0.18);color:var(--text3);}
   .stup{display:flex;gap:5px;margin-top:5px;}
-  .stup button{background:none;border:1px solid var(--border);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
+  .stup button{background:none;border:1px solid var(--border);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
   .stup button:hover{border-color:var(--adm);color:var(--adm);}
 
   /* ─── TRACK ────────────────────────────────────────────── */
@@ -248,7 +248,7 @@
   .scard.srev.active-sort{box-shadow:0 0 0 1.5px var(--warn);border-color:var(--warn);}
   .scard.sres.active-sort{box-shadow:0 0 0 1.5px var(--text3);border-color:var(--text3);}
   .scard.shigh.active-sort{box-shadow:0 0 0 1.5px var(--danger);border-color:var(--danger);}
-  .scard .sl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+  .scard .sl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
   .scard .sv{font-family:var(--mono);font-size:20px;font-weight:600;}
   .scard.tall .sv{color:var(--text);}
   .scard.snew .sv{color:var(--accent);}
@@ -263,7 +263,7 @@
   /* ─── TOP MANAGEMENT ANALYTICS ─────────────────────────── */
   .tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
   .tm-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;}
-  .tm-panel-title{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:600;}
+  .tm-panel-title{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:600;}
   .tm-panel-title::before{content:'';display:block;width:10px;height:1px;background:var(--tm);}
   .bar-row{display:flex;flex-direction:column;gap:10px;}
   .bar-item{display:flex;flex-direction:column;gap:5px;}
@@ -277,7 +277,7 @@
   .sev-split{display:flex;gap:12px;}
   .sev-box{flex:1;background:var(--bg);border-radius:3px;padding:14px 10px;text-align:center;border:1px solid var(--border);}
   .sev-box .sv2{font-family:var(--mono);font-size:20px;font-weight:600;margin-bottom:4px;}
-  .sev-box .sl2{font-family:var(--mono);font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+  .sev-box .sl2{font-family:var(--mono);font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.02em;}
   .sev-box.low .sv2{color:#00c8a0;}
   .sev-box.medium .sv2{color:var(--warn);}
   .sev-box.high .sv2{color:var(--danger);}
@@ -295,26 +295,26 @@
   /* ─── ADMIN NOTE ───────────────────────────────────────── */
   .nota{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:13px;width:100%;outline:none;resize:vertical;min-height:70px;transition:border-color 0.2s;}
   .nota:focus{border-color:var(--adm);}
-  .notebtn{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:7px 15px;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .notebtn{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:7px 15px;font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .notebtn:hover{background:var(--adm2);}
-  .delbtn{background:none;border:1px solid rgba(255,77,106,0.3);border-radius:3px;padding:7px 13px;font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
+  .delbtn{background:none;border:1px solid rgba(255,77,106,0.3);border-radius:3px;padding:7px 13px;font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .delbtn:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
 
   /* ─── MODAL ────────────────────────────────────────────── */
   #detailModal,#pwModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;align-items:center;justify-content:center;padding:22px;}
   #detailModal.open,#pwModal.open{display:flex;}
   .mbox{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;width:100%;max-width:580px;max-height:82vh;overflow-y:auto;padding:26px;display:flex;flex-direction:column;gap:17px;}
-  .mbox h2{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--adm);}
+  .mbox h2{font-family:var(--mono);font-size:12px;letter-spacing:0.03em;text-transform:uppercase;color:var(--adm);}
   .mrow{display:grid;grid-template-columns:100px 1fr;gap:10px;border-top:1px solid var(--border);padding-top:13px;font-size:12px;}
-  .mrow .lbl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;padding-top:2px;font-weight:500;}
+  .mrow .lbl{font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.02em;padding-top:2px;font-weight:500;}
   .mrow .val{color:var(--text);line-height:1.6;word-break:break-word;font-size:13px;}
-  .mclose{background:none;border:1px solid var(--border2);border-radius:3px;padding:7px 15px;color:var(--text2);font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;align-self:flex-end;transition:all 0.15s;}
+  .mclose{background:none;border:1px solid var(--border2);border-radius:3px;padding:7px 15px;color:var(--text2);font-family:var(--mono);font-size:14px;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer;align-self:flex-end;transition:all 0.15s;}
   .mclose:hover{border-color:var(--danger);color:var(--danger);}
 
   /* ─── PASSWORD MODAL ───────────────────────────────────── */
   .pw-box{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;width:100%;max-width:400px;padding:26px;display:flex;flex-direction:column;gap:16px;}
-  .pw-box h2{font-family:var(--mono);font-size:14px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sa);padding-bottom:12px;border-bottom:1px solid var(--border);}
-  .pw-box label{font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:5px;}
+  .pw-box h2{font-family:var(--mono);font-size:14px;letter-spacing:0.03em;text-transform:uppercase;color:var(--sa);padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .pw-box label{font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:5px;}
   .pw-box input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;}
   .pw-box input:focus{border-color:var(--sa);}
   .pw-err{font-family:var(--mono);font-size:14px;color:var(--danger);display:none;}
@@ -325,14 +325,14 @@
   .qr-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:28px;display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
   .qr-canvas-wrap{background:#fff;border-radius:4px;padding:14px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
   .qr-info{display:flex;flex-direction:column;gap:13px;flex:1;min-width:220px;}
-  .qr-info h2{font-family:var(--mono);font-size:12px;color:var(--adm);letter-spacing:0.08em;text-transform:uppercase;}
+  .qr-info h2{font-family:var(--mono);font-size:12px;color:var(--adm);letter-spacing:0.02em;text-transform:uppercase;}
   .qr-info p{font-size:12px;color:var(--text2);line-height:1.7;}
   .qr-info ul{font-size:14px;color:var(--text2);line-height:2;padding-left:18px;font-family:var(--mono);}
   .qr-info ul li::marker{color:var(--accent);}
   .qr-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
-  .btn-print{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+  .btn-print{background:var(--adm);color:#fff;border:none;border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
   .btn-print:hover{background:var(--adm2);}
-  .btn-dl{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+  .btn-dl{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:10px 20px;font-family:var(--mono);font-size:12px;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
   .btn-dl:hover{border-color:var(--adm);color:var(--adm);}
   .qr-url{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;font-family:var(--mono);font-size:12px;color:var(--accent);word-break:break-all;}
   .qr-tip{background:rgba(123,140,255,0.05);border:1px solid rgba(123,140,255,0.15);border-radius:3px;padding:13px 16px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;}
@@ -343,13 +343,13 @@
   .cat-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .cat-item .cat-name{font-family:var(--mono);font-size:12px;color:var(--text);}
   .cat-item .cat-tag{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:2px;background:rgba(245,197,66,0.08);color:var(--sa);border:1px solid rgba(245,197,66,0.2);}
-  .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
+  .cat-item .cat-del{background:none;border:1px solid rgba(255,77,106,0.25);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--danger);transition:all 0.15s;}
   .cat-item .cat-del:hover{background:rgba(255,77,106,0.08);border-color:var(--danger);}
-  .plant-rename-btn{background:none;border:1px solid rgba(139,157,255,0.35);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--adm);cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+  .plant-rename-btn{background:none;border:1px solid rgba(139,157,255,0.35);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--adm);cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.01em;white-space:nowrap;}
   .plant-rename-btn:hover{background:rgba(139,157,255,0.09);border-color:var(--adm);}
   .plant-rename-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px;}
   .plant-rename-input{background:var(--bg);border:1px solid var(--adm);border-radius:3px;padding:6px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;flex:1;min-width:180px;}
-  .plant-rename-save{background:var(--adm);color:#fff;border:none;border-radius:2px;padding:6px 13px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}
+  .plant-rename-save{background:var(--adm);color:#fff;border:none;border-radius:2px;padding:6px 13px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;}
   .plant-rename-save:hover{background:var(--adm2);}
   .plant-rename-cancel{background:none;border:1px solid var(--border2);border-radius:2px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;}
   .plant-rename-cancel:hover{border-color:var(--text2);color:var(--text2);}
@@ -357,27 +357,27 @@
   .cat-add-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;}
   .cat-add-row input:focus{border-color:var(--sa);}
   .section-sep{border:none;border-top:1px solid var(--border);margin:28px 0;}
-  .sec-label{font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;}
+  .sec-label{font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:16px;}
 
   /* ─── USER MANAGEMENT ──────────────────────────────────── */
   .user-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
   .user-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:14px 18px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;}
   .user-info .un{font-family:var(--mono);font-size:13px;color:var(--text);margin-bottom:3px;}
   .user-info .ud{font-family:var(--mono);font-size:11px;color:var(--text2);}
-  .role-tag{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:0.06em;}
+  .role-tag{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:0.01em;}
   .role-tag.superadmin{color:var(--sa);border-color:rgba(245,197,66,0.3);background:rgba(245,197,66,0.06);}
   .role-tag.admin{color:var(--adm);border-color:rgba(123,140,255,0.3);background:rgba(123,140,255,0.06);}
   .role-tag.topmanagement{color:var(--tm);border-color:rgba(176,111,255,0.3);background:rgba(176,111,255,0.06);}
   .user-actions{display:flex;gap:6px;}
-  .user-actions button{background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
+  .user-actions button{background:none;border:1px solid var(--border);border-radius:2px;padding:5px 11px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
   .user-actions .rpw-btn:hover{border-color:var(--sa);color:var(--sa);}
   .user-actions .del-btn:hover{border-color:var(--danger);color:var(--danger);}
   .add-user-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:16px;}
-  .add-user-panel .au-title{font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;}
+  .add-user-panel .au-title{font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:2px;}
   .add-user-panel input,.add-user-panel select{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;width:100%;}
   .add-user-panel input:focus,.add-user-panel select:focus{border-color:var(--sa);}
   .add-user-panel select{appearance:none;cursor:pointer;}
-  .add-user-panel label{font-family:var(--mono);font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:5px;}
+  .add-user-panel label{font-family:var(--mono);font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:0.03em;display:block;margin-bottom:5px;}
   .au-err{font-family:var(--mono);font-size:14px;color:var(--danger);display:none;}
   .au-ok{font-family:var(--mono);font-size:14px;color:var(--accent);display:none;}
 
@@ -413,7 +413,7 @@
   }
 
   /* ─── THEME TOGGLE ─────────────────────────────────────── */
-  .theme-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:0.06em;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .theme-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;display:flex;align-items:center;gap:6px;white-space:nowrap;}
   .theme-btn:hover{border-color:var(--accent);color:var(--accent);}
   #roleThemeBtn{position:fixed;top:18px;right:20px;z-index:250;}
 
@@ -589,7 +589,7 @@
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <button class="sbtn" onclick="submitReport()">&#9654; Submit Report</button>
-        <span style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Stored securely</span>
+        <span style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.01em;">Stored securely</span>
       </div>
     </div>
     <div id="sc">
@@ -618,7 +618,7 @@
       <button class="sbtn" onclick="trackReport()">&#9654; Check Status</button>
     </div>
     <div class="tres" id="tres">
-      <div style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Result</div>
+      <div style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.03em;">Result</div>
       <div id="tcon"></div>
     </div>
   </div>
@@ -690,7 +690,7 @@
         <strong>&#128204; Placement tips:</strong> Paste near notice boards, canteen, restroom entrances, HR area, stairwells, and entry gates. The more visible the QR, the safer employees feel reporting issues.
       </div>
       <div>
-        <div style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;">QR Code encodes this URL:</div>
+        <div style="font-family:var(--mono);font-size:14px;color:var(--text3);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:7px;">QR Code encodes this URL:</div>
         <div class="qr-url" id="qrUrlDisplay">—</div>
       </div>
     </div>
@@ -878,15 +878,15 @@
     <div id="cp-target-info" style="font-family:var(--mono);font-size:13px;color:var(--text2);margin-bottom:22px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;"></div>
     <div style="max-width:420px;display:flex;flex-direction:column;gap:16px;" id="cpForm">
       <div>
-        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Current Password</label>
+        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;">Current Password</label>
         <input type="password" id="cp-old" placeholder="Enter current password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password</label>
+        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password</label>
         <input type="password" id="cp-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Confirm New Password</label>
+        <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;">Confirm New Password</label>
         <input type="password" id="cp-confirm" placeholder="Repeat new password" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
@@ -902,11 +902,11 @@
       <div class="sec-label">Reset Another User's Password</div>
       <div style="max-width:420px;display:flex;flex-direction:column;gap:14px;">
         <div>
-          <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">Select User</label>
+          <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;">Select User</label>
           <select id="cp-target-user" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;"></select>
         </div>
         <div>
-          <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password for User</label>
+          <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:6px;">New Password for User</label>
           <input type="password" id="cp-other-new" placeholder="Minimum 6 characters" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;" />
         </div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
@@ -1021,7 +1021,7 @@
 
     <!-- Setup Guide -->
     <div style="margin-top:30px;background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:22px;">
-      <div style="font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;display:flex;align-items:center;gap:10px;"><span style="display:block;width:12px;height:1px;background:var(--sa);"></span>Azure Entra ID Setup Guide (Delegated / MSAL)</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--sa);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:16px;display:flex;align-items:center;gap:10px;"><span style="display:block;width:12px;height:1px;background:var(--sa);"></span>Azure Entra ID Setup Guide (Delegated / MSAL)</div>
       <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--warn);">
         ⚠ Required Azure permission: <code style="background:rgba(255,184,0,0.1);padding:2px 7px;border-radius:2px;color:var(--sa);">Mail.Send</code> (Delegated Permission) + register this page URL as a Redirect URI (Single-page application)
       </div>
@@ -1123,16 +1123,16 @@
 <!-- ═══════════════ ASSIGN SIO MODAL ═══════════════ -->
 <div id="assignSioModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;align-items:center;justify-content:center;padding:22px;">
   <div style="background:var(--surface2);border:1px solid rgba(0,207,255,0.25);border-radius:5px;width:100%;max-width:460px;padding:26px;display:flex;flex-direction:column;gap:16px;">
-    <h2 style="font-family:var(--mono);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sio);">&#128373; Assign Special Investigation Officer</h2>
+    <h2 style="font-family:var(--mono);font-size:13px;letter-spacing:0.03em;text-transform:uppercase;color:var(--sio);">&#128373; Assign Special Investigation Officer</h2>
     <div id="sio-modal-report-info" style="font-family:var(--mono);font-size:13px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px 13px;line-height:1.8;"></div>
     <div>
-      <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Select SIO</label>
+      <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:7px;">Select SIO</label>
       <select id="sio-assign-select" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;appearance:none;cursor:pointer;transition:border-color 0.2s;">
         <option value="">— Unassign / No SIO —</option>
       </select>
     </div>
     <div>
-      <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:7px;">Assignment Note (optional)</label>
+      <label style="font-family:var(--mono);font-size:14px;color:var(--text2);letter-spacing:0.03em;text-transform:uppercase;display:block;margin-bottom:7px;">Assignment Note (optional)</label>
       <textarea id="sio-assign-note" placeholder="Brief instruction or priority note for the SIO..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s;"></textarea>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px;">
@@ -2872,13 +2872,13 @@ async function trackReport() {
 
   const invHtml = inv ? `
     <div style="margin-top:12px;background:rgba(0,207,255,0.04);border:1px solid rgba(0,207,255,0.18);border-radius:3px;padding:14px 16px;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">&#128221; Investigation Report</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">&#128221; Investigation Report</div>
       <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px;">Status: <strong style="color:var(--sio);">${invStatusLabel(inv.status)}</strong> &nbsp;|&nbsp; Submitted: ${new Date(inv.submittedAt).toLocaleDateString('en-IN')}</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:8px;">${inv.summary}</div>
       ${inv.actions?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Recommended Actions: ${inv.actions}</div>`:''}
     </div>
     <div style="margin-top:14px;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Your Feedback</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:10px;">Your Feedback</div>
       ${fb && fb.verdict
         ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 14px;">
              <span style="font-family:var(--mono);font-size:12px;${fb.verdict==='satisfied'?'color:var(--accent)':'color:var(--danger)'};">${fb.verdict==='satisfied'?'✅ You marked this as Satisfied':'❌ You marked this as Not Satisfied'}</span>
@@ -2906,7 +2906,7 @@ async function trackReport() {
     <div style="font-family:var(--mono);font-size:11px;color:var(--text2);">${r.category}</div>
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Submitted: ${new Date(r.date).toLocaleString('en-IN')}</div>
     ${r.invReport ? `<div style="font-family:var(--mono);font-size:10px;color:var(--sio);">&#128373; Investigation in progress / completed</div>` : ''}
-    ${r.adminNotes?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 13px;"><div style="font-family:var(--mono);font-size:10px;color:var(--adm);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Admin Note</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${r.adminNotes}</div></div>`:''}
+    ${r.adminNotes?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:11px 13px;"><div style="font-family:var(--mono);font-size:10px;color:var(--adm);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:5px;">Admin Note</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${r.adminNotes}</div></div>`:''}
     ${invHtml}
   </div>`;
   res.classList.add('show');
@@ -3043,7 +3043,7 @@ function cardHTML(r, idx) {
       ${assignedSio
         ? `<span class="sio-assign-badge">&#128373; SIO: ${assignedSio.name}</span>`
         : `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);">No SIO assigned</span>`}
-      <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--sio);transition:all 0.15s;" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">&#128373; ${assignedSio?'Reassign':'Assign'} SIO</button>
+      <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--sio);transition:all 0.15s;" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">&#128373; ${assignedSio?'Reassign':'Assign'} SIO</button>
     </div>` : '';
   return `<div class="rcard" onclick="openDetail(${idx})">
     <div class="rcid">${r.id}</div>
@@ -3310,7 +3310,7 @@ function openDetail(i) {
         ${assignedSio
           ? `<span class="sio-assign-badge">&#128373; ${assignedSio.name} (@${assignedSio.username})</span>`
           : `<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">Not assigned</span>`}
-        <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;color:var(--sio);" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">${assignedSio?'Reassign SIO':'Assign SIO'}</button>
+        <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:4px 10px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--sio);" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">${assignedSio?'Reassign SIO':'Assign SIO'}</button>
       </div>
     </div>
     ${r.sioAssignNote ? `<div class="mrow"><span class="lbl">SIO Note</span><span class="val" style="color:var(--sio);font-size:12px;">${r.sioAssignNote}</span></div>` : ''}` : '';
@@ -3319,7 +3319,7 @@ function openDetail(i) {
   const inv = r.invReport;
   const invBlock = inv ? `
     <div style="margin-top:6px;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;padding-top:10px;border-top:1px solid var(--border);">&#128221; Investigation Report</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--sio);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;padding-top:10px;border-top:1px solid var(--border);">&#128221; Investigation Report</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">
           <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Status: <strong style="color:var(--sio);">${invStatusLabel(inv.status)}</strong></span>
@@ -3376,7 +3376,7 @@ function renderFeedbackBlock(r, i) {
   if (!r.invReport) return '';
   const hasFb = fb && fb.verdict;
   return `<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Reporter Feedback</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:8px;">Reporter Feedback</div>
     ${hasFb
       ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span style="font-family:var(--mono);font-size:12px;${fb.verdict==='satisfied'?'color:var(--accent)':'color:var(--danger)'};">${fb.verdict==='satisfied'?'✅ Satisfied':'❌ Not Satisfied'}</span>
