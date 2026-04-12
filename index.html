@@ -2237,7 +2237,8 @@ async function enterReporter(fromQR) {
   role = 'user'; currentUser = null;
   document.getElementById('roleScreen').style.display = 'none';
   await loadReports();
-  await loadPlantsFromFirestore(); // ensure latest plant names/list is loaded
+  await loadPlantsFromFirestore();       // ensure latest plant names/list is loaded
+  await loadCategoriesFromFirestore();   // ensure latest categories are loaded
   initApp('user', fromQR);
 }
 
@@ -2278,6 +2279,7 @@ async function doLogin() {
     currentUser = found;
     await loadReports();
     await loadPlantsFromFirestore();
+    await loadCategoriesFromFirestore();   // ensure latest categories are loaded
     initApp(role);
   } else {
     document.getElementById('lerr').style.display = 'block';
