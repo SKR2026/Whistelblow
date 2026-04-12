@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -115,6 +116,17 @@
   /* ─── APP HEADER ───────────────────────────────────────── */
   #app{display:none;}
   header{border-bottom:1px solid var(--border);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--header-bg, rgba(10,12,15,0.96));backdrop-filter:blur(10px);z-index:50;}
+  /* ── Firebase Live Status pill (same as Plant Visit app) ── */
+  .fb-status{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.2px;border:1px solid transparent;transition:all .3s ease;cursor:default;white-space:nowrap;}
+  .fb-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s;}
+  .fb-status.connecting{background:rgba(80,80,100,0.15);border-color:rgba(255,255,255,0.1);color:#888;}
+  .fb-status.connecting .fb-status-dot{background:#888;animation:fb-pulse-grey 1.4s ease-in-out infinite;}
+  .fb-status.live{background:rgba(0,229,160,0.10);border-color:rgba(0,229,160,0.25);color:#00e5a0;}
+  .fb-status.live .fb-status-dot{background:#00e5a0;animation:fb-pulse-green 2s ease-in-out infinite;}
+  .fb-status.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:#f87171;}
+  .fb-status.error .fb-status-dot{background:#f87171;}
+  @keyframes fb-pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(0,229,160,.5)}50%{box-shadow:0 0 0 5px rgba(0,229,160,0)}}
+  @keyframes fb-pulse-grey{0%,100%{opacity:1}50%{opacity:.3}}
   .hb{display:flex;align-items:center;gap:11px;}
   .dot{width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite;}
   .du{background:var(--accent);box-shadow:0 0 7px var(--accent);}
@@ -513,6 +525,10 @@
         <span id="headerThemeIcon">☀️</span><span id="headerThemeLabel">Light</span>
       </button>
       <button class="lkbtn" id="lockBtn" onclick="lockApp()" style="display:none;">Lock</button>
+      <div class="fb-status connecting" id="fbStatusPill" title="Firebase Firestore connection status">
+        <div class="fb-status-dot"></div>
+        <span id="fbStatusLabel">Connecting…</span>
+      </div>
     </div>
   </header>
 
@@ -1154,7 +1170,7 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
-//  FIREBASE CONFIG
+//  FIREBASE CONFIG — same pattern as Plant Visit app
 // ══════════════════════════════════════════════════════════
 const _fbConfig = {
   apiKey:            "AIzaSyCYGV5HpF6-j_HBqix3EA-XFGmT8E698k8",
@@ -1165,15 +1181,64 @@ const _fbConfig = {
   appId:             "1:1011690659933:web:f57e43ee0267a475682db4",
   measurementId:     "G-67NGHMK0QR"
 };
-let _db = null, _fbReady = false, _unsubscribe = null;
+
+// Initialise at top level — same as Plant Visit app
+if (!firebase.apps.length) firebase.initializeApp(_fbConfig);
+const _db = firebase.firestore();
+let _fbReady = false, _unsubscribe = null, _notifUnsubscribe = null;
 
 function initFirebase() {
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(_fbConfig);
-    _db = firebase.firestore();
-    _fbReady = true;
-    console.log('Firebase connected ✓');
-  } catch(e) { console.warn('Firebase init failed:', e); }
+  // Sign in anonymously to satisfy Firestore auth rules (request.auth != null)
+  // Exact same pattern as Plant Visit app:
+  //   firebase.auth().signInAnonymously()
+  //     .then(() => initFirestoreListeners())
+  //     .catch(err => { console.error(...); initFirestoreListeners(); });
+  firebase.auth().signInAnonymously()
+    .then(() => {
+      _fbReady = true;
+      console.log('Firebase connected ✓ — auth OK');
+      getUsers();
+      getCategories();
+      getPlants();
+    })
+    .catch(err => {
+      console.error('Firebase anonymous auth failed:', err.code, err.message);
+      _fbReady = true; // still load from localStorage
+      getUsers();
+      getCategories();
+      getPlants();
+    });
+}
+
+// ══════════════════════════════════════════════════════════
+//  FIREBASE LIVE STATUS — same as Plant Visit app
+// ══════════════════════════════════════════════════════════
+let _fbStatus = 'connecting';
+let _fbLastSync = null;
+let _fbSyncTimer = null;
+
+function setFbStatus(state, detail) {
+  _fbStatus = state;
+  if (state === 'live') _fbLastSync = new Date();
+  const pill  = document.getElementById('fbStatusPill');
+  const label = document.getElementById('fbStatusLabel');
+  if (!pill || !label) return;
+  pill.className = 'fb-status ' + state;
+  const labels = { connecting: 'Connecting…', live: 'Firebase Live', error: 'Offline' };
+  label.textContent = detail || labels[state] || state;
+}
+
+function startSyncClock() {
+  if (_fbSyncTimer) return;
+  _fbSyncTimer = setInterval(() => {
+    if (_fbStatus === 'live' && _fbLastSync) {
+      const label = document.getElementById('fbStatusLabel');
+      if (label) {
+        const secs = Math.round((Date.now() - _fbLastSync) / 1000);
+        label.textContent = secs < 10 ? 'Firebase Live' : `Synced ${secs}s ago`;
+      }
+    }
+  }, 5000);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1279,8 +1344,14 @@ async function saveReport(report) {
   if(idx >= 0) reports[idx] = report; else reports.push(report);
   try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
   if(_fbReady && _db) {
-    try { await _db.collection('wb_reports').doc(report.id).set(report); }
-    catch(e) { console.warn('Firestore write failed (saved locally):', e); }
+    try {
+      await _db.collection('wb_reports').doc(report.id).set(report);
+      setFbStatus('live');
+    }
+    catch(e) {
+      console.warn('Firestore write failed (saved locally):', e);
+      setFbStatus('error');
+    }
   }
 }
 
@@ -1298,10 +1369,16 @@ function subscribeReports(onUpdate) {
   if(_unsubscribe) _unsubscribe();
   _unsubscribe = _db.collection('wb_reports').orderBy('date', 'desc')
     .onSnapshot(snap => {
+      // Mark Firebase as live — same as Plant Visit app
+      setFbStatus('live');
+      startSyncClock();
       reports = snap.docs.map(d => d.data());
       try { localStorage.setItem('wb_reports', JSON.stringify(reports)); } catch(e) {}
       if(onUpdate) onUpdate();
-    }, err => console.warn('Firestore snapshot error:', err));
+    }, err => {
+      console.warn('Firestore snapshot error:', err);
+      setFbStatus('error');
+    });
 }
 
 async function loadReports() {
@@ -1339,11 +1416,18 @@ async function loadPlantsFromFirestore() {
         await _db.collection('wb_plants').doc(p.id).set(p);
       }
       savePlants(DEFAULT_PLANTS);
+      setFbStatus('live');
+      startSyncClock();
       return;
     }
     const plants = snap.docs.map(d => d.data());
     savePlants(plants);
-  } catch(e) { console.warn('Firestore plant load failed (using local):', e); }
+    setFbStatus('live');
+    startSyncClock();
+  } catch(e) {
+    console.warn('Firestore plant load failed (using local):', e);
+    setFbStatus('error');
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1353,7 +1437,6 @@ async function loadPlantsFromFirestore() {
 //  picks it up, sends the email with its own token, then
 //  deletes the pending doc.
 // ══════════════════════════════════════════════════════════
-let _notifUnsubscribe = null;
 
 async function queueEmailNotification(type, payload) {
   if (!_fbReady || !_db) {
@@ -2054,10 +2137,7 @@ async function notifyInvReportSubmitted(report, silentOnly = false) {
 //  BOOT
 // ══════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  initFirebase();
-  getUsers();       // seed defaults if needed
-  getCategories();  // seed defaults if needed
-  getPlants();      // seed default plants if needed
+  initFirebase(); // signs in anonymously then calls getUsers/getCategories/getPlants
   const params = new URLSearchParams(window.location.search);
   if(params.get('report') === 'true') enterReporter(true);
   // Auto-restore Microsoft sign-in session from cached MSAL tokens
