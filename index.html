@@ -233,26 +233,6 @@
   .stup button{background:none;border:1px solid var(--border);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--text3);transition:all 0.15s;}
   .stup button:hover{border-color:var(--adm);color:var(--adm);}
 
-  /* ─── BULK DELETE ──────────────────────────────────────── */
-  .bulk-bar{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,79,109,0.07);border:1px solid rgba(255,79,109,0.22);border-radius:3px;padding:9px 14px;margin-bottom:12px;}
-  .bulk-bar.visible{display:flex;}
-  .bulk-count{font-family:var(--mono);font-size:12px;color:var(--text2);letter-spacing:0.02em;}
-  .bulk-count strong{color:var(--danger);}
-  .bulk-del-btn{background:none;border:1px solid rgba(255,79,109,0.5);border-radius:3px;padding:6px 14px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;color:var(--danger);transition:all 0.15s;}
-  .bulk-del-btn:hover{background:rgba(255,79,109,0.12);border-color:var(--danger);}
-  .bulk-clear-btn{background:none;border:1px solid var(--border2);border-radius:3px;padding:6px 12px;font-family:var(--mono);font-size:11px;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all 0.15s;}
-  .bulk-clear-btn:hover{border-color:var(--border2);color:var(--text2);}
-  .bulk-selall{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;margin-left:auto;letter-spacing:0.02em;text-transform:uppercase;user-select:none;}
-  .bulk-selall input[type=checkbox]{accent-color:var(--danger);width:14px;height:14px;cursor:pointer;}
-  .rcard-cb-wrap{display:none;align-items:center;justify-content:center;padding:2px 4px 0 0;}
-  .rcard-cb-wrap.visible{display:flex;}
-  .rcard-cb{accent-color:var(--danger);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
-  .rcard.bulk-mode{grid-template-columns:20px auto 1fr auto;}
-  .rcard.selected{border-color:rgba(255,79,109,0.4);background:rgba(255,79,109,0.04);}
-  .bulk-toggle-btn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;font-family:var(--mono);font-size:11px;letter-spacing:0.02em;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all 0.15s;white-space:nowrap;}
-  .bulk-toggle-btn:hover{border-color:var(--danger);color:var(--danger);}
-  .bulk-toggle-btn.active{border-color:rgba(255,79,109,0.5);color:var(--danger);background:rgba(255,79,109,0.06);}
-
   /* ─── TRACK ────────────────────────────────────────────── */
   .tbox{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:26px;max-width:420px;display:flex;flex-direction:column;gap:15px;}
   .tres{display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:20px;margin-top:16px;flex-direction:column;gap:12px;}
@@ -665,7 +645,7 @@
   <div class="page" id="page-allreports">
     <div class="frow2">
       <div class="ptitle a" style="margin:0;">All Reports</div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
         <select class="fsel" id="fsev" onchange="renderAll()">
           <option value="">All Severity</option>
           <option value="low">Low</option>
@@ -684,14 +664,7 @@
         <select class="fsel" id="fplant" onchange="renderAll()">
           <option value="">All Plants</option>
         </select>
-        <button class="bulk-toggle-btn" id="bulkToggleBtn" onclick="toggleBulkMode()">&#9635; Select</button>
       </div>
-    </div>
-    <div class="bulk-bar" id="bulkBar">
-      <span class="bulk-count"><strong id="bulkCount">0</strong> selected</span>
-      <button class="bulk-del-btn" onclick="bulkDeleteSelected()">&#215; Delete Selected</button>
-      <button class="bulk-clear-btn" onclick="clearBulkSelection()">Clear</button>
-      <label class="bulk-selall"><input type="checkbox" id="bulkSelAll" onchange="toggleSelectAll(this.checked)" /> Select all visible</label>
     </div>
     <div class="rgrid" id="allGrid"></div>
   </div>
@@ -828,7 +801,7 @@
     <div class="ptitle sa">User Management</div>
     <div style="background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
       <span style="color:var(--sa);font-size:14px;">&#9670;</span>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong> Use <strong style="color:var(--accent);">&#9998; Edit</strong> on any account (including SuperAdmin) to update the display name and notification email.</p>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">Only SuperAdmin can create or remove user accounts here. <strong style="color:var(--sa);">The superadmin account cannot be deleted.</strong> Use <strong style="color:var(--accent);">&#9998; Edit</strong> on any account (including SuperAdmin) to update the display name and notification email. <strong style="color:var(--sio);">Admin &amp; Top Management can create SIO accounts via the &#128373; Create SIO tab.</strong></p>
     </div>
     <div class="sec-label">All Staff Accounts</div>
     <div class="user-list" id="userList"></div>
@@ -878,6 +851,44 @@
         <div class="au-ok" id="au-ok"></div>
       </div>
     </div>
+  </div>
+
+  <!-- ── ADMIN / TOP MGMT: Create SIO Account ── -->
+  <div class="page" id="page-createsio">
+    <div class="ptitle a" id="createsio-ptitle">&#128373; Create SIO Account</div>
+    <div style="background:rgba(0,207,255,0.04);border:1px solid rgba(0,207,255,0.14);border-radius:3px;padding:12px 15px;display:flex;gap:11px;align-items:flex-start;margin-bottom:26px;">
+      <span style="color:var(--sio);font-size:14px;">&#9650;</span>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;font-family:var(--mono);">You can create <strong style="color:var(--sio);">Special Investigation Officer (SIO)</strong> accounts only. SIO users can be assigned to cases and file investigation reports.</p>
+    </div>
+    <div class="add-user-panel" style="border-color:rgba(0,207,255,0.2);">
+      <div class="au-title" style="color:var(--sio);">&#43; Create New SIO Account</div>
+      <div class="frow">
+        <div>
+          <label>Full Name</label>
+          <input type="text" id="csio-name" placeholder="e.g. Priya Mehta" />
+        </div>
+        <div>
+          <label>Username</label>
+          <input type="text" id="csio-user" placeholder="e.g. priya.mehta" autocomplete="off" />
+        </div>
+      </div>
+      <div>
+        <label>Email Address <span style="color:var(--text3);font-size:13px;letter-spacing:.06em;text-transform:uppercase;">(for notifications)</span></label>
+        <input type="email" id="csio-email" placeholder="e.g. priya.mehta@yourorg.com" autocomplete="off" />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="csio-pass" placeholder="Minimum 6 characters" autocomplete="new-password" />
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:4px;">
+        <button class="sbtn sio-btn" onclick="addSioUser()">&#43; Create SIO Account</button>
+        <div class="au-err" id="csio-err"></div>
+        <div class="au-ok" id="csio-ok"></div>
+      </div>
+    </div>
+    <hr class="section-sep">
+    <div class="sec-label">Existing SIO Accounts</div>
+    <div class="user-list" id="csio-userList"></div>
   </div>
 
   <!-- ── SUPERADMIN: Plant Management ─────── -->
@@ -2345,6 +2356,7 @@ function initApp(r) {
     nav.innerHTML = `
       <button class="nb aa" onclick="showPage('dashboard',this)">Dashboard</button>
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
+      <button class="nb" onclick="showPage('createsio',this)">&#128373; Create SIO</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR Code</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
@@ -2387,6 +2399,7 @@ function initApp(r) {
     nav.innerHTML = `
       <button class="nb atm" onclick="showPage('topmgmt',this)">&#128202; Analytics</button>
       <button class="nb" onclick="showPage('allreports',this)">All Reports</button>
+      <button class="nb" onclick="showPage('createsio',this)">&#128373; Create SIO</button>
       <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
     subscribePendingNotifications();
@@ -2447,6 +2460,7 @@ function showPage(name, btn) {
   if (name==='changepassword') renderChangePwPage();
   if (name==='siocases')       renderSioCases();
   if (name==='mailconfig')     renderMailConfigPage();
+  if (name==='createsio')      renderCreateSioPage();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2660,6 +2674,8 @@ function addUser() {
 
   if(!name||!uname||!pw||!rl){ err.textContent='All fields are required.'; err.style.display='block'; return; }
   if(pw.length < 6){ err.textContent='Password must be at least 6 characters.'; err.style.display='block'; return; }
+  // Security: only superadmin may create non-SIO roles
+  if (role !== 'superadmin' && rl !== 'sio') { err.textContent='You are only permitted to create SIO accounts.'; err.style.display='block'; return; }
   if((rl==='admin'||rl==='planthead') && !plantId){ err.textContent='Please assign a plant for Admin / Plant Head role.'; err.style.display='block'; return; }
   const users = getUsers();
   if(users.find(u=>u.username===uname)){ err.textContent=`Username "${uname}" already exists.`; err.style.display='block'; return; }
@@ -2685,6 +2701,72 @@ function deleteUser(idx) {
   users.splice(idx, 1);
   saveUsers(users);
   renderUserPage();
+}
+
+// ── Create SIO page (Admin / Top Management) ────────────────
+function renderCreateSioPage() {
+  // Style the page title based on role
+  const ptitle = document.getElementById('createsio-ptitle');
+  if (ptitle) {
+    ptitle.className = role === 'topmanagement' ? 'ptitle tm' : 'ptitle a';
+  }
+  // Render existing SIO accounts list (read-only with delete)
+  const users = getUsers();
+  const sioUsers = users.filter(u => u.role === 'sio');
+  const listEl = document.getElementById('csio-userList');
+  if (!listEl) return;
+  if (sioUsers.length === 0) {
+    listEl.innerHTML = `<div style="font-family:var(--mono);font-size:13px;color:var(--text3);padding:14px 0;">No SIO accounts yet.</div>`;
+    return;
+  }
+  listEl.innerHTML = sioUsers.map((u, i) => {
+    const globalIdx = users.indexOf(u);
+    return `
+    <div class="user-item">
+      <div class="user-info">
+        <div class="un">${u.name} <span style="color:var(--text3);font-size:10px;">@${u.username}</span></div>
+        <div class="ud">Created by: ${u.createdBy}${u.email ? ` &nbsp;|&nbsp; <span style="color:var(--sio);">✉ ${u.email}</span>` : ' &nbsp;|&nbsp; <span style="color:var(--text3);">No email set</span>'}</div>
+      </div>
+      <span class="role-tag sio">SIO</span>
+      <div class="user-actions">
+        <button class="del-btn" onclick="deleteSioUser(${globalIdx})">&#215; Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addSioUser() {
+  const name  = document.getElementById('csio-name').value.trim();
+  const uname = document.getElementById('csio-user').value.trim().toLowerCase().replace(/\s+/g,'.');
+  const pw    = document.getElementById('csio-pass').value;
+  const email = document.getElementById('csio-email').value.trim();
+  const err   = document.getElementById('csio-err');
+  const ok    = document.getElementById('csio-ok');
+  err.style.display = 'none'; ok.style.display = 'none';
+
+  if (!name || !uname || !pw) { err.textContent = 'Name, username and password are required.'; err.style.display = 'block'; return; }
+  if (pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
+  const users = getUsers();
+  if (users.find(u => u.username === uname)) { err.textContent = `Username "${uname}" already exists.`; err.style.display = 'block'; return; }
+
+  const newUser = { username: uname, password: pw, role: 'sio', name, email: email || '', createdBy: currentUser ? currentUser.username : 'admin' };
+  users.push(newUser);
+  saveUsers(users);
+  ['csio-name','csio-user','csio-pass','csio-email'].forEach(id => document.getElementById(id).value = '');
+  renderCreateSioPage();
+  ok.textContent = `SIO account "${uname}" created successfully.`;
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 3000);
+}
+
+function deleteSioUser(idx) {
+  const users = getUsers();
+  const u = users[idx];
+  if (!u || u.role !== 'sio') { alert('You can only delete SIO accounts from this page.'); return; }
+  if (!confirm(`Delete SIO account "${u.username}" (${u.name})?`)) return;
+  users.splice(idx, 1);
+  saveUsers(users);
+  renderCreateSioPage();
 }
 
 function startUserEdit(i) {
@@ -3158,81 +3240,6 @@ function dashSortBy(key) {
   renderDash();
 }
 
-// ── Bulk delete state ─────────────────────────────────────
-let _bulkMode = false;
-let _bulkSelected = new Set(); // report IDs
-
-function toggleBulkMode() {
-  _bulkMode = !_bulkMode;
-  _bulkSelected.clear();
-  const btn = document.getElementById('bulkToggleBtn');
-  if (btn) { btn.classList.toggle('active', _bulkMode); btn.textContent = _bulkMode ? '✕ Cancel' : '⬚ Select'; }
-  updateBulkBar();
-  renderAll();
-}
-
-function updateBulkBar() {
-  const bar = document.getElementById('bulkBar');
-  const cnt = document.getElementById('bulkCount');
-  if (!bar) return;
-  bar.classList.toggle('visible', _bulkMode);
-  if (cnt) cnt.textContent = _bulkSelected.size;
-  // Sync select-all checkbox
-  const saEl = document.getElementById('bulkSelAll');
-  if (saEl) {
-    const visibleIds = _getVisibleReportIds();
-    saEl.checked = visibleIds.length > 0 && visibleIds.every(id => _bulkSelected.has(id));
-    saEl.indeterminate = !saEl.checked && visibleIds.some(id => _bulkSelected.has(id));
-  }
-}
-
-function _getVisibleReportIds() {
-  const scoped = filterReportsByPlantScope(reports);
-  const sf = document.getElementById('fsev')?.value || '';
-  const st = document.getElementById('fst')?.value || '';
-  const sc = document.getElementById('fcat')?.value || '';
-  const sp = document.getElementById('fplant')?.value || '';
-  return scoped.filter(r=>(!sf||r.severity===sf)&&(!st||r.status===st)&&(!sc||r.category===sc)&&(!sp||r.plantId===sp)).map(r=>r.id);
-}
-
-function toggleReportSelect(id, checked) {
-  if (checked) _bulkSelected.add(id); else _bulkSelected.delete(id);
-  // toggle .selected class on the card
-  const card = document.querySelector(`.rcard[data-rid="${id}"]`);
-  if (card) card.classList.toggle('selected', checked);
-  updateBulkBar();
-}
-
-function toggleSelectAll(checked) {
-  const ids = _getVisibleReportIds();
-  ids.forEach(id => { if (checked) _bulkSelected.add(id); else _bulkSelected.delete(id); });
-  updateBulkBar();
-  renderAll();
-}
-
-function clearBulkSelection() {
-  _bulkSelected.clear();
-  updateBulkBar();
-  renderAll();
-}
-
-async function bulkDeleteSelected() {
-  if (_bulkSelected.size === 0) return;
-  const n = _bulkSelected.size;
-  if (!confirm(`Permanently delete ${n} selected report${n>1?'s':''}? This cannot be undone.`)) return;
-  const ids = [..._bulkSelected];
-  _bulkSelected.clear();
-  for (const id of ids) {
-    await deleteReportById(id);
-  }
-  // Exit bulk mode after delete
-  _bulkMode = false;
-  const btn = document.getElementById('bulkToggleBtn');
-  if (btn) { btn.classList.remove('active'); btn.textContent = '⬚ Select'; }
-  updateBulkBar();
-  renderAll();
-}
-
 function renderAll() {
   const scoped = filterReportsByPlantScope(reports);
   const sf=document.getElementById('fsev').value, st=document.getElementById('fst').value, sc=document.getElementById('fcat').value;
@@ -3241,8 +3248,6 @@ function renderAll() {
   document.getElementById('allGrid').innerHTML = f.length
     ? f.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>cardHTML(r,reports.indexOf(r))).join('')
     : '<div class="empty"><div class="ei">&#128196;</div><div>No reports match filters</div></div>';
-  // Keep bulk bar in sync after re-render
-  if (_bulkMode) updateBulkBar();
 }
 
 function cardHTML(r, idx) {
@@ -3257,18 +3262,7 @@ function cardHTML(r, idx) {
         : `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);">No SIO assigned</span>`}
       <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--sio);transition:all 0.15s;" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">&#128373; ${assignedSio?'Reassign':'Assign'} SIO</button>
     </div>` : '';
-  const isSelected = _bulkSelected.has(r.id);
-  const cbCol = _bulkMode
-    ? `<div class="rcard-cb-wrap visible" onclick="event.stopPropagation()">
-         <input type="checkbox" class="rcard-cb" ${isSelected?'checked':''} onchange="toggleReportSelect('${r.id}',this.checked)" />
-       </div>`
-    : '';
-  const bulkClass = _bulkMode ? ' bulk-mode' + (isSelected ? ' selected' : '') : '';
-  const clickHandler = _bulkMode
-    ? `onclick="toggleReportSelect('${r.id}', !_bulkSelected.has('${r.id}')); this.querySelector('.rcard-cb') && (this.querySelector('.rcard-cb').checked=_bulkSelected.has('${r.id}'))"`
-    : `onclick="openDetail(${idx})"`;
-  return `<div class="rcard${bulkClass}" data-rid="${r.id}" ${clickHandler}>
-    ${cbCol}
+  return `<div class="rcard" onclick="openDetail(${idx})">
     <div class="rcid">${r.id}</div>
     <div class="rcb">
       <h3>${r.title}</h3>
