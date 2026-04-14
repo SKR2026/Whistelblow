@@ -14,6 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -3045,12 +3046,32 @@ function rmFile(i) { files.splice(i,1); renderFileList(); }
 function genId() { return 'RPT-'+Math.floor(100000+Math.random()*900000); }
 
 // Convert a File object to {name, type, data (base64)} for persistent storage
+/**
+ * uploadFileToStorage(file, reportId)
+ * Uploads a single File to Firebase Storage under wb_evidence/{reportId}/
+ * Returns { name, type, size, url } on success, or { name, type, size, url:null } on failure.
+ */
+async function uploadFileToStorage(file, reportId) {
+  try {
+    const storage = firebase.storage();
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const ref = storage.ref(`wb_evidence/${reportId}/${safeName}`);
+    await ref.put(file, { contentType: file.type });
+    const url = await ref.getDownloadURL();
+    return { name: file.name, type: file.type, size: file.size, url };
+  } catch(e) {
+    console.warn('[Storage] Upload failed for', file.name, ':', e.message);
+    return { name: file.name, type: file.type, size: file.size, url: null };
+  }
+}
+
+// fileToBase64: kept for SIO investigation media (smaller files, same-session)
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload  = () => resolve({ name: file.name, type: file.type, size: file.size, data: reader.result });
     reader.onerror = () => reject(new Error('Failed to read file: ' + file.name));
-    reader.readAsDataURL(file); // result is "data:<mime>;base64,<b64>"
+    reader.readAsDataURL(file);
   });
 }
 
@@ -3066,21 +3087,19 @@ async function submitReport() {
   const btn = document.querySelector('#submitForm .sbtn');
   if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting...'; }
 
-  // Convert all attached files to base64 for persistent storage & download
+  // Upload evidence files to Firebase Storage; store only download URLs (avoids Firestore 1MB limit)
   let fileObjects = [];
-  try {
-    fileObjects = await Promise.all(files.map(f => fileToBase64(f)));
-  } catch(e) {
-    console.warn('[Evidence] Could not read file(s):', e);
-    fileObjects = files.map(f => ({ name: f.name, type: f.type, size: f.size, data: null }));
+  if (files.length > 0) {
+    if(btn) btn.textContent = '⏳ Uploading evidence…';
+    fileObjects = await Promise.all(files.map(f => uploadFileToStorage(f, id)));
   }
 
   const report = {
     id, title:t, description:d, category:c, plantId, plantName,
     org: document.getElementById('f-org').value.trim(),
     severity: selSevVal,
-    files: files.map(f=>f.name),        // legacy: plain name list
-    fileObjects,                          // NEW: [{name,type,size,data}] with base64
+    files: files.map(f=>f.name),   // legacy name list
+    fileObjects,                    // [{name, type, size, url}] — Firebase Storage URLs
     status:'new', date:new Date().toISOString(), adminNotes:''
   };
 
@@ -3543,7 +3562,7 @@ function renderSAAnalytics() {
 // ══════════════════════════════════════════════════════════
 // ── Evidence helper: render clickable download links for report evidence ──
 function buildEvidenceHTML(r) {
-  // Use rich fileObjects if available (new reports), fallback to plain names
+  // Use rich fileObjects (with Storage URLs) if available, fallback to plain names
   const objs = r.fileObjects && r.fileObjects.length ? r.fileObjects : null;
   const names = r.files && r.files.length ? r.files : null;
   if (!objs && !names) return '<span style="color:var(--text3);font-family:var(--mono);font-size:11px;">None attached</span>';
@@ -3552,21 +3571,22 @@ function buildEvidenceHTML(r) {
     ? objs.map(fo => {
         const icon = fileIcon(fo.name);
         const sizeTxt = fo.size ? ` (${(fo.size/1024).toFixed(1)} KB)` : '';
-        if (fo.data) {
-          return `<a href="${fo.data}" download="${fo.name}" target="_blank"
+        if (fo.url) {
+          return `<a href="${fo.url}" target="_blank"
             style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,240,168,0.06);
                    border:1px solid rgba(0,240,168,0.2);border-radius:3px;padding:5px 10px;
                    font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;
                    cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
             onmouseover="this.style.background='rgba(0,240,168,0.12)'"
             onmouseout="this.style.background='rgba(0,240,168,0.06)'"
-            title="Click to download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
+            title="View/download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
         }
-        // data missing (old file or error) — show name-only pill
+        // URL missing (upload failed) — show name-only pill with warning
         return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface);
                   border:1px solid var(--border);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 4px 2px 0;">
-                  ${icon} ${fo.name}${sizeTxt}</span>`;
+                  font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 4px 2px 0;"
+                  title="Upload failed — file not available">
+                  ${icon} ${fo.name}${sizeTxt} ⚠</span>`;
       })
     : names.map(n => {
         const icon = fileIcon(n);
@@ -3582,27 +3602,27 @@ function buildEvidenceHTML(r) {
 // ── Evidence helper: render SIO investigation media as download links ──
 function buildInvEvidenceHTML(inv) {
   if (!inv.mediaFiles || !inv.mediaFiles.length) return '';
-  // inv.mediaFiles contains file names (strings); inv.mediaObjects (if present) has base64 data
   const objs = inv.mediaObjects && inv.mediaObjects.length ? inv.mediaObjects : null;
   const header = `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px;">&#128248; Investigation Evidence</div>`;
   const items = objs
     ? objs.map(fo => {
         const icon = fileIcon(fo.name);
         const sizeTxt = fo.size ? ` (${(fo.size/1024).toFixed(1)} KB)` : '';
-        if (fo.data) {
-          return `<a href="${fo.data}" download="${fo.name}" target="_blank"
+        if (fo.url) {
+          return `<a href="${fo.url}" target="_blank"
             style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,207,255,0.07);
                    border:1px solid rgba(0,207,255,0.25);border-radius:3px;padding:5px 10px;
                    font-family:var(--mono);font-size:11px;color:var(--sio);text-decoration:none;
                    cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
             onmouseover="this.style.background='rgba(0,207,255,0.13)'"
             onmouseout="this.style.background='rgba(0,207,255,0.07)'"
-            title="Download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
+            title="View/download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
         }
         return `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,207,255,0.05);
                   border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--sio);margin:2px 4px 2px 0;">
-                  ${icon} ${fo.name}${sizeTxt}</span>`;
+                  font-family:var(--mono);font-size:11px;color:var(--sio);margin:2px 4px 2px 0;"
+                  title="Upload failed — file not available">
+                  ${icon} ${fo.name}${sizeTxt} ⚠</span>`;
       })
     : inv.mediaFiles.map(n => {
         const icon = fileIcon(n);
@@ -3848,27 +3868,27 @@ async function submitInvReport() {
   const r = reports.find(x=>x.id===_sioCurrentCaseId);
   if (!r) { alert('Case not found.'); return; }
 
-  // Separate already-stored strings from newly added File objects
+  // Separate already-stored names (strings) from newly added File objects
   const existingNames = invMediaFiles.filter(f => typeof f === 'string');
   const newFileObjs   = invMediaFiles.filter(f => typeof f !== 'string');
 
-  // Convert new File objects to base64
+  // Upload new files to Firebase Storage; merge with existing stored objects
+  const btn2 = document.querySelector('#page-sioreport .sbtn.sio-btn');
   let newMediaObjects = [];
-  try {
-    newMediaObjects = await Promise.all(newFileObjs.map(f => fileToBase64(f)));
-  } catch(e) {
-    console.warn('[InvEvidence] Could not read file(s):', e);
-    newMediaObjects = newFileObjs.map(f => ({ name: f.name, type: f.type, size: f.size, data: null }));
+  if (newFileObjs.length > 0) {
+    if (btn2) btn2.textContent = '⏳ Uploading evidence…';
+    newMediaObjects = await Promise.all(
+      newFileObjs.map(f => uploadFileToStorage(f, r.id + '_inv'))
+    );
   }
 
-  // Merge with any previously stored mediaObjects
+  // Preserve previously uploaded objects that are still in the file list
   const prevObjects = (r.invReport && r.invReport.mediaObjects) ? r.invReport.mediaObjects : [];
   const allMediaObjects = [
-    ...prevObjects.filter(o => existingNames.includes(o.name)), // keep existing with data
+    ...prevObjects.filter(o => existingNames.includes(o.name)),
     ...newMediaObjects
   ];
   const mediaNames = allMediaObjects.map(o => o.name);
-  // Add back any legacy names that don't have a corresponding object
   existingNames.forEach(n => { if (!mediaNames.includes(n)) mediaNames.push(n); });
 
   r.invReport = {
@@ -3879,7 +3899,7 @@ async function submitInvReport() {
     actions:      document.getElementById('inv-actions').value.trim(),
     confNotes:    document.getElementById('inv-confnotes').value.trim(),
     mediaFiles:   mediaNames,
-    mediaObjects: allMediaObjects,   // NEW: base64 objects for download
+    mediaObjects: allMediaObjects,   // [{name, type, size, url}] — Firebase Storage URLs
     submittedAt:  new Date().toISOString(),
     submittedBy:  currentUser ? currentUser.username : 'sio'
   };
