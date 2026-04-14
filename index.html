@@ -3047,31 +3047,74 @@ function genId() { return 'RPT-'+Math.floor(100000+Math.random()*900000); }
 
 // Convert a File object to {name, type, data (base64)} for persistent storage
 /**
- * uploadFileToStorage(file, reportId)
- * Uploads a single File to Firebase Storage under wb_evidence/{reportId}/
- * Returns { name, type, size, url } on success, or { name, type, size, url:null } on failure.
+ * readFileAsBase64(file) — reads a File using FileReader, returns {name,type,size,data}
  */
-async function uploadFileToStorage(file, reportId) {
-  try {
-    const storage = firebase.storage();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const ref = storage.ref(`wb_evidence/${reportId}/${safeName}`);
-    await ref.put(file, { contentType: file.type });
-    const url = await ref.getDownloadURL();
-    return { name: file.name, type: file.type, size: file.size, url };
-  } catch(e) {
-    console.warn('[Storage] Upload failed for', file.name, ':', e.message);
-    return { name: file.name, type: file.type, size: file.size, url: null };
-  }
-}
-
-// fileToBase64: kept for SIO investigation media (smaller files, same-session)
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
+function readFileAsBase64(file) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload  = () => resolve({ name: file.name, type: file.type, size: file.size, data: reader.result });
-    reader.onerror = () => reject(new Error('Failed to read file: ' + file.name));
+    reader.onerror = () => resolve({ name: file.name, type: file.type, size: file.size, data: null });
     reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * saveEvidenceLocally / loadEvidenceLocally — localStorage fallback cache
+ */
+function saveEvidenceLocally(reportId, fileObjects) {
+  if (!fileObjects || !fileObjects.length) return;
+  try { localStorage.setItem('wb_evidence_' + reportId, JSON.stringify(fileObjects)); } catch(e) {}
+}
+function loadEvidenceLocally(reportId) {
+  try { return JSON.parse(localStorage.getItem('wb_evidence_' + reportId) || '[]'); } catch(e) { return []; }
+}
+
+/**
+ * uploadFileToStorage(file, path)
+ * Uploads to Firebase Storage. Waits for anonymous auth first.
+ * Returns {name, type, size, url} on success or {name, type, size, url:null} on failure.
+ * A 30-second timeout ensures it never hangs forever.
+ */
+async function uploadFileToStorage(file, storagePath) {
+  // Ensure anonymous auth is complete before touching Storage
+  if (_fbReadyPromise) {
+    try { await _fbReadyPromise; } catch(e) {}
+  }
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      console.warn('[Storage] Upload timed out for', file.name);
+      resolve({ name: file.name, type: file.type, size: file.size, url: null });
+    }, 30000);
+
+    try {
+      const storage  = firebase.storage();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const ref      = storage.ref(storagePath + '/' + safeName);
+      const task     = ref.put(file, { contentType: file.type || 'application/octet-stream' });
+
+      task.on('state_changed',
+        null, // progress — not needed
+        (err) => {
+          clearTimeout(timeout);
+          console.warn('[Storage] Upload error for', file.name, ':', err.code, err.message);
+          resolve({ name: file.name, type: file.type, size: file.size, url: null });
+        },
+        async () => {
+          clearTimeout(timeout);
+          try {
+            const url = await ref.getDownloadURL();
+            resolve({ name: file.name, type: file.type, size: file.size, url });
+          } catch(e) {
+            resolve({ name: file.name, type: file.type, size: file.size, url: null });
+          }
+        }
+      );
+    } catch(e) {
+      clearTimeout(timeout);
+      console.warn('[Storage] Upload setup error:', e.message);
+      resolve({ name: file.name, type: file.type, size: file.size, url: null });
+    }
   });
 }
 
@@ -3087,19 +3130,34 @@ async function submitReport() {
   const btn = document.querySelector('#submitForm .sbtn');
   if(btn){ btn.disabled=true; btn.textContent='⏳ Submitting...'; }
 
-  // Upload evidence files to Firebase Storage; store only download URLs (avoids Firestore 1MB limit)
+  // Upload evidence to Firebase Storage → permanent cross-device URLs
+  // Falls back to base64 in localStorage if Storage upload fails
   let fileObjects = [];
   if (files.length > 0) {
     if(btn) btn.textContent = '⏳ Uploading evidence…';
-    fileObjects = await Promise.all(files.map(f => uploadFileToStorage(f, id)));
+    fileObjects = await Promise.all(
+      files.map(f => uploadFileToStorage(f, 'wb_evidence/' + id))
+    );
+
+    // For any file whose Storage upload failed, store base64 locally as fallback
+    const failedFiles = files.filter((f, i) => !fileObjects[i].url);
+    if (failedFiles.length) {
+      const b64 = await Promise.all(failedFiles.map(f => readFileAsBase64(f)));
+      // Merge base64 data into fileObjects for local viewing
+      b64.forEach(fb => {
+        const fo = fileObjects.find(x => x.name === fb.name);
+        if (fo) fo.localData = fb.data;
+      });
+      saveEvidenceLocally(id, b64);
+    }
   }
 
   const report = {
     id, title:t, description:d, category:c, plantId, plantName,
     org: document.getElementById('f-org').value.trim(),
     severity: selSevVal,
-    files: files.map(f=>f.name),   // legacy name list
-    fileObjects,                    // [{name, type, size, url}] — Firebase Storage URLs
+    files: files.map(f=>f.name),
+    fileObjects: fileObjects.map(({ name, type, size, url }) => ({ name, type, size, url: url||null })),
     status:'new', date:new Date().toISOString(), adminNotes:''
   };
 
@@ -3562,76 +3620,75 @@ function renderSAAnalytics() {
 // ══════════════════════════════════════════════════════════
 // ── Evidence helper: render clickable download links for report evidence ──
 function buildEvidenceHTML(r) {
-  // Use rich fileObjects (with Storage URLs) if available, fallback to plain names
-  const objs = r.fileObjects && r.fileObjects.length ? r.fileObjects : null;
+  const metaObjs = r.fileObjects && r.fileObjects.length ? r.fileObjects : null;
+  const localData = loadEvidenceLocally(r.id);
   const names = r.files && r.files.length ? r.files : null;
-  if (!objs && !names) return '<span style="color:var(--text3);font-family:var(--mono);font-size:11px;">None attached</span>';
+  if (!metaObjs && !names) return '<span style="color:var(--text3);font-family:var(--mono);font-size:11px;">None attached</span>';
 
-  const items = objs
-    ? objs.map(fo => {
-        const icon = fileIcon(fo.name);
+  const renderLink = (href, name, sizeTxt, isDownload) =>
+    `<a href="${href}" ${isDownload ? `download="${name}"` : 'target="_blank"'}
+      style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,240,168,0.06);
+             border:1px solid rgba(0,240,168,0.2);border-radius:3px;padding:5px 10px;
+             font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;
+             cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(0,240,168,0.12)'"
+      onmouseout="this.style.background='rgba(0,240,168,0.06)'"
+      title="${isDownload ? 'Download' : 'Open'} ${name}">${fileIcon(name)} ${name}${sizeTxt} ⬇</a>`;
+
+  const renderPill = (name, sizeTxt) =>
+    `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface);
+      border:1px solid var(--border);border-radius:3px;padding:5px 10px;
+      font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 4px 2px 0;">
+      ${fileIcon(name)} ${name}${sizeTxt}</span>`;
+
+  const items = metaObjs
+    ? metaObjs.map(fo => {
         const sizeTxt = fo.size ? ` (${(fo.size/1024).toFixed(1)} KB)` : '';
-        if (fo.url) {
-          return `<a href="${fo.url}" target="_blank"
-            style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,240,168,0.06);
-                   border:1px solid rgba(0,240,168,0.2);border-radius:3px;padding:5px 10px;
-                   font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;
-                   cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
-            onmouseover="this.style.background='rgba(0,240,168,0.12)'"
-            onmouseout="this.style.background='rgba(0,240,168,0.06)'"
-            title="View/download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
-        }
-        // URL missing (upload failed) — show name-only pill with warning
-        return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface);
-                  border:1px solid var(--border);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 4px 2px 0;"
-                  title="Upload failed — file not available">
-                  ${icon} ${fo.name}${sizeTxt} ⚠</span>`;
+        if (fo.url) return renderLink(fo.url, fo.name, sizeTxt, false);   // Firebase Storage URL — works on any device
+        const local = localData.find(l => l.name === fo.name);
+        if (local && local.data) return renderLink(local.data, fo.name, sizeTxt, true); // base64 fallback
+        return renderPill(fo.name, sizeTxt);
       })
-    : names.map(n => {
-        const icon = fileIcon(n);
-        return `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface);
-                  border:1px solid var(--border);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 4px 2px 0;">
-                  ${icon} ${n}</span>`;
-      });
+    : names.map(n => renderPill(n, ''));
 
-  return `<div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center;">${items.join('')}</div>`;
+  return `<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:2px;">${items.join('')}</div>`;
 }
 
 // ── Evidence helper: render SIO investigation media as download links ──
-function buildInvEvidenceHTML(inv) {
+function buildInvEvidenceHTML(inv, reportId) {
   if (!inv.mediaFiles || !inv.mediaFiles.length) return '';
+  const localKey = 'wb_evidence_' + reportId + '_inv';
+  let localData = [];
+  try { localData = JSON.parse(localStorage.getItem(localKey) || '[]'); } catch(e) {}
+
   const objs = inv.mediaObjects && inv.mediaObjects.length ? inv.mediaObjects : null;
+
+  const renderLink = (href, name, sizeTxt, isDownload) =>
+    `<a href="${href}" ${isDownload ? `download="${name}"` : 'target="_blank"'}
+      style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,207,255,0.07);
+             border:1px solid rgba(0,207,255,0.25);border-radius:3px;padding:5px 10px;
+             font-family:var(--mono);font-size:11px;color:var(--sio);text-decoration:none;
+             cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(0,207,255,0.13)'"
+      onmouseout="this.style.background='rgba(0,207,255,0.07)'"
+      title="${isDownload ? 'Download' : 'Open'} ${name}">${fileIcon(name)} ${name}${sizeTxt} ⬇</a>`;
+
+  const renderPill = (name, sizeTxt) =>
+    `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,207,255,0.05);
+      border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:5px 10px;
+      font-family:var(--mono);font-size:11px;color:var(--sio);margin:2px 4px 2px 0;">
+      ${fileIcon(name)} ${name}${sizeTxt}</span>`;
+
   const header = `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px;">&#128248; Investigation Evidence</div>`;
-  const items = objs
-    ? objs.map(fo => {
-        const icon = fileIcon(fo.name);
-        const sizeTxt = fo.size ? ` (${(fo.size/1024).toFixed(1)} KB)` : '';
-        if (fo.url) {
-          return `<a href="${fo.url}" target="_blank"
-            style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,207,255,0.07);
-                   border:1px solid rgba(0,207,255,0.25);border-radius:3px;padding:5px 10px;
-                   font-family:var(--mono);font-size:11px;color:var(--sio);text-decoration:none;
-                   cursor:pointer;margin:2px 4px 2px 0;transition:background 0.15s;"
-            onmouseover="this.style.background='rgba(0,207,255,0.13)'"
-            onmouseout="this.style.background='rgba(0,207,255,0.07)'"
-            title="View/download ${fo.name}">${icon} ${fo.name}${sizeTxt} ⬇</a>`;
-        }
-        return `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,207,255,0.05);
-                  border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--sio);margin:2px 4px 2px 0;"
-                  title="Upload failed — file not available">
-                  ${icon} ${fo.name}${sizeTxt} ⚠</span>`;
-      })
-    : inv.mediaFiles.map(n => {
-        const icon = fileIcon(n);
-        return `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,207,255,0.05);
-                  border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:5px 10px;
-                  font-family:var(--mono);font-size:11px;color:var(--sio);margin:2px 4px 2px 0;">
-                  ${icon} ${n}</span>`;
-      });
-  return header + `<div style="display:flex;flex-wrap:wrap;gap:2px;">${items.join('')}</div>`;
+  const items = inv.mediaFiles.map(name => {
+    const meta   = objs ? objs.find(o => o.name === name) : null;
+    const local  = localData.find(l => l.name === name);
+    const sizeTxt = (meta||local) && (meta||local).size ? ` (${((meta||local).size/1024).toFixed(1)} KB)` : '';
+    if (meta && meta.url)           return renderLink(meta.url,   name, sizeTxt, false); // Storage URL
+    if (local && local.data)        return renderLink(local.data, name, sizeTxt, true);  // base64 fallback
+    return renderPill(name, sizeTxt);
+  });
+  return header + `<div style="display:flex;flex-wrap:wrap;gap:4px;">${items.join('')}</div>`;
 }
 
 function fileIcon(name) {
@@ -3680,7 +3737,7 @@ function openDetail(i) {
         ${inv.rootCause?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Root Cause: <strong style="color:var(--text);">${inv.rootCause}</strong></div>`:''}
         ${inv.persons?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Persons: ${inv.persons}</div>`:''}
         ${inv.actions?`<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">Recommended Actions: ${inv.actions}</div>`:''}
-        ${inv.mediaFiles&&inv.mediaFiles.length?`<div style="margin-top:4px;">${buildInvEvidenceHTML(inv)}</div>`:''}
+        ${inv.mediaFiles&&inv.mediaFiles.length?`<div style="margin-top:4px;">${buildInvEvidenceHTML(inv, r.id)}</div>`:''}
         ${(role==='superadmin'||role==='topmanagement')&&inv.confNotes?`<div style="background:rgba(0,207,255,0.05);border:1px solid rgba(0,207,255,0.15);border-radius:3px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--sio);">&#128274; Confidential: ${inv.confNotes}</div>`:''}
         ${renderFeedbackBlock(r, i)}
       </div>
@@ -3872,17 +3929,26 @@ async function submitInvReport() {
   const existingNames = invMediaFiles.filter(f => typeof f === 'string');
   const newFileObjs   = invMediaFiles.filter(f => typeof f !== 'string');
 
-  // Upload new files to Firebase Storage; merge with existing stored objects
-  const btn2 = document.querySelector('#page-sioreport .sbtn.sio-btn');
+  // Upload new SIO evidence files to Firebase Storage
   let newMediaObjects = [];
   if (newFileObjs.length > 0) {
-    if (btn2) btn2.textContent = '⏳ Uploading evidence…';
     newMediaObjects = await Promise.all(
-      newFileObjs.map(f => uploadFileToStorage(f, r.id + '_inv'))
+      newFileObjs.map(f => uploadFileToStorage(f, 'wb_evidence/' + r.id + '_inv'))
     );
+    // Fallback: base64 in localStorage for any failed uploads
+    const failedInv = newFileObjs.filter((f, i) => !newMediaObjects[i].url);
+    if (failedInv.length) {
+      const b64inv = await Promise.all(failedInv.map(f => readFileAsBase64(f)));
+      b64inv.forEach(fb => {
+        const fo = newMediaObjects.find(x => x.name === fb.name);
+        if (fo) fo.localData = fb.data;
+      });
+      const invKey = 'wb_evidence_' + r.id + '_inv';
+      try { localStorage.setItem(invKey, JSON.stringify(b64inv)); } catch(e) {}
+    }
   }
 
-  // Preserve previously uploaded objects that are still in the file list
+  // Preserve previously uploaded objects still in the file list
   const prevObjects = (r.invReport && r.invReport.mediaObjects) ? r.invReport.mediaObjects : [];
   const allMediaObjects = [
     ...prevObjects.filter(o => existingNames.includes(o.name)),
@@ -3899,7 +3965,7 @@ async function submitInvReport() {
     actions:      document.getElementById('inv-actions').value.trim(),
     confNotes:    document.getElementById('inv-confnotes').value.trim(),
     mediaFiles:   mediaNames,
-    mediaObjects: allMediaObjects,   // [{name, type, size, url}] — Firebase Storage URLs
+    mediaObjects: allMediaObjects.map(({ name, type, size, url }) => ({ name, type, size, url: url||null })),
     submittedAt:  new Date().toISOString(),
     submittedBy:  currentUser ? currentUser.username : 'sio'
   };
