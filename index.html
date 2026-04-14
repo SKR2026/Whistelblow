@@ -156,6 +156,35 @@
   .lkbtn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;color:var(--text3);font-family:var(--mono);font-size:14px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.01em;}
   .lkbtn:hover{border-color:var(--danger);color:var(--danger);}
 
+  /* ── NOTIFICATION BELL ─────────────────────────────────── */
+  .notif-bell-wrap{position:relative;display:none;}
+  .notif-bell-btn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 10px;color:var(--text3);font-size:18px;cursor:pointer;transition:all 0.15s;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .notif-bell-btn:hover{border-color:var(--warn);color:var(--warn);}
+  .notif-bell-btn.has-notifs{border-color:rgba(255,184,0,0.5);color:var(--warn);animation:bell-ring 1.8s ease-in-out infinite;}
+  @keyframes bell-ring{0%,100%{transform:rotate(0deg)}8%{transform:rotate(-18deg)}16%{transform:rotate(18deg)}24%{transform:rotate(-12deg)}32%{transform:rotate(12deg)}40%,60%{transform:rotate(0deg)}}
+  .notif-badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:0 0 6px rgba(255,77,106,0.5);}
+  .notif-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:340px;background:var(--surface);border:1px solid var(--border2);border-radius:5px;box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:200;overflow:hidden;display:none;}
+  .notif-dropdown.open{display:block;}
+  .notif-header{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .notif-header-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.04em;}
+  .notif-mark-all{font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;background:none;border:none;text-transform:uppercase;letter-spacing:0.02em;transition:color 0.15s;padding:0;}
+  .notif-mark-all:hover{color:var(--accent);}
+  .notif-list{max-height:340px;overflow-y:auto;}
+  .notif-item{padding:11px 15px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;display:flex;gap:10px;align-items:flex-start;}
+  .notif-item:hover{background:rgba(255,255,255,0.03);}
+  .notif-item.unread{background:rgba(255,184,0,0.04);}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0;margin-top:4px;}
+  .notif-dot.read{background:transparent;border:1px solid var(--border2);}
+  .notif-text{flex:1;}
+  .notif-title{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600;margin-bottom:2px;}
+  .notif-sub{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.4;}
+  .notif-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;margin-top:2px;}
+  .notif-empty{padding:24px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3);}
+  [data-theme="light"] .notif-dropdown{background:#fff;border-color:#d0d8e4;box-shadow:0 8px 30px rgba(0,0,0,0.12);}
+  [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,0.03);}
+  [data-theme="light"] .notif-item.unread{background:rgba(255,184,0,0.06);}
+
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
@@ -532,6 +561,18 @@
     <div class="hnav" id="hnav"></div>
     <div class="hr">
       <span class="rbadge u" id="rbadge">Reporter</span>
+      <div class="notif-bell-wrap" id="notifBellWrap">
+        <button class="notif-bell-btn" id="notifBellBtn" onclick="toggleNotifDropdown(event)" title="Notifications">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <span class="notif-header-title">Notifications</span>
+            <button class="notif-mark-all" onclick="markAllNotifsRead()">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">No notifications</div>
+          </div>
+        </div>
+      </div>
       <button class="theme-btn" onclick="toggleTheme()" id="headerThemeBtn" title="Toggle light/dark theme">
         <span id="headerThemeIcon">☀️</span><span id="headerThemeLabel">Light</span>
       </button>
@@ -2416,6 +2457,8 @@ function initApp(r) {
     subscribePendingNotifications();
     showPage('siocases', nav.querySelector('.asio'));
   }
+  // Initialise notification bell for admin-class roles
+  initNotifBell();
 }
 
 function onRealtimeUpdate() {
@@ -2427,6 +2470,8 @@ function onRealtimeUpdate() {
   else if (pid==='page-topmgmt') renderTopMgmt();
   else if (pid==='page-saanalytics') renderSAAnalytics();
   else if (pid==='page-siocases') renderSioCases();
+  // Sync notification bell on every realtime update
+  syncNotifications();
 }
 
 function lockApp() {
@@ -2439,6 +2484,9 @@ function lockApp() {
   invMediaFiles = [];
   _sioCurrentCaseId = null;
   resetForm();
+  // Hide bell and clear dropdown
+  const _bellWrap = document.getElementById('notifBellWrap');
+  if (_bellWrap) { _bellWrap.style.display = 'none'; closeNotifDropdown(); }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
 }
 
@@ -4052,6 +4100,222 @@ document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('sr_theme') || 'dark';
   applyTheme(saved, false);
 })();
+
+
+// ══════════════════════════════════════════════════════════
+//  NOTIFICATION BELL
+// ══════════════════════════════════════════════════════════
+const NOTIF_STORAGE_KEY = 'wb_notifications';
+const NOTIF_READ_KEY    = 'wb_notifs_read';
+const NOTIF_SEEN_IDS    = 'wb_notifs_seen';
+
+function getNotifs() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveNotifs(arr) {
+  try { localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+function getReadNotifIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(NOTIF_READ_KEY) || '[]')); } catch(e) { return new Set(); }
+}
+function saveReadNotifIds(set) {
+  try { localStorage.setItem(NOTIF_READ_KEY, JSON.stringify([...set])); } catch(e) {}
+}
+function getSeenReportIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(NOTIF_SEEN_IDS) || '[]')); } catch(e) { return new Set(); }
+}
+function saveSeenReportIds(set) {
+  try { localStorage.setItem(NOTIF_SEEN_IDS, JSON.stringify([...set])); } catch(e) {}
+}
+
+/** Called whenever reports list changes (realtime or on login).
+ *  Compares against seen IDs to surface new arrivals. */
+function syncNotifications() {
+  if (!currentUser) return;
+  const allowedRoles = ['superadmin', 'admin', 'topmanagement', 'planthead'];
+  if (!allowedRoles.includes(currentUser.role)) return;
+
+  const seenIds  = getSeenReportIds();
+  const existing = getNotifs();
+  const existingIds = new Set(existing.map(n => n.reportId));
+
+  // Get reports visible to this user
+  const visibleReports = filterReportsByPlantScope(reports);
+
+  let hasNew = false;
+  const now = Date.now();
+
+  for (const r of visibleReports) {
+    if (seenIds.has(r.id) || existingIds.has(r.id)) continue;
+
+    // Build severity label
+    const sevColors = { high: '🔴', medium: '🟡', low: '🟢' };
+    const icon = sevColors[r.severity] || '⚪';
+    const notif = {
+      id: 'notif-' + r.id + '-' + now,
+      reportId: r.id,
+      reportIdx: reports.indexOf(r),
+      title: icon + ' New Report — ' + (r.severity || '').toUpperCase(),
+      sub: r.title + (r.plantName ? ' · ' + r.plantName : ''),
+      time: r.date || new Date().toISOString(),
+      read: false,
+    };
+    existing.unshift(notif);
+    hasNew = true;
+  }
+
+  // Trim to last 50
+  if (existing.length > 50) existing.splice(50);
+  saveNotifs(existing);
+
+  // Mark all currently visible as "seen" so we don't re-notify on next call
+  for (const r of visibleReports) seenIds.add(r.id);
+  saveSeenReportIds(seenIds);
+
+  renderNotifBell(hasNew);
+}
+
+function renderNotifBell(pulse) {
+  const wrap  = document.getElementById('notifBellWrap');
+  const btn   = document.getElementById('notifBellBtn');
+  const badge = document.getElementById('notifBadge');
+  const list  = document.getElementById('notifList');
+  if (!wrap || !btn || !badge || !list) return;
+
+  const notifs  = getNotifs();
+  const readIds = getReadNotifIds();
+  const unread  = notifs.filter(n => !readIds.has(n.id));
+
+  // Badge
+  if (unread.length > 0) {
+    badge.textContent = unread.length > 99 ? '99+' : unread.length;
+    badge.style.display = 'flex';
+    btn.classList.add('has-notifs');
+  } else {
+    badge.style.display = 'none';
+    btn.classList.remove('has-notifs');
+  }
+
+  // Dropdown list
+  if (notifs.length === 0) {
+    list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+  } else {
+    list.innerHTML = notifs.map(n => {
+      const isRead = readIds.has(n.id);
+      const timeStr = n.time ? timeAgoShort(n.time) : '';
+      return `<div class="notif-item${isRead ? '' : ' unread'}" onclick="notifItemClick('${n.id}', '${n.reportId}')">
+        <div class="notif-dot${isRead ? ' read' : ''}"></div>
+        <div class="notif-text">
+          <div class="notif-title">${escHtml(n.title)}</div>
+          <div class="notif-sub">${escHtml(n.sub)}</div>
+        </div>
+        <span class="notif-time">${timeStr}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function timeAgoShort(iso) {
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1)   return 'just now';
+    if (m < 60)  return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24)  return h + 'h ago';
+    const d = Math.floor(h / 24);
+    return d + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function notifItemClick(notifId, reportId) {
+  // Mark this notif as read
+  const readIds = getReadNotifIds();
+  readIds.add(notifId);
+  saveReadNotifIds(readIds);
+  renderNotifBell(false);
+  closeNotifDropdown();
+
+  // Open the associated report
+  const idx = reports.findIndex(r => r.id === reportId);
+  if (idx >= 0) {
+    // Navigate to the right page first
+    const isReadOnly = (currentUser.role === 'topmanagement');
+    if (isReadOnly) {
+      const nav = document.getElementById('hnav');
+      const btn = nav ? nav.querySelector('.nb.atm') : null;
+      showPage('topmgmt', btn);
+      setTimeout(() => openDetailOrReadonly(idx), 100);
+    } else {
+      const nav = document.getElementById('hnav');
+      const btn = nav ? nav.querySelector('.nb.aa, .nb.asa') : null;
+      showPage('dashboard', btn);
+      setTimeout(() => openDetail(idx), 100);
+    }
+  }
+}
+
+function openDetailOrReadonly(i) {
+  // Top Management uses the readonly detail modal — they can still call openDetail
+  // since it builds the mbox content and both modals share the same id
+  openDetail(i);
+}
+
+function markAllNotifsRead() {
+  const notifs  = getNotifs();
+  const readIds = getReadNotifIds();
+  notifs.forEach(n => readIds.add(n.id));
+  saveReadNotifIds(readIds);
+  renderNotifBell(false);
+}
+
+function toggleNotifDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('notifDropdown');
+  if (!dd) return;
+  dd.classList.toggle('open');
+}
+
+function closeNotifDropdown() {
+  const dd = document.getElementById('notifDropdown');
+  if (dd) dd.classList.remove('open');
+}
+
+// Close bell dropdown on outside click
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('notifBellWrap');
+  if (wrap && !wrap.contains(e.target)) closeNotifDropdown();
+});
+
+/** Show / hide the bell based on role.  Call from initApp. */
+function initNotifBell() {
+  const wrap = document.getElementById('notifBellWrap');
+  if (!wrap) return;
+  const allowedRoles = ['superadmin', 'admin', 'topmanagement', 'planthead'];
+  if (currentUser && allowedRoles.includes(currentUser.role)) {
+    wrap.style.display = 'block';
+    // Clear seen ids on login so we notice all existing reports once
+    // (only clear if storage is empty — i.e., first login)
+    const seen = getSeenReportIds();
+    if (seen.size === 0) {
+      // Pre-mark all current reports as seen so we only notify NEW ones going forward
+      filterReportsByPlantScope(reports).forEach(r => seen.add(r.id));
+      saveSeenReportIds(seen);
+      renderNotifBell(false);
+    } else {
+      syncNotifications();
+    }
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+/** Hook into the realtime update path */
+const _origOnRealtimeUpdate = typeof onRealtimeUpdate === 'function' ? onRealtimeUpdate : null;
 
 function applyTheme(theme, save = true) {
   const isDark = (theme === 'dark');
