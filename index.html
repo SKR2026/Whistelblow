@@ -432,6 +432,22 @@
   ::-webkit-scrollbar-track{background:var(--bg);}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 
+  /* ─── BULK DELETE ────────────────────────────────────────── */
+  .bulk-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 14px;background:rgba(255,79,109,0.07);border:1px solid rgba(255,79,109,0.22);border-radius:4px;margin-bottom:14px;animation:fadeIn .18s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+  .bulk-count{font-family:var(--mono);font-size:12px;color:var(--danger);font-weight:700;flex:1;min-width:80px;}
+  .bulk-btn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.02em;}
+  .bulk-btn:hover{border-color:var(--text2);color:var(--text);}
+  .bulk-btn.danger{border-color:rgba(255,79,109,.4);color:var(--danger);}
+  .bulk-btn.danger:hover{background:rgba(255,79,109,.1);border-color:var(--danger);}
+  .bulk-btn.danger:disabled{opacity:.35;cursor:not-allowed;}
+  .bulk-toggle-btn{background:none;border:1px solid var(--border2);border-radius:3px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  .bulk-toggle-btn:hover{border-color:var(--danger);color:var(--danger);}
+  .bulk-toggle-btn.active{border-color:rgba(255,79,109,.5);color:var(--danger);background:rgba(255,79,109,.07);}
+  .rcard.bulk-selected{border-color:var(--danger)!important;background:rgba(255,79,109,.07)!important;box-shadow:0 0 0 1px rgba(255,79,109,.25);}
+  .bulk-cb-wrap{position:absolute;top:10px;left:10px;z-index:5;}
+  .bulk-cb{width:16px;height:16px;accent-color:var(--danger);cursor:pointer;}
+  .rcard{position:relative;}
   /* ─── PRINT ─────────────────────────────────────────────── */
   @media print {
     body{background:#fff !important;}
@@ -687,7 +703,7 @@
   <div class="page" id="page-allreports">
     <div class="frow2">
       <div class="ptitle a" style="margin:0;">All Reports</div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+      <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
         <select class="fsel" id="fsev" onchange="renderAll()">
           <option value="">All Severity</option>
           <option value="low">Low</option>
@@ -706,7 +722,14 @@
         <select class="fsel" id="fplant" onchange="renderAll()">
           <option value="">All Plants</option>
         </select>
+        <button class="bulk-toggle-btn" id="bulkToggleBtn" onclick="toggleBulkMode()">&#9744; Bulk Select</button>
       </div>
+    </div>
+    <div id="bulkToolbar" style="display:none;" class="bulk-toolbar">
+      <span class="bulk-count" id="bulkCount">0 selected</span>
+      <button class="bulk-btn" onclick="selectAllVisible()">Select All</button>
+      <button class="bulk-btn" onclick="clearBulkSelection()">Clear</button>
+      <button class="bulk-btn danger" id="bulkDeleteBtn" onclick="bulkDeleteSelected()" disabled>&#128465; Delete Selected</button>
     </div>
     <div class="rgrid" id="allGrid"></div>
   </div>
@@ -2500,6 +2523,13 @@ function showPage(name, btn) {
   }
   if (name==='dashboard')      { _dashSort = null; _dashSortDir = 'desc'; renderDash(); }
   if (name==='allreports')     renderAll();
+  if (name!=='allreports' && _bulkMode) {
+    _bulkMode = false; _selectedIds.clear();
+    const btn = document.getElementById('bulkToggleBtn');
+    const tb  = document.getElementById('bulkToolbar');
+    if (btn) { btn.textContent = '⊠ Bulk Select'; btn.classList.remove('active'); }
+    if (tb)  tb.style.display = 'none';
+  }
   if (name==='qrcode')         renderQR();
   if (name==='topmgmt')        renderTopMgmt();
   if (name==='saanalytics')    renderSAAnalytics();
@@ -3393,11 +3423,97 @@ function dashSortBy(key) {
   renderDash();
 }
 
+// ══════════════════════════════════════════════════════════
+//  BULK DELETE (All Reports tab)
+// ══════════════════════════════════════════════════════════
+let _bulkMode = false;
+let _selectedIds = new Set();
+let _bulkVisibleIds = []; // ids currently shown in grid (for Select All)
+
+function toggleBulkMode() {
+  _bulkMode = !_bulkMode;
+  _selectedIds.clear();
+  const btn = document.getElementById('bulkToggleBtn');
+  const toolbar = document.getElementById('bulkToolbar');
+  if (btn) {
+    btn.textContent = _bulkMode ? '✕ Exit Select' : '⊠ Bulk Select';
+    btn.classList.toggle('active', _bulkMode);
+  }
+  if (toolbar) toolbar.style.display = _bulkMode ? 'flex' : 'none';
+  updateBulkCount();
+  renderAll();
+}
+
+function toggleCardSelection(id) {
+  if (_selectedIds.has(id)) _selectedIds.delete(id);
+  else _selectedIds.add(id);
+  // Update just this card visually (no full re-render)
+  const card = document.querySelector(`.rcard[data-id="${id}"]`);
+  if (card) {
+    card.classList.toggle('bulk-selected', _selectedIds.has(id));
+    const cb = card.querySelector('.bulk-cb');
+    if (cb) cb.checked = _selectedIds.has(id);
+  }
+  updateBulkCount();
+}
+
+function selectAllVisible() {
+  _bulkVisibleIds.forEach(id => _selectedIds.add(id));
+  // Update all cards visually
+  _bulkVisibleIds.forEach(id => {
+    const card = document.querySelector(`.rcard[data-id="${id}"]`);
+    if (card) {
+      card.classList.add('bulk-selected');
+      const cb = card.querySelector('.bulk-cb');
+      if (cb) cb.checked = true;
+    }
+  });
+  updateBulkCount();
+}
+
+function clearBulkSelection() {
+  _selectedIds.clear();
+  document.querySelectorAll('.rcard.bulk-selected').forEach(c => {
+    c.classList.remove('bulk-selected');
+    const cb = c.querySelector('.bulk-cb');
+    if (cb) cb.checked = false;
+  });
+  updateBulkCount();
+}
+
+function updateBulkCount() {
+  const n = _selectedIds.size;
+  const countEl = document.getElementById('bulkCount');
+  const delBtn  = document.getElementById('bulkDeleteBtn');
+  if (countEl) countEl.textContent = n === 0 ? 'None selected' : `${n} report${n !== 1 ? 's' : ''} selected`;
+  if (delBtn)  delBtn.disabled = n === 0;
+}
+
+async function bulkDeleteSelected() {
+  const ids = [..._selectedIds];
+  if (!ids.length) return;
+  if (!confirm(`Permanently delete ${ids.length} selected report${ids.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+
+  // Disable button to prevent double-click
+  const delBtn = document.getElementById('bulkDeleteBtn');
+  if (delBtn) { delBtn.disabled = true; delBtn.textContent = 'Deleting…'; }
+
+  for (const id of ids) {
+    await deleteReportById(id);
+  }
+  _selectedIds.clear();
+  updateBulkCount();
+  renderAll();
+
+  if (delBtn) { delBtn.textContent = '🗑 Delete Selected'; }
+}
+
 function renderAll() {
   const scoped = filterReportsByPlantScope(reports);
   const sf=document.getElementById('fsev').value, st=document.getElementById('fst').value, sc=document.getElementById('fcat').value;
   const sp = document.getElementById('fplant')?.value || '';
   let f = scoped.filter(r=>(!sf||r.severity===sf)&&(!st||r.status===st)&&(!sc||r.category===sc)&&(!sp||r.plantId===sp));
+  _bulkVisibleIds = f.map(r => r.id); // track for Select All
   document.getElementById('allGrid').innerHTML = f.length
     ? f.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>cardHTML(r,reports.indexOf(r))).join('')
     : '<div class="empty"><div class="ei">&#128196;</div><div>No reports match filters</div></div>';
@@ -3415,18 +3531,29 @@ function cardHTML(r, idx) {
         : `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);">No SIO assigned</span>`}
       <button onclick="openAssignSioModal('${r.id}')" style="background:none;border:1px solid rgba(0,207,255,0.3);border-radius:2px;padding:3px 9px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.01em;cursor:pointer;color:var(--sio);transition:all 0.15s;" onmouseover="this.style.background='rgba(0,207,255,0.08)'" onmouseout="this.style.background='none'">&#128373; ${assignedSio?'Reassign':'Assign'} SIO</button>
     </div>` : '';
-  return `<div class="rcard" onclick="openDetail(${idx})">
+
+  // Bulk mode: card click = toggle selection; checkbox shown
+  const isBulk = _bulkMode && document.getElementById('page-allreports')?.classList.contains('active');
+  const isSelected = _selectedIds.has(r.id);
+  const cardClick = isBulk ? `toggleCardSelection('${r.id}')` : `openDetail(${idx})`;
+  const bulkCb = isBulk
+    ? `<div class="bulk-cb-wrap" onclick="event.stopPropagation();toggleCardSelection('${r.id}')">
+         <input type="checkbox" class="bulk-cb" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();toggleCardSelection('${r.id}')">
+       </div>` : '';
+
+  return `<div class="rcard${isSelected ? ' bulk-selected' : ''}" data-id="${r.id}" onclick="${cardClick}" style="${isBulk ? 'cursor:default;padding-left:36px;' : ''}">
+    ${bulkCb}
     <div class="rcid">${r.id}</div>
     <div class="rcb">
       <h3>${r.title}</h3>
       <p>${r.description}</p>
       ${r.plantName ? `<span style="font-family:var(--mono);font-size:9px;color:var(--adm);background:rgba(139,157,255,0.08);border:1px solid rgba(139,157,255,0.2);border-radius:2px;padding:2px 7px;display:inline-block;margin-bottom:4px;">&#127968; ${r.plantName}</span>` : ''}
-      ${sioRow}
-      <div class="stup" onclick="event.stopPropagation()">
+      ${!isBulk ? sioRow : ''}
+      ${!isBulk ? `<div class="stup" onclick="event.stopPropagation()">
         <button onclick="updStatus(${idx},'new')">New</button>
         <button onclick="updStatus(${idx},'reviewing')">Reviewing</button>
         <button onclick="updStatus(${idx},'resolved')">Resolved</button>
-      </div>
+      </div>` : ''}
     </div>
     <div class="rcm">
       <span class="sevb ${r.severity}">${r.severity}</span>
