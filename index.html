@@ -526,60 +526,75 @@
   /* body padding so content doesn't hide behind bar */
   body.bar-visible{padding-bottom:52px;}
 
-  /* ─── COLOUR THEME VARIANTS (dark base) ────────────────── */
-  /* Emerald (default dark) — no extra vars needed */
+  /* ─── COLOUR THEME VARIANTS — tint backgrounds, leave text & role colours alone ── */
+
+  /* Emerald (default dark) — no overrides needed */
+
+  /* Sapphire — blue-tinted backgrounds */
   [data-colour="sapphire"]:not([data-theme="light"]){
-    --accent:#4da6ff; --accent2:#2080e0;
-    --adm:#8b9dff; --adm2:#6070f0;
+    --bg:#050a14; --surface:#0c1220; --surface2:#121a2e;
+    --border:#1a2840; --border2:#243550;
   }
+  /* Rose — warm pink/magenta-tinted backgrounds */
   [data-colour="rose"]:not([data-theme="light"]){
-    --accent:#ff6fa8; --accent2:#e04080;
-    --sio:#ff8fb0; --sio2:#d05070;
+    --bg:#110810; --surface:#1a0e18; --surface2:#221422;
+    --border:#36182e; --border2:#48203e;
   }
+  /* Amber — warm golden-brown-tinted backgrounds */
   [data-colour="amber"]:not([data-theme="light"]){
-    --accent:#ffb830; --accent2:#e09010;
-    --sa:#ffb830; --sa2:#e09010;
+    --bg:#100d04; --surface:#181408; --surface2:#201a0e;
+    --border:#352a10; --border2:#463a18;
   }
+  /* Violet — deep purple-tinted backgrounds */
   [data-colour="violet"]:not([data-theme="light"]){
-    --accent:#b06aff; --accent2:#8040e0;
-    --tm:#c07fff; --tm2:#9350e8;
+    --bg:#09060f; --surface:#120d1e; --surface2:#18102a;
+    --border:#281840; --border2:#362252;
   }
+  /* Cyan — teal/ice-tinted backgrounds */
   [data-colour="cyan"]:not([data-theme="light"]){
-    --accent:#00e5cc; --accent2:#00b8a0;
-    --sio:#00d8ff; --sio2:#00a8cc;
+    --bg:#040e10; --surface:#08161a; --surface2:#0e2024;
+    --border:#103238; --border2:#184048;
   }
+  /* Coral — deep warm red-tinted backgrounds */
   [data-colour="coral"]:not([data-theme="light"]){
-    --accent:#ff7a5a; --accent2:#e05035;
+    --bg:#120806; --surface:#1c100c; --surface2:#241612;
+    --border:#3a1c14; --border2:#4e2820;
+  }
+  /* Slate — neutral cool grey-tinted backgrounds */
+  [data-colour="slate"]:not([data-theme="light"]){
+    --bg:#080a0f; --surface:#0e1118; --surface2:#141820;
+    --border:#1e2533; --border2:#283040;
   }
 
-  /* ─── COLOUR THEME VARIANTS (light base) ────────────────── */
+  /* ─── LIGHT MODE BACKGROUND TINTS ─────────────────────── */
   [data-colour="sapphire"][data-theme="light"]{
-    --accent:#1a60d0; --accent2:#0e44a8;
-    --adm:#3a4dd6; --adm2:#2838b0;
+    --bg:#eef3fc; --surface:#f8faff; --surface2:#dce8f8;
+    --border:#b0c8e8; --border2:#8aaed8;
   }
   [data-colour="rose"][data-theme="light"]{
-    --accent:#c0184a; --accent2:#8c0e33;
-    --sio:#b03060; --sio2:#7c1040;
+    --bg:#fceff4; --surface:#fff8fb; --surface2:#f5dde8;
+    --border:#e0b0c4; --border2:#cc8aaa;
   }
   [data-colour="amber"][data-theme="light"]{
-    --accent:#b06800; --accent2:#7a4200;
-    --warn:#b06000;
+    --bg:#fdf5e8; --surface:#fffbf2; --surface2:#f5e4c0;
+    --border:#dcc890; --border2:#c8a860;
   }
   [data-colour="violet"][data-theme="light"]{
-    --accent:#6b2dc8; --accent2:#4e1fa0;
+    --bg:#f4effe; --surface:#fbf8ff; --surface2:#e8dcf8;
+    --border:#c4a8e8; --border2:#a880d8;
   }
   [data-colour="cyan"][data-theme="light"]{
-    --accent:#007060; --accent2:#004840;
-    --sio:#006fa0; --sio2:#004e78;
+    --bg:#e8f7f8; --surface:#f4fdfe; --surface2:#d0eef0;
+    --border:#90ccd4; --border2:#60b0bc;
   }
   [data-colour="coral"][data-theme="light"]{
-    --accent:#c03820; --accent2:#8c2010;
+    --bg:#fdf0ec; --surface:#fff8f6; --surface2:#f4ddd4;
+    --border:#e0b0a0; --border2:#cc8878;
   }
-  /* Make field focus borders follow new accent */
-  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
-  .upzone:hover{border-color:var(--accent);}
-  .upzone p span{color:var(--accent);}
-  [data-theme="light"] .notif-mark-all:hover{color:var(--accent);}
+  [data-colour="slate"][data-theme="light"]{
+    --bg:#f0f2f6; --surface:#fafbfd; --surface2:#e0e4ec;
+    --border:#b8c4d4; --border2:#94a8bc;
+  }
 
   /* ─── LIGHT THEME OVERRIDES ────────────────────────────── */
   [data-theme="light"]{
@@ -4939,38 +4954,43 @@ document.getElementById('cameraModal').addEventListener('click', function(e) {
 
     <!-- Emerald (default) -->
     <div class="ctheme-swatch active" id="sw-emerald"
-         style="background:linear-gradient(135deg,#00f0a8,#00c487);"
+         style="background:linear-gradient(135deg,#07090d,#0f1219);box-shadow:inset 0 0 0 3px #00f0a8;"
          title="Emerald" onclick="setColour('emerald')"></div>
 
     <!-- Sapphire -->
     <div class="ctheme-swatch" id="sw-sapphire"
-         style="background:linear-gradient(135deg,#4da6ff,#2080e0);"
+         style="background:linear-gradient(135deg,#050a14,#0c1220);box-shadow:inset 0 0 0 3px #4da6ff;"
          title="Sapphire" onclick="setColour('sapphire')"></div>
 
     <!-- Rose -->
     <div class="ctheme-swatch" id="sw-rose"
-         style="background:linear-gradient(135deg,#ff6fa8,#e04080);"
+         style="background:linear-gradient(135deg,#110810,#1a0e18);box-shadow:inset 0 0 0 3px #ff6fa8;"
          title="Rose" onclick="setColour('rose')"></div>
 
     <!-- Amber -->
     <div class="ctheme-swatch" id="sw-amber"
-         style="background:linear-gradient(135deg,#ffb830,#e09010);"
+         style="background:linear-gradient(135deg,#100d04,#181408);box-shadow:inset 0 0 0 3px #ffb830;"
          title="Amber" onclick="setColour('amber')"></div>
 
     <!-- Violet -->
     <div class="ctheme-swatch" id="sw-violet"
-         style="background:linear-gradient(135deg,#c07fff,#8040e0);"
+         style="background:linear-gradient(135deg,#09060f,#120d1e);box-shadow:inset 0 0 0 3px #c07fff;"
          title="Violet" onclick="setColour('violet')"></div>
 
     <!-- Cyan -->
     <div class="ctheme-swatch" id="sw-cyan"
-         style="background:linear-gradient(135deg,#00e5cc,#00a8cc);"
+         style="background:linear-gradient(135deg,#040e10,#08161a);box-shadow:inset 0 0 0 3px #00e5cc;"
          title="Cyan" onclick="setColour('cyan')"></div>
 
     <!-- Coral -->
     <div class="ctheme-swatch" id="sw-coral"
-         style="background:linear-gradient(135deg,#ff7a5a,#e05035);"
+         style="background:linear-gradient(135deg,#120806,#1c100c);box-shadow:inset 0 0 0 3px #ff7a5a;"
          title="Coral" onclick="setColour('coral')"></div>
+
+    <!-- Slate -->
+    <div class="ctheme-swatch" id="sw-slate"
+         style="background:linear-gradient(135deg,#080a0f,#0e1118);box-shadow:inset 0 0 0 3px #8899bb;"
+         title="Slate" onclick="setColour('slate')"></div>
   </div>
 </div>
 
@@ -5009,7 +5029,7 @@ function applyColour(colour, save = true) {
   document.documentElement.setAttribute('data-colour', colour);
   if (save) localStorage.setItem('sr_colour', colour);
   // Update swatch active states
-  ['emerald','sapphire','rose','amber','violet','cyan','coral'].forEach(c => {
+  ['emerald','sapphire','rose','amber','violet','cyan','coral','slate'].forEach(c => {
     const sw = document.getElementById('sw-' + c);
     if (sw) sw.classList.toggle('active', c === colour);
   });
