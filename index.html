@@ -216,10 +216,6 @@
   .notif-sub{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.4;}
   .notif-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;margin-top:2px;}
   .notif-empty{padding:24px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3);}
-  [data-theme="light"] .notif-dropdown{background:#fff;border-color:#d0d8e4;box-shadow:0 8px 30px rgba(0,0,0,0.12);}
-  [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,0.03);}
-  [data-theme="light"] .notif-item.unread{background:rgba(255,184,0,0.06);}
-
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
@@ -506,9 +502,26 @@
   /* ─── THEME TOGGLE ─────────────────────────────────────── */
   .theme-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;display:flex;align-items:center;gap:6px;white-space:nowrap;}
   .theme-btn:hover{border-color:var(--accent);color:var(--accent);}
-  #roleThemeBtn{position:fixed;top:18px;right:20px;z-index:250;}
+  /* #roleThemeBtn replaced by #themePickerWrap */
 
-  /* ─── LIGHT THEME OVERRIDES ────────────────────────────── */
+  /* ─── THEME PICKER DROPDOWN ─────────────────────────────── */
+  #themePickerWrap{position:fixed;top:18px;right:20px;z-index:250;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+  #themePickerToggle{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  #themePickerToggle:hover{border-color:var(--accent);color:var(--accent);}
+  #themePalette{display:none;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  #themePalette.open{display:flex;}
+  .theme-swatch{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--text2);transition:background 0.15s;border:1px solid transparent;white-space:nowrap;}
+  .theme-swatch:hover{background:var(--surface2);border-color:var(--border2);}
+  .theme-swatch.active{border-color:var(--accent);color:var(--accent);}
+  .swatch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+
+  /* ═══════════════════════════════════════════════════════════
+     MULTI-COLOUR THEMES
+     Each theme sets all --bg / --surface / --text / --accent
+     variables so every component inherits automatically.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* ─── LIGHT (Day) ──────────────────────────────────────── */
   [data-theme="light"]{
     --bg:#f5f7fa; --surface:#ffffff; --surface2:#eaeff5;
     --border:#c4d0de; --border2:#a8bace;
@@ -520,7 +533,73 @@
     --danger:#c8183a; --warn:#b06000;
     --sio:#006fa0; --sio2:#004e78;
   }
-  [data-theme="light"] body{background:var(--bg);}
+
+  /* ─── OCEAN BLUE ───────────────────────────────────────── */
+  [data-theme="ocean"]{
+    --bg:#040e1a; --surface:#081628; --surface2:#0c2040;
+    --border:#1a3658; --border2:#244870;
+    --text:#e0f0ff; --text2:#80aad0; --text3:#4a7090;
+    --accent:#00b4d8; --accent2:#0095c0;
+    --adm:#48cae4; --adm2:#00b4d8;
+    --sa:#ffd166; --sa2:#d4a800;
+    --tm:#a78bfa; --tm2:#7c5ce4;
+    --danger:#ff6b8a; --warn:#ffc43d;
+    --sio:#06d6a0; --sio2:#048a66;
+  }
+
+  /* ─── SUNSET (Purple-Orange) ───────────────────────────── */
+  [data-theme="sunset"]{
+    --bg:#0d0814; --surface:#160d20; --surface2:#201230;
+    --border:#332048; --border2:#4a2e64;
+    --text:#f8e8ff; --text2:#c088d8; --text3:#8050a0;
+    --accent:#ff6b35; --accent2:#e0501a;
+    --adm:#c77dff; --adm2:#9b4cd4;
+    --sa:#ffd700; --sa2:#c8a800;
+    --tm:#ff8fab; --tm2:#d45070;
+    --danger:#ff4468; --warn:#ffaa00;
+    --sio:#38d9a9; --sio2:#20a87c;
+  }
+
+  /* ─── FOREST (Green) ───────────────────────────────────── */
+  [data-theme="forest"]{
+    --bg:#050f08; --surface:#0b1a10; --surface2:#102818;
+    --border:#1a3c22; --border2:#265430;
+    --text:#e0ffe8; --text2:#70b880; --text3:#3d7a50;
+    --accent:#52b788; --accent2:#2d9a68;
+    --adm:#74c69d; --adm2:#40a070;
+    --sa:#ffcd5c; --sa2:#d0a020;
+    --tm:#a8dadc; --tm2:#6cbcbe;
+    --danger:#ff7b7b; --warn:#f8b339;
+    --sio:#56cfe1; --sio2:#34a8c0;
+  }
+
+  /* ─── CRIMSON ───────────────────────────────────────────── */
+  [data-theme="crimson"]{
+    --bg:#100508; --surface:#1c0810; --surface2:#281018;
+    --border:#3d1020; --border2:#581830;
+    --text:#ffe8ea; --text2:#d08088; --text3:#904050;
+    --accent:#e63946; --accent2:#c0202e;
+    --adm:#ff8fa3; --adm2:#e06080;
+    --sa:#ffd166; --sa2:#d4a000;
+    --tm:#c77dff; --tm2:#9a4cd0;
+    --danger:#ff4444; --warn:#ffaa00;
+    --sio:#4ecdc4; --sio2:#2aada4;
+  }
+
+  /* ─── HIGH CONTRAST (Accessible) ───────────────────────── */
+  [data-theme="contrast"]{
+    --bg:#000000; --surface:#111111; --surface2:#1e1e1e;
+    --border:#444444; --border2:#666666;
+    --text:#ffffff; --text2:#dddddd; --text3:#aaaaaa;
+    --accent:#00ff88; --accent2:#00cc66;
+    --adm:#55aaff; --adm2:#2288ff;
+    --sa:#ffdd00; --sa2:#ccaa00;
+    --tm:#dd88ff; --tm2:#aa44ff;
+    --danger:#ff4444; --warn:#ffaa00;
+    --sio:#00ddff; --sio2:#00aabb;
+  }
+
+  /* ─── Shared light-surface overrides for any non-dark theme ── */
   [data-theme="light"] body::before{display:none;}
   [data-theme="light"] header{background:rgba(245,247,250,0.98)!important;box-shadow:0 1px 0 var(--border);}
   [data-theme="light"] #roleScreen,[data-theme="light"] #loginScreen{background:var(--bg);}
@@ -544,15 +623,44 @@
   [data-theme="light"] .anotice{background:rgba(0,163,114,0.05);border-color:rgba(0,163,114,0.18);}
   [data-theme="light"] .notice-tm{background:rgba(122,63,214,0.05);}
   [data-theme="light"] .inv-section{background:var(--surface);}
+  [data-theme="light"] .notif-dropdown{background:#fff;border-color:#d0d8e4;box-shadow:0 8px 30px rgba(0,0,0,0.12);}
+  [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,0.03);}
+  [data-theme="light"] .notif-item.unread{background:rgba(255,184,0,0.06);}
 
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ THEME TOGGLE (global) ═══════════════ -->
-<button class="theme-btn" id="roleThemeBtn" onclick="toggleTheme()">
-  <span id="roleThemeIcon">☀️</span><span id="roleThemeLabel">Light Mode</span>
-</button>
+<!-- ═══════════════ THEME PICKER (global) ═══════════════ -->
+<div id="themePickerWrap">
+  <button id="themePickerToggle" onclick="toggleThemePalette()" aria-label="Choose colour theme">
+    <span id="themePickerIcon">🎨</span>
+    <span id="themePickerLabel">Theme</span>
+  </button>
+  <div id="themePalette" role="menu">
+    <div class="theme-swatch" data-theme="dark"    onclick="pickTheme('dark')"    role="menuitem">
+      <span class="swatch-dot" style="background:#00f0a8;"></span> Dark (Default)
+    </div>
+    <div class="theme-swatch" data-theme="light"   onclick="pickTheme('light')"   role="menuitem">
+      <span class="swatch-dot" style="background:#007a55;"></span> Day Light
+    </div>
+    <div class="theme-swatch" data-theme="ocean"   onclick="pickTheme('ocean')"   role="menuitem">
+      <span class="swatch-dot" style="background:#00b4d8;"></span> Ocean Blue
+    </div>
+    <div class="theme-swatch" data-theme="sunset"  onclick="pickTheme('sunset')"  role="menuitem">
+      <span class="swatch-dot" style="background:#ff6b35;"></span> Sunset
+    </div>
+    <div class="theme-swatch" data-theme="forest"  onclick="pickTheme('forest')"  role="menuitem">
+      <span class="swatch-dot" style="background:#52b788;"></span> Forest
+    </div>
+    <div class="theme-swatch" data-theme="crimson" onclick="pickTheme('crimson')" role="menuitem">
+      <span class="swatch-dot" style="background:#e63946;"></span> Crimson
+    </div>
+    <div class="theme-swatch" data-theme="contrast" onclick="pickTheme('contrast')" role="menuitem">
+      <span class="swatch-dot" style="background:#00ff88;border:1px solid #555;"></span> High Contrast
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════ ROLE SELECT ═══════════════ -->
 <div id="roleScreen">
@@ -624,8 +732,8 @@
           </div>
         </div>
       </div>
-      <button class="theme-btn" onclick="toggleTheme()" id="headerThemeBtn" title="Toggle light/dark theme">
-        <span id="headerThemeIcon">☀️</span><span id="headerThemeLabel">Light</span>
+      <button class="theme-btn" onclick="toggleThemePalette()" id="headerThemeBtn" title="Choose colour theme" style="border-radius:20px;">
+        🎨
       </button>
       <button class="lkbtn" id="lockBtn" onclick="lockApp()" style="display:none;">Lock</button>
       <div class="fb-status connecting" id="fbStatusPill" title="Firebase Firestore connection status">
@@ -4392,7 +4500,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 // ══════════════════════════════════════════════════════════
-//  LIGHT / DARK THEME TOGGLE
+//  INIT THEME (runs after THEMES object is defined above)
 // ══════════════════════════════════════════════════════════
 (function initTheme() {
   const saved = localStorage.getItem('sr_theme') || 'dark';
@@ -4615,30 +4723,77 @@ function initNotifBell() {
 /** Hook into the realtime update path */
 const _origOnRealtimeUpdate = typeof onRealtimeUpdate === 'function' ? onRealtimeUpdate : null;
 
+/* ══════════════════════════════════════════════════════════
+   MULTI-COLOUR THEME SYSTEM
+   ══════════════════════════════════════════════════════════ */
+
+const THEMES = {
+  dark:     { label: 'Dark',          icon: '🌑', accent: '#00f0a8' },
+  light:    { label: 'Day Light',     icon: '☀️', accent: '#007a55' },
+  ocean:    { label: 'Ocean Blue',    icon: '🌊', accent: '#00b4d8' },
+  sunset:   { label: 'Sunset',        icon: '🌅', accent: '#ff6b35' },
+  forest:   { label: 'Forest',        icon: '🌿', accent: '#52b788' },
+  crimson:  { label: 'Crimson',       icon: '🔴', accent: '#e63946' },
+  contrast: { label: 'High Contrast', icon: '◑',  accent: '#00ff88' },
+};
+
 function applyTheme(theme, save = true) {
-  const isDark = (theme === 'dark');
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  if (!THEMES[theme]) theme = 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
   if (save) localStorage.setItem('sr_theme', theme);
 
-  // Update all toggle buttons
-  const icon  = isDark ? '☀️' : '🌙';
-  const label = isDark ? 'Light' : 'Dark';
-  ['roleThemeIcon','headerThemeIcon'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = icon;
-  });
-  ['roleThemeLabel','headerThemeLabel'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+  // Update picker toggle label/icon
+  const t = THEMES[theme];
+  const icon  = document.getElementById('themePickerIcon');
+  const label = document.getElementById('themePickerLabel');
+  if (icon)  icon.textContent  = t.icon;
+  if (label) label.textContent = t.label;
+
+  // Mark active swatch
+  document.querySelectorAll('.theme-swatch').forEach(sw => {
+    sw.classList.toggle('active', sw.dataset.theme === theme);
   });
 
-  // Header button short label
-  const hbl = document.getElementById('headerThemeLabel');
-  if (hbl) hbl.textContent = label;
+  // Keep legacy header icon/label references working
+  const hi = document.getElementById('headerThemeIcon');
+  const hl = document.getElementById('headerThemeLabel');
+  if (hi) hi.textContent = t.icon;
+  if (hl) hl.textContent = t.label;
+
+  // Adjust scanline overlay — only on dark-style themes
+  const overlay = document.querySelector('body::before');
+  // (handled via CSS — body::before is hidden for light via CSS rule)
 }
 
+function pickTheme(theme) {
+  applyTheme(theme);
+  closePalette();
+}
+
+function toggleThemePalette() {
+  const palette = document.getElementById('themePalette');
+  if (!palette) return;
+  palette.classList.toggle('open');
+}
+
+function closePalette() {
+  const palette = document.getElementById('themePalette');
+  if (palette) palette.classList.remove('open');
+}
+
+// Backwards-compat shim — toggleTheme now cycles through themes
 function toggleTheme() {
+  const order = Object.keys(THEMES);
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(current === 'dark' ? 'light' : 'dark');
+  const next = order[(order.indexOf(current) + 1) % order.length];
+  applyTheme(next);
 }
+
+// Close palette when clicking outside
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('themePickerWrap');
+  if (wrap && !wrap.contains(e.target)) closePalette();
+});
 
 // ══════════════════════════════════════════════════════════
 //  CAMERA CAPTURE — Reporter & SIO Evidence
