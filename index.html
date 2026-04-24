@@ -216,6 +216,10 @@
   .notif-sub{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.4;}
   .notif-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;margin-top:2px;}
   .notif-empty{padding:24px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3);}
+  [data-theme="light"] .notif-dropdown{background:#fff;border-color:#d0d8e4;box-shadow:0 8px 30px rgba(0,0,0,0.12);}
+  [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,0.03);}
+  [data-theme="light"] .notif-item.unread{background:rgba(255,184,0,0.06);}
+
   /* ─── PAGES ────────────────────────────────────────────── */
   .page{display:none;padding:34px 26px;max-width:960px;margin:0 auto;}
   .page.active{display:block;}
@@ -502,26 +506,82 @@
   /* ─── THEME TOGGLE ─────────────────────────────────────── */
   .theme-btn{background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;display:flex;align-items:center;gap:6px;white-space:nowrap;}
   .theme-btn:hover{border-color:var(--accent);color:var(--accent);}
-  /* #roleThemeBtn replaced by #themePickerWrap */
+  #roleThemeBtn{position:fixed;top:18px;right:20px;z-index:250;}
 
-  /* ─── THEME PICKER DROPDOWN ─────────────────────────────── */
-  #themePickerWrap{position:fixed;top:18px;right:20px;z-index:250;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-  #themePickerToggle{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 13px;color:var(--text2);font-family:var(--mono);font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
-  #themePickerToggle:hover{border-color:var(--accent);color:var(--accent);}
-  #themePalette{display:none;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
-  #themePalette.open{display:flex;}
-  .theme-swatch{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--text2);transition:background 0.15s;border:1px solid transparent;white-space:nowrap;}
-  .theme-swatch:hover{background:var(--surface2);border-color:var(--border2);}
-  .theme-swatch.active{border-color:var(--accent);color:var(--accent);}
-  .swatch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+  /* ─── COLOUR THEME BOTTOM BAR ──────────────────────────── */
+  #colourThemeBar{position:fixed;bottom:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:center;gap:0;padding:0;background:var(--surface);border-top:1px solid var(--border2);box-shadow:0 -4px 24px rgba(0,0,0,0.25);transition:transform 0.3s cubic-bezier(.4,0,.2,1);}
+  #colourThemeBar.bar-hidden{transform:translateY(100%);}
+  .ctheme-toggle-tab{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);border-bottom:none;border-radius:8px 8px 0 0;padding:4px 18px 2px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;transition:color 0.15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+  .ctheme-toggle-tab:hover{color:var(--text2);}
+  .ctheme-inner{display:flex;align-items:center;gap:0;width:100%;max-width:960px;margin:0 auto;padding:8px 16px;flex-wrap:wrap;gap:6px;}
+  .ctheme-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-right:6px;white-space:nowrap;flex-shrink:0;}
+  .ctheme-divider{width:1px;height:22px;background:var(--border2);margin:0 8px;flex-shrink:0;}
+  .ctheme-swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;flex-shrink:0;position:relative;}
+  .ctheme-swatch:hover{transform:scale(1.18);}
+  .ctheme-swatch.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.35),0 0 10px rgba(255,255,255,0.15);}
+  .ctheme-swatch[title]:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:3px 8px;font-family:var(--mono);font-size:10px;color:var(--text);white-space:nowrap;pointer-events:none;z-index:10;}
+  .ctheme-mode-btn{background:none;border:1px solid var(--border2);border-radius:4px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--text2);cursor:pointer;transition:all 0.15s;letter-spacing:0.03em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+  .ctheme-mode-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .ctheme-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,240,168,0.07);}
+  /* body padding so content doesn't hide behind bar */
+  body.bar-visible{padding-bottom:52px;}
 
-  /* ═══════════════════════════════════════════════════════════
-     MULTI-COLOUR THEMES
-     Each theme sets all --bg / --surface / --text / --accent
-     variables so every component inherits automatically.
-     ═══════════════════════════════════════════════════════════ */
+  /* ─── COLOUR THEME VARIANTS (dark base) ────────────────── */
+  /* Emerald (default dark) — no extra vars needed */
+  [data-colour="sapphire"]:not([data-theme="light"]){
+    --accent:#4da6ff; --accent2:#2080e0;
+    --adm:#8b9dff; --adm2:#6070f0;
+  }
+  [data-colour="rose"]:not([data-theme="light"]){
+    --accent:#ff6fa8; --accent2:#e04080;
+    --sio:#ff8fb0; --sio2:#d05070;
+  }
+  [data-colour="amber"]:not([data-theme="light"]){
+    --accent:#ffb830; --accent2:#e09010;
+    --sa:#ffb830; --sa2:#e09010;
+  }
+  [data-colour="violet"]:not([data-theme="light"]){
+    --accent:#b06aff; --accent2:#8040e0;
+    --tm:#c07fff; --tm2:#9350e8;
+  }
+  [data-colour="cyan"]:not([data-theme="light"]){
+    --accent:#00e5cc; --accent2:#00b8a0;
+    --sio:#00d8ff; --sio2:#00a8cc;
+  }
+  [data-colour="coral"]:not([data-theme="light"]){
+    --accent:#ff7a5a; --accent2:#e05035;
+  }
 
-  /* ─── LIGHT (Day) ──────────────────────────────────────── */
+  /* ─── COLOUR THEME VARIANTS (light base) ────────────────── */
+  [data-colour="sapphire"][data-theme="light"]{
+    --accent:#1a60d0; --accent2:#0e44a8;
+    --adm:#3a4dd6; --adm2:#2838b0;
+  }
+  [data-colour="rose"][data-theme="light"]{
+    --accent:#c0184a; --accent2:#8c0e33;
+    --sio:#b03060; --sio2:#7c1040;
+  }
+  [data-colour="amber"][data-theme="light"]{
+    --accent:#b06800; --accent2:#7a4200;
+    --warn:#b06000;
+  }
+  [data-colour="violet"][data-theme="light"]{
+    --accent:#6b2dc8; --accent2:#4e1fa0;
+  }
+  [data-colour="cyan"][data-theme="light"]{
+    --accent:#007060; --accent2:#004840;
+    --sio:#006fa0; --sio2:#004e78;
+  }
+  [data-colour="coral"][data-theme="light"]{
+    --accent:#c03820; --accent2:#8c2010;
+  }
+  /* Make field focus borders follow new accent */
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+  .upzone:hover{border-color:var(--accent);}
+  .upzone p span{color:var(--accent);}
+  [data-theme="light"] .notif-mark-all:hover{color:var(--accent);}
+
+  /* ─── LIGHT THEME OVERRIDES ────────────────────────────── */
   [data-theme="light"]{
     --bg:#f5f7fa; --surface:#ffffff; --surface2:#eaeff5;
     --border:#c4d0de; --border2:#a8bace;
@@ -533,73 +593,7 @@
     --danger:#c8183a; --warn:#b06000;
     --sio:#006fa0; --sio2:#004e78;
   }
-
-  /* ─── OCEAN BLUE ───────────────────────────────────────── */
-  [data-theme="ocean"]{
-    --bg:#040e1a; --surface:#081628; --surface2:#0c2040;
-    --border:#1a3658; --border2:#244870;
-    --text:#e0f0ff; --text2:#80aad0; --text3:#4a7090;
-    --accent:#00b4d8; --accent2:#0095c0;
-    --adm:#48cae4; --adm2:#00b4d8;
-    --sa:#ffd166; --sa2:#d4a800;
-    --tm:#a78bfa; --tm2:#7c5ce4;
-    --danger:#ff6b8a; --warn:#ffc43d;
-    --sio:#06d6a0; --sio2:#048a66;
-  }
-
-  /* ─── SUNSET (Purple-Orange) ───────────────────────────── */
-  [data-theme="sunset"]{
-    --bg:#0d0814; --surface:#160d20; --surface2:#201230;
-    --border:#332048; --border2:#4a2e64;
-    --text:#f8e8ff; --text2:#c088d8; --text3:#8050a0;
-    --accent:#ff6b35; --accent2:#e0501a;
-    --adm:#c77dff; --adm2:#9b4cd4;
-    --sa:#ffd700; --sa2:#c8a800;
-    --tm:#ff8fab; --tm2:#d45070;
-    --danger:#ff4468; --warn:#ffaa00;
-    --sio:#38d9a9; --sio2:#20a87c;
-  }
-
-  /* ─── FOREST (Green) ───────────────────────────────────── */
-  [data-theme="forest"]{
-    --bg:#050f08; --surface:#0b1a10; --surface2:#102818;
-    --border:#1a3c22; --border2:#265430;
-    --text:#e0ffe8; --text2:#70b880; --text3:#3d7a50;
-    --accent:#52b788; --accent2:#2d9a68;
-    --adm:#74c69d; --adm2:#40a070;
-    --sa:#ffcd5c; --sa2:#d0a020;
-    --tm:#a8dadc; --tm2:#6cbcbe;
-    --danger:#ff7b7b; --warn:#f8b339;
-    --sio:#56cfe1; --sio2:#34a8c0;
-  }
-
-  /* ─── CRIMSON ───────────────────────────────────────────── */
-  [data-theme="crimson"]{
-    --bg:#100508; --surface:#1c0810; --surface2:#281018;
-    --border:#3d1020; --border2:#581830;
-    --text:#ffe8ea; --text2:#d08088; --text3:#904050;
-    --accent:#e63946; --accent2:#c0202e;
-    --adm:#ff8fa3; --adm2:#e06080;
-    --sa:#ffd166; --sa2:#d4a000;
-    --tm:#c77dff; --tm2:#9a4cd0;
-    --danger:#ff4444; --warn:#ffaa00;
-    --sio:#4ecdc4; --sio2:#2aada4;
-  }
-
-  /* ─── HIGH CONTRAST (Accessible) ───────────────────────── */
-  [data-theme="contrast"]{
-    --bg:#000000; --surface:#111111; --surface2:#1e1e1e;
-    --border:#444444; --border2:#666666;
-    --text:#ffffff; --text2:#dddddd; --text3:#aaaaaa;
-    --accent:#00ff88; --accent2:#00cc66;
-    --adm:#55aaff; --adm2:#2288ff;
-    --sa:#ffdd00; --sa2:#ccaa00;
-    --tm:#dd88ff; --tm2:#aa44ff;
-    --danger:#ff4444; --warn:#ffaa00;
-    --sio:#00ddff; --sio2:#00aabb;
-  }
-
-  /* ─── Shared light-surface overrides for any non-dark theme ── */
+  [data-theme="light"] body{background:var(--bg);}
   [data-theme="light"] body::before{display:none;}
   [data-theme="light"] header{background:rgba(245,247,250,0.98)!important;box-shadow:0 1px 0 var(--border);}
   [data-theme="light"] #roleScreen,[data-theme="light"] #loginScreen{background:var(--bg);}
@@ -623,44 +617,15 @@
   [data-theme="light"] .anotice{background:rgba(0,163,114,0.05);border-color:rgba(0,163,114,0.18);}
   [data-theme="light"] .notice-tm{background:rgba(122,63,214,0.05);}
   [data-theme="light"] .inv-section{background:var(--surface);}
-  [data-theme="light"] .notif-dropdown{background:#fff;border-color:#d0d8e4;box-shadow:0 8px 30px rgba(0,0,0,0.12);}
-  [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,0.03);}
-  [data-theme="light"] .notif-item.unread{background:rgba(255,184,0,0.06);}
 
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ THEME PICKER (global) ═══════════════ -->
-<div id="themePickerWrap">
-  <button id="themePickerToggle" onclick="toggleThemePalette()" aria-label="Choose colour theme">
-    <span id="themePickerIcon">🎨</span>
-    <span id="themePickerLabel">Theme</span>
-  </button>
-  <div id="themePalette" role="menu">
-    <div class="theme-swatch" data-theme="dark"    onclick="pickTheme('dark')"    role="menuitem">
-      <span class="swatch-dot" style="background:#00f0a8;"></span> Dark (Default)
-    </div>
-    <div class="theme-swatch" data-theme="light"   onclick="pickTheme('light')"   role="menuitem">
-      <span class="swatch-dot" style="background:#007a55;"></span> Day Light
-    </div>
-    <div class="theme-swatch" data-theme="ocean"   onclick="pickTheme('ocean')"   role="menuitem">
-      <span class="swatch-dot" style="background:#00b4d8;"></span> Ocean Blue
-    </div>
-    <div class="theme-swatch" data-theme="sunset"  onclick="pickTheme('sunset')"  role="menuitem">
-      <span class="swatch-dot" style="background:#ff6b35;"></span> Sunset
-    </div>
-    <div class="theme-swatch" data-theme="forest"  onclick="pickTheme('forest')"  role="menuitem">
-      <span class="swatch-dot" style="background:#52b788;"></span> Forest
-    </div>
-    <div class="theme-swatch" data-theme="crimson" onclick="pickTheme('crimson')" role="menuitem">
-      <span class="swatch-dot" style="background:#e63946;"></span> Crimson
-    </div>
-    <div class="theme-swatch" data-theme="contrast" onclick="pickTheme('contrast')" role="menuitem">
-      <span class="swatch-dot" style="background:#00ff88;border:1px solid #555;"></span> High Contrast
-    </div>
-  </div>
-</div>
+<!-- ═══════════════ THEME TOGGLE (global) ═══════════════ -->
+<button class="theme-btn" id="roleThemeBtn" onclick="toggleTheme()">
+  <span id="roleThemeIcon">☀️</span><span id="roleThemeLabel">Light Mode</span>
+</button>
 
 <!-- ═══════════════ ROLE SELECT ═══════════════ -->
 <div id="roleScreen">
@@ -732,8 +697,8 @@
           </div>
         </div>
       </div>
-      <button class="theme-btn" onclick="toggleThemePalette()" id="headerThemeBtn" title="Choose colour theme" style="border-radius:20px;">
-        🎨
+      <button class="theme-btn" onclick="toggleTheme()" id="headerThemeBtn" title="Toggle light/dark theme">
+        <span id="headerThemeIcon">☀️</span><span id="headerThemeLabel">Light</span>
       </button>
       <button class="lkbtn" id="lockBtn" onclick="lockApp()" style="display:none;">Lock</button>
       <div class="fb-status connecting" id="fbStatusPill" title="Firebase Firestore connection status">
@@ -4500,7 +4465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 // ══════════════════════════════════════════════════════════
-//  INIT THEME (runs after THEMES object is defined above)
+//  LIGHT / DARK THEME TOGGLE
 // ══════════════════════════════════════════════════════════
 (function initTheme() {
   const saved = localStorage.getItem('sr_theme') || 'dark';
@@ -4723,77 +4688,33 @@ function initNotifBell() {
 /** Hook into the realtime update path */
 const _origOnRealtimeUpdate = typeof onRealtimeUpdate === 'function' ? onRealtimeUpdate : null;
 
-/* ══════════════════════════════════════════════════════════
-   MULTI-COLOUR THEME SYSTEM
-   ══════════════════════════════════════════════════════════ */
-
-const THEMES = {
-  dark:     { label: 'Dark',          icon: '🌑', accent: '#00f0a8' },
-  light:    { label: 'Day Light',     icon: '☀️', accent: '#007a55' },
-  ocean:    { label: 'Ocean Blue',    icon: '🌊', accent: '#00b4d8' },
-  sunset:   { label: 'Sunset',        icon: '🌅', accent: '#ff6b35' },
-  forest:   { label: 'Forest',        icon: '🌿', accent: '#52b788' },
-  crimson:  { label: 'Crimson',       icon: '🔴', accent: '#e63946' },
-  contrast: { label: 'High Contrast', icon: '◑',  accent: '#00ff88' },
-};
-
 function applyTheme(theme, save = true) {
-  if (!THEMES[theme]) theme = 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
+  const isDark = (theme === 'dark');
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   if (save) localStorage.setItem('sr_theme', theme);
 
-  // Update picker toggle label/icon
-  const t = THEMES[theme];
-  const icon  = document.getElementById('themePickerIcon');
-  const label = document.getElementById('themePickerLabel');
-  if (icon)  icon.textContent  = t.icon;
-  if (label) label.textContent = t.label;
-
-  // Mark active swatch
-  document.querySelectorAll('.theme-swatch').forEach(sw => {
-    sw.classList.toggle('active', sw.dataset.theme === theme);
+  // Update all toggle buttons
+  const icon  = isDark ? '☀️' : '🌙';
+  const label = isDark ? 'Light' : 'Dark';
+  ['roleThemeIcon','headerThemeIcon'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = icon;
+  });
+  ['roleThemeLabel','headerThemeLabel'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = isDark ? 'Light Mode' : 'Dark Mode';
   });
 
-  // Keep legacy header icon/label references working
-  const hi = document.getElementById('headerThemeIcon');
-  const hl = document.getElementById('headerThemeLabel');
-  if (hi) hi.textContent = t.icon;
-  if (hl) hl.textContent = t.label;
+  // Header button short label
+  const hbl = document.getElementById('headerThemeLabel');
+  if (hbl) hbl.textContent = label;
 
-  // Adjust scanline overlay — only on dark-style themes
-  const overlay = document.querySelector('body::before');
-  // (handled via CSS — body::before is hidden for light via CSS rule)
+  // Sync mode buttons in colour bar if available
+  if (typeof syncModeButtons === 'function') syncModeButtons();
 }
 
-function pickTheme(theme) {
-  applyTheme(theme);
-  closePalette();
-}
-
-function toggleThemePalette() {
-  const palette = document.getElementById('themePalette');
-  if (!palette) return;
-  palette.classList.toggle('open');
-}
-
-function closePalette() {
-  const palette = document.getElementById('themePalette');
-  if (palette) palette.classList.remove('open');
-}
-
-// Backwards-compat shim — toggleTheme now cycles through themes
 function toggleTheme() {
-  const order = Object.keys(THEMES);
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = order[(order.indexOf(current) + 1) % order.length];
-  applyTheme(next);
+  applyTheme(current === 'dark' ? 'light' : 'dark');
 }
-
-// Close palette when clicking outside
-document.addEventListener('click', function(e) {
-  const wrap = document.getElementById('themePickerWrap');
-  if (wrap && !wrap.contains(e.target)) closePalette();
-});
 
 // ══════════════════════════════════════════════════════════
 //  CAMERA CAPTURE — Reporter & SIO Evidence
@@ -4997,6 +4918,124 @@ function closeCamera() {
 document.getElementById('cameraModal').addEventListener('click', function(e) {
   if (e.target === this) closeCamera();
 });
+</script>
+
+<!-- ── COLOUR THEME BOTTOM BAR ───────────────────────────── -->
+<div id="colourThemeBar">
+  <!-- Pull tab to show/hide -->
+  <button class="ctheme-toggle-tab" id="colourBarTab" onclick="toggleColourBar()" title="Toggle theme picker">
+    <span id="colourBarTabIcon">▾</span> <span id="colourBarTabLabel">Themes</span>
+  </button>
+  <div class="ctheme-inner">
+    <!-- Dark / Light mode -->
+    <span class="ctheme-label">Mode</span>
+    <button class="ctheme-mode-btn active" id="modeDarkBtn" onclick="setMode('dark')">🌑 Dark</button>
+    <button class="ctheme-mode-btn" id="modeLightBtn" onclick="setMode('light')">☀️ Light</button>
+
+    <div class="ctheme-divider"></div>
+
+    <!-- Colour swatches -->
+    <span class="ctheme-label">Colour</span>
+
+    <!-- Emerald (default) -->
+    <div class="ctheme-swatch active" id="sw-emerald"
+         style="background:linear-gradient(135deg,#00f0a8,#00c487);"
+         title="Emerald" onclick="setColour('emerald')"></div>
+
+    <!-- Sapphire -->
+    <div class="ctheme-swatch" id="sw-sapphire"
+         style="background:linear-gradient(135deg,#4da6ff,#2080e0);"
+         title="Sapphire" onclick="setColour('sapphire')"></div>
+
+    <!-- Rose -->
+    <div class="ctheme-swatch" id="sw-rose"
+         style="background:linear-gradient(135deg,#ff6fa8,#e04080);"
+         title="Rose" onclick="setColour('rose')"></div>
+
+    <!-- Amber -->
+    <div class="ctheme-swatch" id="sw-amber"
+         style="background:linear-gradient(135deg,#ffb830,#e09010);"
+         title="Amber" onclick="setColour('amber')"></div>
+
+    <!-- Violet -->
+    <div class="ctheme-swatch" id="sw-violet"
+         style="background:linear-gradient(135deg,#c07fff,#8040e0);"
+         title="Violet" onclick="setColour('violet')"></div>
+
+    <!-- Cyan -->
+    <div class="ctheme-swatch" id="sw-cyan"
+         style="background:linear-gradient(135deg,#00e5cc,#00a8cc);"
+         title="Cyan" onclick="setColour('cyan')"></div>
+
+    <!-- Coral -->
+    <div class="ctheme-swatch" id="sw-coral"
+         style="background:linear-gradient(135deg,#ff7a5a,#e05035);"
+         title="Coral" onclick="setColour('coral')"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  COLOUR THEME BOTTOM BAR
+// ══════════════════════════════════════════════════════════
+(function initColourTheme() {
+  const savedColour = localStorage.getItem('sr_colour') || 'emerald';
+  const savedBarOpen = localStorage.getItem('sr_bar_open');
+  // default: bar visible
+  const barOpen = savedBarOpen === null ? true : savedBarOpen === 'true';
+  applyColour(savedColour, false);
+  if (!barOpen) {
+    document.getElementById('colourThemeBar').classList.add('bar-hidden');
+    document.getElementById('colourBarTabIcon').textContent = '▴';
+    document.getElementById('colourBarTabLabel').textContent = 'Themes';
+  } else {
+    document.body.classList.add('bar-visible');
+  }
+  syncModeButtons();
+})();
+
+function setMode(mode) {
+  applyTheme(mode);
+  syncModeButtons();
+}
+
+function syncModeButtons() {
+  const isDark = (document.documentElement.getAttribute('data-theme') !== 'light');
+  document.getElementById('modeDarkBtn').classList.toggle('active', isDark);
+  document.getElementById('modeLightBtn').classList.toggle('active', !isDark);
+}
+
+function applyColour(colour, save = true) {
+  document.documentElement.setAttribute('data-colour', colour);
+  if (save) localStorage.setItem('sr_colour', colour);
+  // Update swatch active states
+  ['emerald','sapphire','rose','amber','violet','cyan','coral'].forEach(c => {
+    const sw = document.getElementById('sw-' + c);
+    if (sw) sw.classList.toggle('active', c === colour);
+  });
+}
+
+function setColour(colour) {
+  applyColour(colour, true);
+}
+
+function toggleColourBar() {
+  const bar = document.getElementById('colourThemeBar');
+  const icon = document.getElementById('colourBarTabIcon');
+  const label = document.getElementById('colourBarTabLabel');
+  const isHidden = bar.classList.toggle('bar-hidden');
+  icon.textContent = isHidden ? '▴' : '▾';
+  label.textContent = isHidden ? 'Themes' : 'Themes';
+  document.body.classList.toggle('bar-visible', !isHidden);
+  localStorage.setItem('sr_bar_open', String(!isHidden));
+}
+
+// Patch applyTheme to also sync mode buttons whenever called
+const _origApplyTheme = applyTheme;
+window.applyTheme = function(theme, save) {
+  _origApplyTheme(theme, save);
+  syncModeButtons();
+};
 </script>
 </body>
 </html>
