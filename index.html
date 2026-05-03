@@ -1278,82 +1278,6 @@
     </div>
   </div>
 
-
-  <!-- ── License Manager (DEV only) ──────────────── -->
-  <div class="page" id="page-licmgr">
-    <div class="ptitle sa">&#128273; License Manager <span style="background:rgba(167,139,250,0.18);border:1px solid rgba(167,139,250,0.45);color:#a78bfa;font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:5px;text-transform:uppercase;margin-left:8px;">DEV ONLY</span></div>
-    <div style="background:rgba(245,197,66,0.05);border:1px solid rgba(245,197,66,0.2);border-radius:3px;padding:12px 15px;margin-bottom:20px;font-family:var(--mono);font-size:13px;color:var(--text2);">
-      Manage SuperAdmin license keys. Only visible to the Developer account — never shown to clients or other users.
-    </div>
-
-    <!-- Stats row -->
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;" id="lic-stats-row">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 20px;flex:1;min-width:140px;">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Total</div>
-        <div style="font-size:24px;font-weight:700;color:var(--sa);" id="lm-total">—</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 20px;flex:1;min-width:140px;">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Active</div>
-        <div style="font-size:24px;font-weight:700;color:#22c55e;" id="lm-active">—</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 20px;flex:1;min-width:140px;">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Expired</div>
-        <div style="font-size:24px;font-weight:700;color:#f59e0b;" id="lm-expired">—</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 20px;flex:1;min-width:140px;">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Revoked</div>
-        <div style="font-size:24px;font-weight:700;color:#ef4444;" id="lm-revoked">—</div>
-      </div>
-    </div>
-
-    <!-- Create new license -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:18px 20px;margin-bottom:20px;">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sa);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">&#43; Generate New License</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Company *</label>
-          <input id="lm-company" type="text" placeholder="Company / Plant name" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;">
-        </div>
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Customer Name</label>
-          <input id="lm-custname" type="text" placeholder="Contact person" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;">
-        </div>
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Email</label>
-          <input id="lm-email" type="email" placeholder="contact@company.com" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;">
-        </div>
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Expiry Date *</label>
-          <input id="lm-expiry" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;">
-        </div>
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Custom Key (optional)</label>
-          <input id="lm-customkey" type="text" maxlength="18" placeholder="Auto-generated if blank" oninput="_lmFormatKey(this)" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;letter-spacing:2px;text-transform:uppercase;">
-        </div>
-        <div>
-          <label style="font-family:var(--mono);font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px;">Notes</label>
-          <input id="lm-notes" type="text" placeholder="Optional notes" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:3px;font-family:var(--mono);font-size:13px;">
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <button onclick="_lmCreate()" style="background:var(--sa);color:#0d1117;border:none;border-radius:3px;padding:9px 20px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">&#10003; Create License</button>
-        <span id="lm-new-key-out" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--sa);letter-spacing:2px;display:none;"></span>
-        <button id="lm-copy-btn" onclick="_lmCopyKey()" style="display:none;background:none;border:1px solid var(--sa);color:var(--sa);border-radius:3px;padding:6px 14px;font-family:var(--mono);font-size:11px;cursor:pointer;">&#128203; Copy</button>
-      </div>
-      <div id="lm-create-err" style="margin-top:8px;color:#ef4444;font-family:var(--mono);font-size:12px;display:none;"></div>
-    </div>
-
-    <!-- License list -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;">All Licenses</div>
-      <div style="display:flex;gap:8px;">
-        <input id="lm-search" type="text" placeholder="&#128269; Search key or company..." oninput="_lmFilter()" style="background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:3px;font-family:var(--mono);font-size:12px;width:220px;">
-        <button onclick="_lmLoad()" style="background:none;border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:7px 14px;font-family:var(--mono);font-size:12px;cursor:pointer;">&#8635; Refresh</button>
-      </div>
-    </div>
-    <div id="lm-list" style="font-family:var(--mono);font-size:13px;color:var(--text3);padding:20px 0;text-align:center;">Click Refresh to load licenses.</div>
-  </div>
-
   <!-- ── SIO: My Cases ─────────────────────────── -->
   <div class="page" id="page-siocases">
     <div class="ptitle sio">&#128373; My Assigned Cases</div>
@@ -1532,9 +1456,9 @@ function initFirebase() {
     .then(() => {
       _fbReady = true;
       console.log('Firebase connected ✓ — auth OK');
-      loadUsersFromFirestore(); // load users from Firestore (falls back to localStorage)
+      getUsers();
       loadCategoriesFromFirestore().then(() => { populateCategoryDropdowns(); });
-      loadPlantsFromFirestore();
+      getPlants();
     })
     .catch(err => {
       console.error('Firebase anonymous auth failed:', err.code, err.message);
@@ -1622,32 +1546,7 @@ function getUsers() {
     return JSON.parse(raw);
   } catch(e) { return DEFAULT_USERS; }
 }
-function saveUsers(users) {
-  try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {}
-  // Also sync to Firestore so users persist across devices/browsers
-  if (_fbReady && _db) {
-    _db.collection('wb_config').doc('users').set({ list: users, updatedAt: new Date().toISOString() })
-      .catch(e => console.warn('Firestore user sync failed:', e));
-  }
-}
-
-async function loadUsersFromFirestore() {
-  if (!_fbReady || !_db) return getUsers();
-  try {
-    const doc = await _db.collection('wb_config').doc('users').get();
-    if (doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
-      try { localStorage.setItem('wb_users', JSON.stringify(doc.data().list)); } catch(e) {}
-      return doc.data().list;
-    }
-    // Not in Firestore yet — seed it from localStorage / defaults
-    const users = getUsers();
-    await _db.collection('wb_config').doc('users').set({ list: users, updatedAt: new Date().toISOString() });
-    return users;
-  } catch(e) {
-    console.warn('Firestore user load failed (using local):', e);
-    return getUsers();
-  }
-}
+function saveUsers(users) { try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {} }
 
 function getCategories() {
   try {
@@ -2383,434 +2282,6 @@ function mailTemplate(title, rows, accentColor='#00b894') {
   </table>
 </body></html>`;
 }
-</script>
-
-<!-- ══════════════════════════════════════════════
-     LICENSE GATE — SuperAdmin only
-     Hidden by default; shown after superadmin login
-     Dev account bypasses entirely.
-══════════════════════════════════════════════ -->
-<div id="licenseGate" style="display:none;position:fixed;inset:0;z-index:9999;
-  background:radial-gradient(ellipse at 30% 20%,#1a1f2e 0%,#0d1117 65%);
-  align-items:center;justify-content:center;font-family:var(--mono,monospace);">
-  <div style="background:#151b28;border:1px solid rgba(245,197,66,0.25);border-radius:8px;
-    padding:44px 48px;width:440px;max-width:95vw;
-    box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(245,197,66,0.08);
-    position:relative;overflow:hidden;">
-    <!-- glow -->
-    <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;
-      background:radial-gradient(circle,rgba(245,197,66,0.12) 0%,transparent 70%);
-      border-radius:50%;pointer-events:none;"></div>
-    <!-- logo row -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
-      <div style="width:44px;height:44px;border-radius:6px;
-        background:linear-gradient(135deg,#f5c542,#e0a000);
-        display:flex;align-items:center;justify-content:center;
-        font-size:20px;font-weight:800;color:#0d1117;letter-spacing:-1px;">SA</div>
-      <div>
-        <div style="font-size:16px;font-weight:700;color:#e8edf8;line-height:1;">SuperAdmin License</div>
-        <div style="font-size:10px;color:#5a6a90;letter-spacing:2px;text-transform:uppercase;margin-top:3px;">Secure Compliance Platform</div>
-      </div>
-    </div>
-    <div style="font-size:13px;font-weight:600;color:#8898c0;margin-bottom:5px;">License Key Required</div>
-    <div style="font-size:11px;color:#5a6a90;margin-bottom:20px;line-height:1.6;">
-      SuperAdmin access requires a valid license key. Contact your software provider if you don't have one.
-    </div>
-    <!-- format hint -->
-    <div style="font-size:11px;color:#5a6a90;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-      Format: <code style="background:rgba(245,197,66,0.1);color:#f5c542;
-        padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:1.5px;">XXX-XXXX-XXXX-XXXX</code>
-    </div>
-    <!-- input -->
-    <input id="licKeyInput" type="text" maxlength="18"
-      placeholder="XXX-XXXX-XXXX-XXXX"
-      onkeydown="if(event.key==='Enter')_licActivate()"
-      oninput="_licFormat(this)"
-      style="width:100%;padding:12px 14px;
-        background:rgba(13,17,23,0.8);border:1.5px solid #2d3650;
-        color:#e8edf8;border-radius:5px;font-family:var(--mono,monospace);
-        font-size:15px;letter-spacing:2px;text-transform:uppercase;
-        box-sizing:border-box;margin-bottom:10px;outline:none;
-        transition:border-color .2s;" />
-    <!-- error -->
-    <div id="licErrBox" style="display:none;padding:9px 12px;border-radius:5px;
-      background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);
-      color:#fca5a5;font-size:11px;margin-bottom:10px;line-height:1.5;"></div>
-    <!-- button -->
-    <button id="licActivateBtn" onclick="_licActivate()"
-      style="width:100%;padding:12px;border:none;border-radius:5px;
-        background:linear-gradient(135deg,#f5c542,#e0a000);
-        color:#0d1117;font-family:var(--mono,monospace);font-size:13px;
-        font-weight:800;cursor:pointer;letter-spacing:.5px;
-        display:flex;align-items:center;justify-content:center;gap:8px;
-        transition:opacity .2s;">
-      <span id="licBtnLabel">&#128273; Activate License</span>
-      <span id="licBtnSpinner" style="display:none;width:14px;height:14px;
-        border:2px solid rgba(13,17,23,0.3);border-top-color:#0d1117;
-        border-radius:50%;animation:_licSpin .7s linear infinite;"></span>
-    </button>
-    <!-- cancel -->
-    <div onclick="_licCancel()" style="margin-top:14px;text-align:center;
-      font-size:11px;color:#3d4f70;cursor:pointer;
-      transition:color .15s;" onmouseover="this.style.color='#8898c0'"
-      onmouseout="this.style.color='#3d4f70'">&#8592; Back to login</div>
-    <div style="margin-top:18px;text-align:center;font-size:10px;color:#3d4f70;line-height:1.7;">
-      <strong style="color:#5a6a90;">Internet connection required</strong><br>
-      License is verified against the secure server on each session.
-    </div>
-  </div>
-</div>
-<style>
-  @keyframes _licSpin { to { transform:rotate(360deg); } }
-  #licKeyInput:focus { border-color:#f5c542 !important; }
-</style>
-
-<script>
-// ── License Gate — SuperAdmin only ────────────────────────────────────────
-// Uses existing _db (skr-task Firestore). Dev account (_isDev) bypasses.
-// Validated key cached in localStorage so returning admins don't re-enter.
-
-var _licPendingUser = null; // holds the found user object while gate is open
-
-function _licFormat(input) {
-  var raw = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  var segs = [3,4,4,4], parts = [], pos = 0;
-  for (var i = 0; i < segs.length; i++) {
-    if (pos >= raw.length) break;
-    parts.push(raw.slice(pos, pos + segs[i]));
-    pos += segs[i];
-  }
-  input.value = parts.join('-');
-}
-
-function _licShowGate(userObj) {
-  _licPendingUser = userObj;
-  var gate = document.getElementById('licenseGate');
-  gate.style.display = 'flex';
-  var inp = document.getElementById('licKeyInput');
-  if (inp) { inp.value = ''; inp.style.borderColor = '#2d3650'; }
-  var err = document.getElementById('licErrBox');
-  if (err) { err.style.display = 'none'; err.textContent = ''; }
-  _licSetBusy(false);
-  setTimeout(function() { if (inp) inp.focus(); }, 80);
-}
-
-function _licHideGate() {
-  document.getElementById('licenseGate').style.display = 'none';
-  _licPendingUser = null;
-}
-
-function _licCancel() {
-  _licHideGate();
-  // re-show login screen
-  document.getElementById('loginScreen').style.display = 'flex';
-  role = null; currentUser = null;
-}
-
-function _licSetBusy(busy) {
-  var btn = document.getElementById('licActivateBtn');
-  var lbl = document.getElementById('licBtnLabel');
-  var spn = document.getElementById('licBtnSpinner');
-  if (btn) btn.disabled = busy;
-  if (lbl) lbl.style.display = busy ? 'none' : 'inline';
-  if (spn) spn.style.display = busy ? 'inline-block' : 'none';
-}
-
-function _licShowErr(msg) {
-  var err = document.getElementById('licErrBox');
-  var inp = document.getElementById('licKeyInput');
-  if (err) { err.textContent = msg; err.style.display = 'block'; }
-  if (inp) inp.style.borderColor = 'rgba(239,68,68,.6)';
-}
-
-async function _licValidate(key) {
-  if (!key || !key.trim()) return { valid:false, reason:'NO_KEY' };
-  var cleanKey = key.trim().toUpperCase();
-  // Ensure anonymous auth
-  for (var i = 0; i < 3; i++) {
-    try {
-      if (!firebase.auth().currentUser) await firebase.auth().signInAnonymously();
-      if (firebase.auth().currentUser) break;
-    } catch(e) { if (i < 2) await new Promise(function(r){setTimeout(r,600);}); }
-  }
-  try {
-    var snap = await _db.collection('licenses').doc(cleanKey).get();
-    if (!snap.exists) return { valid:false, reason:'INVALID_KEY' };
-    var d = snap.data();
-    if (d._deleted || !d.isActive) return { valid:false, reason: d._deleted ? 'INVALID_KEY' : 'REVOKED' };
-    var now = new Date();
-    var expiry = d.expiryDate
-      ? (typeof d.expiryDate.toDate === 'function' ? d.expiryDate.toDate() : new Date(d.expiryDate))
-      : null;
-    if (expiry && now > expiry) return { valid:false, reason:'EXPIRED' };
-    try { await _db.collection('licenses').doc(cleanKey).update({
-      activationCount: (d.activationCount||0)+1,
-      lastValidated: firebase.firestore.FieldValue.serverTimestamp()
-    }); } catch(_){}
-    return { valid:true, data:d };
-  } catch(e) {
-    if (e.code==='unavailable' || (e.message&&e.message.includes('offline'))) return { valid:false, reason:'OFFLINE' };
-    if (e.code==='permission-denied') return { valid:false, reason:'PERMISSION', detail:e.message };
-    return { valid:false, reason:'ERROR', message:e.message };
-  }
-}
-
-var _LIC_MSGS = {
-  NO_KEY:     'Please enter your license key.',
-  INVALID_KEY:'License key not found. Check the key and try again.',
-  REVOKED:    'This license has been revoked. Contact your administrator.',
-  EXPIRED:    'This license has expired. Contact your administrator to renew.',
-  OFFLINE:    'Cannot reach the license server. Check your internet connection.',
-  PERMISSION: 'Access denied. Ensure Firestore rules allow authenticated reads on the licenses collection.',
-  ERROR:      'An error occurred verifying your license. Try again.'
-};
-
-async function _licActivate() {
-  var key = (document.getElementById('licKeyInput').value||'').trim();
-  if (!key) { _licShowErr(_LIC_MSGS.NO_KEY); return; }
-  _licSetBusy(true);
-  var result = await _licValidate(key);
-  _licSetBusy(false);
-  if (result.valid) {
-    try { localStorage.setItem('_saLicKey', key.toUpperCase()); } catch(_){}
-    _licHideGate();
-    // proceed with login
-    var u = _licPendingUser;
-    if (!u) { console.error('No pending user after license validation'); return; }
-    document.getElementById('loginScreen').style.display = 'none';
-    role = u.role; currentUser = u;
-    loadReports().then(function() {
-      loadPlantsFromFirestore().then(function() {
-        loadCategoriesFromFirestore().then(function() {
-          initApp(role);
-        });
-      });
-    });
-  } else {
-    _licShowErr(
-      result.reason === 'PERMISSION' && result.detail
-        ? 'Access denied: ' + result.detail
-        : _LIC_MSGS[result.reason] || _LIC_MSGS.ERROR
-    );
-  }
-}
-
-// Check cached license on page load — silently re-validate for returning superadmins
-(function() {
-  try {
-    var cached = localStorage.getItem('_saLicKey');
-    if (cached) {
-      window.addEventListener('load', function() {
-        _licValidate(cached).then(function(r) {
-          if (!r.valid) localStorage.removeItem('_saLicKey');
-        });
-      });
-    }
-  } catch(_) {}
-})();
-</script>
-
-
-<script>
-// ══════════════════════════════════════════════════════════
-//  LICENSE MANAGER — DEV account only
-//  Uses existing _db (same Firebase project)
-//  Reads/writes to 'licenses' collection
-// ══════════════════════════════════════════════════════════
-
-var _lmAllLics = [];
-
-function _lmFormatKey(input) {
-  var raw = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  var segs = [3,4,4,4], parts = [], pos = 0;
-  for (var i = 0; i < segs.length; i++) {
-    if (pos >= raw.length) break;
-    parts.push(raw.slice(pos, pos + segs[i]));
-    pos += segs[i];
-  }
-  input.value = parts.join('-');
-}
-
-function _lmGenKey() {
-  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous 0/O/I/1
-  var seg = function(n) {
-    var s = '';
-    for (var i = 0; i < n; i++) s += chars[Math.floor(Math.random() * chars.length)];
-    return s;
-  };
-  return seg(3) + '-' + seg(4) + '-' + seg(4) + '-' + seg(4);
-}
-
-async function _lmEnsureAuth() {
-  for (var i = 0; i < 3; i++) {
-    try {
-      if (!firebase.auth().currentUser) await firebase.auth().signInAnonymously();
-      if (firebase.auth().currentUser) return true;
-    } catch(e) { if (i < 2) await new Promise(function(r){setTimeout(r,500);}); }
-  }
-  return false;
-}
-
-async function _lmLoad() {
-  var el = document.getElementById('lm-list');
-  if (!el) return;
-  el.innerHTML = '<span style="color:var(--text3)">Loading…</span>';
-  await _lmEnsureAuth();
-  try {
-    var snap = await _db.collection('licenses').get();
-    _lmAllLics = snap.docs.map(function(d) { return Object.assign({ _id: d.id }, d.data()); });
-    _lmRender(_lmAllLics);
-    _lmStats(_lmAllLics);
-  } catch(e) {
-    el.innerHTML = '<span style="color:#ef4444">Error: ' + e.message + '</span>';
-  }
-}
-
-function _lmStats(lics) {
-  var now = new Date();
-  var active = 0, expired = 0, revoked = 0;
-  lics.forEach(function(l) {
-    if (!l.isActive) { revoked++; return; }
-    var exp = l.expiryDate ? (typeof l.expiryDate.toDate === 'function' ? l.expiryDate.toDate() : new Date(l.expiryDate)) : null;
-    if (exp && now > exp) expired++;
-    else active++;
-  });
-  var t = document.getElementById('lm-total'); if(t) t.textContent = lics.length;
-  var a = document.getElementById('lm-active'); if(a) a.textContent = active;
-  var ex = document.getElementById('lm-expired'); if(ex) ex.textContent = expired;
-  var rv = document.getElementById('lm-revoked'); if(rv) rv.textContent = revoked;
-}
-
-function _lmRender(lics) {
-  var el = document.getElementById('lm-list');
-  if (!el) return;
-  if (!lics.length) { el.innerHTML = '<span style="color:var(--text3)">No licenses found.</span>'; return; }
-  var now = new Date();
-  el.innerHTML = lics.map(function(l) {
-    var exp = l.expiryDate ? (typeof l.expiryDate.toDate === 'function' ? l.expiryDate.toDate() : new Date(l.expiryDate)) : null;
-    var expired = exp && now > exp;
-    var daysLeft = exp ? Math.ceil((exp - now) / 86400000) : null;
-    var badge = !l.isActive ? '<span style="color:#ef4444;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:2px;padding:1px 7px;font-size:10px;">REVOKED</span>'
-      : expired ? '<span style="color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:2px;padding:1px 7px;font-size:10px;">EXPIRED</span>'
-      : '<span style="color:#22c55e;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:2px;padding:1px 7px;font-size:10px;">ACTIVE</span>';
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
-      + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--sa);letter-spacing:2px;margin-bottom:4px;">' + l._id + ' ' + badge + '</div>'
-      + '<div style="font-size:12px;color:var(--text2);font-family:var(--mono);">&#127968; ' + (l.company||'—') + '  &#128100; ' + (l.customerName||'—') + '  &#128231; ' + (l.email||'—') + '</div>'
-      + '<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;">Expires: ' + (exp ? exp.toLocaleDateString('en-IN') : '—') + (daysLeft != null ? ' (' + (daysLeft > 0 ? daysLeft + 'd left' : 'expired') + ')' : '') + '  · Activations: ' + (l.activationCount||0) + '</div>'
-      + (l.notes ? '<div style="font-size:11px;color:var(--text3);font-family:var(--mono);">&#128221; ' + l.notes + '</div>' : '')
-      + '</div>'
-      + '<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'
-      + '<button onclick="navigator.clipboard.writeText(\'' + l._id + '\').then(function(){_lmToast(\'Key copied!\');})" style="background:none;border:1px solid var(--border2);color:var(--text2);border-radius:2px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:var(--mono);">&#128203;</button>'
-      + (l.isActive ? '<button onclick="_lmRevoke(\'' + l._id + '\')" style="background:none;border:1px solid rgba(239,68,68,.4);color:#ef4444;border-radius:2px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:var(--mono);">Revoke</button>'
-                    : '<button onclick="_lmActivate(\'' + l._id + '\')" style="background:none;border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:2px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:var(--mono);">Restore</button>')
-      + '</div>'
-      + '</div>';
-  }).join('');
-}
-
-function _lmFilter() {
-  var q = (document.getElementById('lm-search').value||'').toLowerCase();
-  _lmRender(_lmAllLics.filter(function(l) {
-    return (l._id||'').toLowerCase().includes(q) || (l.company||'').toLowerCase().includes(q);
-  }));
-}
-
-async function _lmCreate() {
-  var co = (document.getElementById('lm-company').value||'').trim();
-  var expVal = (document.getElementById('lm-expiry').value||'').trim();
-  var errEl = document.getElementById('lm-create-err');
-  errEl.style.display = 'none';
-  if (!co) { errEl.textContent = 'Company name is required.'; errEl.style.display = 'block'; return; }
-  if (!expVal) { errEl.textContent = 'Expiry date is required.'; errEl.style.display = 'block'; return; }
-  var customKey = (document.getElementById('lm-customkey').value||'').trim().toUpperCase().replace(/[^A-Z0-9\-]/g,'');
-  var key = customKey || _lmGenKey();
-  var data = {
-    licenseKey: key,
-    company: co,
-    customerName: (document.getElementById('lm-custname').value||'').trim(),
-    email: (document.getElementById('lm-email').value||'').trim(),
-    expiryDate: firebase.firestore.Timestamp.fromDate(new Date(expVal)),
-    notes: (document.getElementById('lm-notes').value||'').trim(),
-    isActive: true,
-    activationCount: 0,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  await _lmEnsureAuth();
-  try {
-    var existing = await _db.collection('licenses').doc(key).get();
-    if (existing.exists) { errEl.textContent = 'Key ' + key + ' already exists. Use a different custom key.'; errEl.style.display = 'block'; return; }
-    await _db.collection('licenses').doc(key).set(data);
-    var outEl = document.getElementById('lm-new-key-out');
-    var cpBtn = document.getElementById('lm-copy-btn');
-    outEl.textContent = key;
-    outEl.style.display = 'inline';
-    cpBtn.style.display = 'inline-block';
-    cpBtn.dataset.key = key;
-    _lmToast('License created: ' + key);
-    // clear form
-    ['lm-company','lm-custname','lm-email','lm-expiry','lm-customkey','lm-notes'].forEach(function(id){
-      var el = document.getElementById(id); if(el) el.value='';
-    });
-    await _lmLoad();
-  } catch(e) {
-    errEl.textContent = 'Error: ' + e.message; errEl.style.display = 'block';
-  }
-}
-
-function _lmCopyKey() {
-  var btn = document.getElementById('lm-copy-btn');
-  var key = btn.dataset.key || (document.getElementById('lm-new-key-out').textContent||'');
-  navigator.clipboard.writeText(key).then(function(){ _lmToast('Key copied!'); });
-}
-
-async function _lmRevoke(key) {
-  if (!confirm('Revoke license ' + key + '? The customer will be locked out immediately.')) return;
-  await _lmEnsureAuth();
-  try {
-    await _db.collection('licenses').doc(key).update({ isActive: false, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    _lmToast('Revoked: ' + key); await _lmLoad();
-  } catch(e) { _lmToast('Error: ' + e.message, true); }
-}
-
-async function _lmActivate(key) {
-  await _lmEnsureAuth();
-  try {
-    await _db.collection('licenses').doc(key).update({ isActive: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    _lmToast('Restored: ' + key); await _lmLoad();
-  } catch(e) { _lmToast('Error: ' + e.message, true); }
-}
-
-function _lmToast(msg, isErr) {
-  var t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:10px 18px;border-radius:4px;font-family:var(--mono);font-size:13px;font-weight:700;'
-    + (isErr ? 'background:#ef4444;color:#fff;' : 'background:#22c55e;color:#0d1117;');
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 3000);
-}
-
-// Auto-load when page switches to licmgr
-// NOTE: showPage is defined later in the file, so we patch it after DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-  var _origShowPage = window.showPage;
-  if (typeof _origShowPage === 'function') {
-    window.showPage = function(pid, btn) {
-      _origShowPage(pid, btn);
-      if (pid === 'licmgr') _lmLoad();
-    };
-  }
-});
-
-// Set default expiry to 1 year from now on page init
-(function() {
-  var expInput = document.getElementById('lm-expiry');
-  if (expInput) {
-    var y = new Date(); y.setFullYear(y.getFullYear() + 1);
-    expInput.value = y.toISOString().split('T')[0];
-  }
-})();
-</script>
 
 // ── Trigger functions (called from app actions) ────────────
 
@@ -3153,11 +2624,112 @@ document.addEventListener('keydown', function(e) {
   }
 })();
 
+// ── Developer Master Account ──────────────────────────────────────────
+// NEVER stored in Firebase, localStorage, or the users array.
+// Not visible in Users panel, Settings, or any client-facing UI.
+// Change credentials before delivering to client.
+const _DEV_USERNAME = 'dev.master';             // ← change before handoff
+const _DEV_PASSWORD = 'dev@secure#2026!master'; // ← change before handoff
+
+const _DEV_USER_OBJ = {
+  username:   _DEV_USERNAME,
+  password:   '',            // intentionally blank — never expose in data
+  role:       'superadmin',  // full superadmin access
+  name:       'Developer',
+  email:      '',
+  createdBy:  'system',
+  plantId:    null,
+  _isDev:     true           // flag used only for DEV badge — never reaches Firebase
+};
+
+function _showDevBadge() {
+  if (document.getElementById('dev-badge')) return; // already inserted
+  const lockBtn = document.getElementById('lockBtn');
+  if (!lockBtn) return;
+  const badge = document.createElement('span');
+  badge.id = 'dev-badge';
+  badge.title = 'Developer session — not visible to client';
+  badge.style.cssText = [
+    'background:rgba(167,139,250,0.18)',
+    'border:1px solid rgba(167,139,250,0.45)',
+    'color:#a78bfa',
+    'font-size:10px',
+    'font-weight:800',
+    'letter-spacing:1px',
+    'padding:2px 8px',
+    'border-radius:5px',
+    'text-transform:uppercase',
+    'cursor:default',
+    'user-select:none',
+    'margin-right:6px'
+  ].join(';');
+  badge.textContent = '⚙ DEV';
+  lockBtn.parentNode.insertBefore(badge, lockBtn);
+}
+
+function _removeDevBadge() {
+  const b = document.getElementById('dev-badge');
+  if (b) b.remove();
+}
+
+function _showDevLoginPrompt() {
+  const uname = prompt('🔧 Developer Access\nEnter developer username:');
+  if (uname === null) return;
+  const pwd = prompt('🔧 Developer Access\nEnter developer password:');
+  if (pwd === null) return;
+  if (uname.trim().toLowerCase() === _DEV_USERNAME.toLowerCase() && pwd === _DEV_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    role = 'superadmin';
+    currentUser = _DEV_USER_OBJ;
+    loadReports().then(() => {
+      loadPlantsFromFirestore().then(() => {
+        loadCategoriesFromFirestore().then(() => {
+          initApp('superadmin');
+          _showDevBadge();
+        });
+      });
+    });
+    // Clean ?devmode param from URL without reload
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.delete('devmode');
+      history.replaceState(null, '', u.toString());
+    } catch(_) {}
+  } else if (uname !== '' || pwd !== '') {
+    alert('❌ Incorrect developer credentials.');
+  }
+}
+
+// Keyboard shortcut: Ctrl+Shift+D (only fires on login screen)
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    if (document.getElementById('loginScreen') &&
+        document.getElementById('loginScreen').style.display === 'flex') {
+      e.preventDefault();
+      _showDevLoginPrompt();
+    }
+  }
+});
+
+// URL param trigger: ?devmode=1
+(function() {
+  const params = new URL(window.location.href).searchParams;
+  if (params.get('devmode') === '1') {
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (document.getElementById('loginScreen') &&
+            document.getElementById('loginScreen').style.display === 'flex') {
+          _showDevLoginPrompt();
+        }
+      }, 600);
+    });
+  }
+})();
+
 async function doLogin() {
   const uname = document.getElementById('luser').value.trim().toLowerCase();
   const pw    = document.getElementById('lpass').value;
-  // Always try to load fresh user list from Firestore first (falls back to localStorage if offline)
-  const users = _fbReady ? (await loadUsersFromFirestore()) : getUsers();
+  const users = getUsers();
   const found = users.find(u => u.username.toLowerCase() === uname && u.password === pw);
   if (found) {
     // ── SuperAdmin requires license validation ──────────────────────────
@@ -3178,7 +2750,6 @@ async function doLogin() {
             try { localStorage.removeItem('_saLicKey'); } catch(_){}
           }
         } catch(_) {
-          // If validation throws, clear cache and show gate
           try { localStorage.removeItem('_saLicKey'); } catch(_){}
         }
       }
@@ -3186,7 +2757,6 @@ async function doLogin() {
       try {
         _licShowGate(found);
       } catch(e) {
-        // If gate fails to show (e.g. element missing), log in directly
         console.warn('License gate error, proceeding without gate:', e);
         document.getElementById('loginScreen').style.display = 'none';
         role = found.role; currentUser = found;
@@ -3272,8 +2842,7 @@ function initApp(r) {
       <button class="nb" onclick="showPage('plants',this)">&#127968; Plants</button>
       <button class="nb" onclick="showPage('qrcode',this)">&#128247; QR</button>
       <button class="nb" onclick="showPage('mailconfig',this)">&#9993; Email</button>
-      <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>
-      ${currentUser && currentUser._isDev ? '<button class="nb" onclick="showPage(\'licmgr\',this)" style="color:#a78bfa;border-color:rgba(167,139,250,0.4);">&#128273; Licenses</button>' : ''}`;
+      <button class="nb" onclick="showPage('changepassword',this)">&#128274; Password</button>`;
     subscribeReports(onRealtimeUpdate);
     saveCategoriesToFirestore(getCategories()); // sync superadmin's categories to Firestore on login
     subscribePendingNotifications();
@@ -3328,7 +2897,6 @@ function lockApp() {
   document.getElementById('roleScreen').style.display = 'flex';
   _removeDevBadge(); // clear developer badge if active
   role = null; currentUser = null;
-  try { localStorage.removeItem('_saLicKey'); } catch(_){} // clear SA license on lock
   qrGenerated = false;
   invMediaFiles = [];
   _sioCurrentCaseId = null;
@@ -3588,7 +3156,7 @@ function addUser() {
   const newUser = { username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' };
   if (rl==='admin'||rl==='planthead') newUser.plantId = plantId;
   users.push(newUser);
-  saveUsers(users); // saveUsers now also syncs to Firestore
+  saveUsers(users);
   ['au-name','au-user','au-pass','au-email'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('au-role').value='';
   const auPlantRow = document.getElementById('au-plant-row');
@@ -5627,5 +5195,232 @@ window.applyTheme = function(theme, save) {
   syncModeButtons();
 };
 </script>
+<!-- ══════════════════════════════════════════════
+     LICENSE GATE — SuperAdmin only
+     Hidden by default; shown after superadmin login
+     Dev account bypasses entirely.
+══════════════════════════════════════════════ -->
+<div id="licenseGate" style="display:none;position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse at 30% 20%,#1a1f2e 0%,#0d1117 65%);
+  align-items:center;justify-content:center;font-family:var(--mono,monospace);">
+  <div style="background:#151b28;border:1px solid rgba(245,197,66,0.25);border-radius:8px;
+    padding:44px 48px;width:440px;max-width:95vw;
+    box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(245,197,66,0.08);
+    position:relative;overflow:hidden;">
+    <!-- glow -->
+    <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;
+      background:radial-gradient(circle,rgba(245,197,66,0.12) 0%,transparent 70%);
+      border-radius:50%;pointer-events:none;"></div>
+    <!-- logo row -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+      <div style="width:44px;height:44px;border-radius:6px;
+        background:linear-gradient(135deg,#f5c542,#e0a000);
+        display:flex;align-items:center;justify-content:center;
+        font-size:20px;font-weight:800;color:#0d1117;letter-spacing:-1px;">SA</div>
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#e8edf8;line-height:1;">SuperAdmin License</div>
+        <div style="font-size:10px;color:#5a6a90;letter-spacing:2px;text-transform:uppercase;margin-top:3px;">Secure Compliance Platform</div>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:600;color:#8898c0;margin-bottom:5px;">License Key Required</div>
+    <div style="font-size:11px;color:#5a6a90;margin-bottom:20px;line-height:1.6;">
+      SuperAdmin access requires a valid license key. Contact your software provider if you don't have one.
+    </div>
+    <!-- format hint -->
+    <div style="font-size:11px;color:#5a6a90;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+      Format: <code style="background:rgba(245,197,66,0.1);color:#f5c542;
+        padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:1.5px;">XXX-XXXX-XXXX-XXXX</code>
+    </div>
+    <!-- input -->
+    <input id="licKeyInput" type="text" maxlength="18"
+      placeholder="XXX-XXXX-XXXX-XXXX"
+      onkeydown="if(event.key==='Enter')_licActivate()"
+      oninput="_licFormat(this)"
+      style="width:100%;padding:12px 14px;
+        background:rgba(13,17,23,0.8);border:1.5px solid #2d3650;
+        color:#e8edf8;border-radius:5px;font-family:var(--mono,monospace);
+        font-size:15px;letter-spacing:2px;text-transform:uppercase;
+        box-sizing:border-box;margin-bottom:10px;outline:none;
+        transition:border-color .2s;" />
+    <!-- error -->
+    <div id="licErrBox" style="display:none;padding:9px 12px;border-radius:5px;
+      background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);
+      color:#fca5a5;font-size:11px;margin-bottom:10px;line-height:1.5;"></div>
+    <!-- button -->
+    <button id="licActivateBtn" onclick="_licActivate()"
+      style="width:100%;padding:12px;border:none;border-radius:5px;
+        background:linear-gradient(135deg,#f5c542,#e0a000);
+        color:#0d1117;font-family:var(--mono,monospace);font-size:13px;
+        font-weight:800;cursor:pointer;letter-spacing:.5px;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:opacity .2s;">
+      <span id="licBtnLabel">&#128273; Activate License</span>
+      <span id="licBtnSpinner" style="display:none;width:14px;height:14px;
+        border:2px solid rgba(13,17,23,0.3);border-top-color:#0d1117;
+        border-radius:50%;animation:_licSpin .7s linear infinite;"></span>
+    </button>
+    <!-- cancel -->
+    <div onclick="_licCancel()" style="margin-top:14px;text-align:center;
+      font-size:11px;color:#3d4f70;cursor:pointer;
+      transition:color .15s;" onmouseover="this.style.color='#8898c0'"
+      onmouseout="this.style.color='#3d4f70'">&#8592; Back to login</div>
+    <div style="margin-top:18px;text-align:center;font-size:10px;color:#3d4f70;line-height:1.7;">
+      <strong style="color:#5a6a90;">Internet connection required</strong><br>
+      License is verified against the secure server on each session.
+    </div>
+  </div>
+</div>
+<style>
+  @keyframes _licSpin { to { transform:rotate(360deg); } }
+  #licKeyInput:focus { border-color:#f5c542 !important; }
+</style>
+
+<script>
+// ── License Gate — SuperAdmin only ────────────────────────────────────────
+// Uses existing _db (skr-task Firestore). Dev account (_isDev) bypasses.
+// Validated key cached in localStorage so returning admins don't re-enter.
+
+var _licPendingUser = null; // holds the found user object while gate is open
+
+function _licFormat(input) {
+  var raw = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  var segs = [3,4,4,4], parts = [], pos = 0;
+  for (var i = 0; i < segs.length; i++) {
+    if (pos >= raw.length) break;
+    parts.push(raw.slice(pos, pos + segs[i]));
+    pos += segs[i];
+  }
+  input.value = parts.join('-');
+}
+
+function _licShowGate(userObj) {
+  _licPendingUser = userObj;
+  var gate = document.getElementById('licenseGate');
+  gate.style.display = 'flex';
+  var inp = document.getElementById('licKeyInput');
+  if (inp) { inp.value = ''; inp.style.borderColor = '#2d3650'; }
+  var err = document.getElementById('licErrBox');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
+  _licSetBusy(false);
+  setTimeout(function() { if (inp) inp.focus(); }, 80);
+}
+
+function _licHideGate() {
+  document.getElementById('licenseGate').style.display = 'none';
+  _licPendingUser = null;
+}
+
+function _licCancel() {
+  _licHideGate();
+  // re-show login screen
+  document.getElementById('loginScreen').style.display = 'flex';
+  role = null; currentUser = null;
+}
+
+function _licSetBusy(busy) {
+  var btn = document.getElementById('licActivateBtn');
+  var lbl = document.getElementById('licBtnLabel');
+  var spn = document.getElementById('licBtnSpinner');
+  if (btn) btn.disabled = busy;
+  if (lbl) lbl.style.display = busy ? 'none' : 'inline';
+  if (spn) spn.style.display = busy ? 'inline-block' : 'none';
+}
+
+function _licShowErr(msg) {
+  var err = document.getElementById('licErrBox');
+  var inp = document.getElementById('licKeyInput');
+  if (err) { err.textContent = msg; err.style.display = 'block'; }
+  if (inp) inp.style.borderColor = 'rgba(239,68,68,.6)';
+}
+
+async function _licValidate(key) {
+  if (!key || !key.trim()) return { valid:false, reason:'NO_KEY' };
+  var cleanKey = key.trim().toUpperCase();
+  // Ensure anonymous auth
+  for (var i = 0; i < 3; i++) {
+    try {
+      if (!firebase.auth().currentUser) await firebase.auth().signInAnonymously();
+      if (firebase.auth().currentUser) break;
+    } catch(e) { if (i < 2) await new Promise(function(r){setTimeout(r,600);}); }
+  }
+  try {
+    var snap = await _db.collection('licenses').doc(cleanKey).get();
+    if (!snap.exists) return { valid:false, reason:'INVALID_KEY' };
+    var d = snap.data();
+    if (d._deleted || !d.isActive) return { valid:false, reason: d._deleted ? 'INVALID_KEY' : 'REVOKED' };
+    var now = new Date();
+    var expiry = d.expiryDate
+      ? (typeof d.expiryDate.toDate === 'function' ? d.expiryDate.toDate() : new Date(d.expiryDate))
+      : null;
+    if (expiry && now > expiry) return { valid:false, reason:'EXPIRED' };
+    try { await _db.collection('licenses').doc(cleanKey).update({
+      activationCount: (d.activationCount||0)+1,
+      lastValidated: firebase.firestore.FieldValue.serverTimestamp()
+    }); } catch(_){}
+    return { valid:true, data:d };
+  } catch(e) {
+    if (e.code==='unavailable' || (e.message&&e.message.includes('offline'))) return { valid:false, reason:'OFFLINE' };
+    if (e.code==='permission-denied') return { valid:false, reason:'PERMISSION', detail:e.message };
+    return { valid:false, reason:'ERROR', message:e.message };
+  }
+}
+
+var _LIC_MSGS = {
+  NO_KEY:     'Please enter your license key.',
+  INVALID_KEY:'License key not found. Check the key and try again.',
+  REVOKED:    'This license has been revoked. Contact your administrator.',
+  EXPIRED:    'This license has expired. Contact your administrator to renew.',
+  OFFLINE:    'Cannot reach the license server. Check your internet connection.',
+  PERMISSION: 'Access denied. Ensure Firestore rules allow authenticated reads on the licenses collection.',
+  ERROR:      'An error occurred verifying your license. Try again.'
+};
+
+async function _licActivate() {
+  var key = (document.getElementById('licKeyInput').value||'').trim();
+  if (!key) { _licShowErr(_LIC_MSGS.NO_KEY); return; }
+  _licSetBusy(true);
+  var result = await _licValidate(key);
+  _licSetBusy(false);
+  if (result.valid) {
+    try { localStorage.setItem('_saLicKey', key.toUpperCase()); } catch(_){}
+    _licHideGate();
+    // proceed with login
+    var u = _licPendingUser;
+    if (!u) { console.error('No pending user after license validation'); return; }
+    document.getElementById('loginScreen').style.display = 'none';
+    role = u.role; currentUser = u;
+    loadReports().then(function() {
+      loadPlantsFromFirestore().then(function() {
+        loadCategoriesFromFirestore().then(function() {
+          initApp(role);
+        });
+      });
+    });
+  } else {
+    _licShowErr(
+      result.reason === 'PERMISSION' && result.detail
+        ? 'Access denied: ' + result.detail
+        : _LIC_MSGS[result.reason] || _LIC_MSGS.ERROR
+    );
+  }
+}
+
+// Check cached license on page load — silently re-validate for returning superadmins
+(function() {
+  try {
+    var cached = localStorage.getItem('_saLicKey');
+    if (cached) {
+      window.addEventListener('load', function() {
+        _licValidate(cached).then(function(r) {
+          if (!r.valid) localStorage.removeItem('_saLicKey');
+        });
+      });
+    }
+  } catch(_) {}
+})();
+</script>
+
+
+
 </body>
 </html>
