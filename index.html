@@ -1532,9 +1532,9 @@ function initFirebase() {
     .then(() => {
       _fbReady = true;
       console.log('Firebase connected ✓ — auth OK');
-      getUsers();
+      loadUsersFromFirestore(); // load users from Firestore (falls back to localStorage)
       loadCategoriesFromFirestore().then(() => { populateCategoryDropdowns(); });
-      getPlants();
+      loadPlantsFromFirestore();
     })
     .catch(err => {
       console.error('Firebase anonymous auth failed:', err.code, err.message);
@@ -1622,7 +1622,32 @@ function getUsers() {
     return JSON.parse(raw);
   } catch(e) { return DEFAULT_USERS; }
 }
-function saveUsers(users) { try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {} }
+function saveUsers(users) {
+  try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {}
+  // Also sync to Firestore so users persist across devices/browsers
+  if (_fbReady && _db) {
+    _db.collection('wb_config').doc('users').set({ list: users, updatedAt: new Date().toISOString() })
+      .catch(e => console.warn('Firestore user sync failed:', e));
+  }
+}
+
+async function loadUsersFromFirestore() {
+  if (!_fbReady || !_db) return getUsers();
+  try {
+    const doc = await _db.collection('wb_config').doc('users').get();
+    if (doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
+      try { localStorage.setItem('wb_users', JSON.stringify(doc.data().list)); } catch(e) {}
+      return doc.data().list;
+    }
+    // Not in Firestore yet — seed it from localStorage / defaults
+    const users = getUsers();
+    await _db.collection('wb_config').doc('users').set({ list: users, updatedAt: new Date().toISOString() });
+    return users;
+  } catch(e) {
+    console.warn('Firestore user load failed (using local):', e);
+    return getUsers();
+  }
+}
 
 function getCategories() {
   try {
@@ -3131,7 +3156,8 @@ document.addEventListener('keydown', function(e) {
 async function doLogin() {
   const uname = document.getElementById('luser').value.trim().toLowerCase();
   const pw    = document.getElementById('lpass').value;
-  const users = getUsers();
+  // Always try to load fresh user list from Firestore first (falls back to localStorage if offline)
+  const users = _fbReady ? (await loadUsersFromFirestore()) : getUsers();
   const found = users.find(u => u.username.toLowerCase() === uname && u.password === pw);
   if (found) {
     // ── SuperAdmin requires license validation ──────────────────────────
@@ -3562,7 +3588,7 @@ function addUser() {
   const newUser = { username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' };
   if (rl==='admin'||rl==='planthead') newUser.plantId = plantId;
   users.push(newUser);
-  saveUsers(users);
+  saveUsers(users); // saveUsers now also syncs to Firestore
   ['au-name','au-user','au-pass','au-email'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('au-role').value='';
   const auPlantRow = document.getElementById('au-plant-row');
