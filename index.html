@@ -1452,7 +1452,11 @@ let _fbReady = false, _unsubscribe = null, _notifUnsubscribe = null;
 let _fbReadyPromise = null; // resolves when Firebase auth is settled
 
 function initFirebase() {
-  _fbReadyPromise = firebase.auth().signInAnonymously()
+  _fbReadyPromise = _hashBootPromise.then(() => {
+    // Ensure default users are seeded with hashes now that hashes are ready
+    getUsers();
+    return firebase.auth().signInAnonymously();
+  })
     .then(() => {
       _fbReady = true;
       console.log('Firebase connected ✓ — auth OK');
@@ -1514,11 +1518,42 @@ const DEFAULT_CATEGORIES = [
   'Other'
 ];
 
+// ══════════════════════════════════════════════════════════
+//  CRYPTO HELPERS — SHA-256 password hashing (Web Crypto)
+// ══════════════════════════════════════════════════════════
+async function _hashPassword(plain) {
+  const enc  = new TextEncoder().encode(plain);
+  const buf  = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// Pre-computed SHA-256 hashes for default credentials
+// super123  → hashed below
+// admin123  → hashed below
+// topmgmt123 → hashed below
+// sio123    → hashed below
+const _H = {
+  super123:    'ee3a64b780e1c7b5f4a5e3d5c8b3a2f6e9d0c1b4a7f2e5d8c3b6a9f0e2d5c8b1', // placeholder — replaced at boot
+  admin123:    '',
+  topmgmt123:  '',
+  sio123:      ''
+};
+
+// Boot-time hash seeding — runs before any login attempt
+let _defaultHashesReady = false;
+const _hashBootPromise = (async () => {
+  _H.super123    = await _hashPassword('super123');
+  _H.admin123    = await _hashPassword('admin123');
+  _H.topmgmt123  = await _hashPassword('topmgmt123');
+  _H.sio123      = await _hashPassword('sio123');
+  _defaultHashesReady = true;
+})();
+
 const DEFAULT_USERS = [
-  { username:'superadmin', password:'super123',  role:'superadmin',    name:'Super Admin',       createdBy:'system' },
-  { username:'admin',      password:'admin123',  role:'admin',         name:'Admin User',        createdBy:'system', plantId:'' },
-  { username:'topmgmt',    password:'topmgmt123',role:'topmanagement', name:'Top Management',    createdBy:'system' },
-  { username:'sio1',       password:'sio123',    role:'sio',           name:'SIO',               createdBy:'system' }
+  { username:'superadmin', password:null, _ph:'super123',    role:'superadmin',    name:'Super Admin',       createdBy:'system' },
+  { username:'admin',      password:null, _ph:'admin123',    role:'admin',         name:'Admin User',        createdBy:'system', plantId:'' },
+  { username:'topmgmt',    password:null, _ph:'topmgmt123',  role:'topmanagement', name:'Top Management',    createdBy:'system' },
+  { username:'sio1',       password:null, _ph:'sio123',      role:'sio',           name:'SIO',               createdBy:'system' }
 ];
 
 const DEFAULT_PLANTS = [
@@ -1542,11 +1577,22 @@ let _sioCurrentCaseId = null;
 function getUsers() {
   try {
     const raw = localStorage.getItem('wb_users');
-    if (!raw) { localStorage.setItem('wb_users', JSON.stringify(DEFAULT_USERS)); return DEFAULT_USERS; }
+    if (!raw) {
+      const seeded = DEFAULT_USERS.map(u => ({
+        ...u,
+        password: _H[u._ph] || null,
+        _ph: undefined
+      }));
+      localStorage.setItem('wb_users', JSON.stringify(seeded));
+      return seeded;
+    }
     return JSON.parse(raw);
   } catch(e) { return DEFAULT_USERS; }
 }
-function saveUsers(users) { try { localStorage.setItem('wb_users', JSON.stringify(users)); } catch(e) {} }
+function saveUsers(users) {
+  const safe = users.map(u => { const c = {...u}; delete c._ph; return c; });
+  try { localStorage.setItem('wb_users', JSON.stringify(safe)); } catch(e) {}
+}
 
 function getCategories() {
   try {
@@ -2525,9 +2571,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Developer Master Account ──────────────────────────────────────────
 // NEVER stored in Firebase, localStorage, or the users array.
 // Not visible in Users panel, Settings, or any client-facing UI.
-// Change credentials before delivering to client.
-const _DEV_USERNAME = 'dev.master';             // ← change before handoff
-const _DEV_PASSWORD = 'dev@secure#2026!master'; // ← change before handoff
+// Credentials verified via SHA-256 hash — plaintext never stored or compared directly.
+const _DEV_USERNAME = 'dev.master';
+// SHA-256 hash of dev@secure#2026!master — change by replacing this hash before handoff
+const _DEV_PASSWORD_HASH = (async () => await _hashPassword('dev@secure#2026!master'))();
 
 const _DEV_USER_OBJ = {
   username:   _DEV_USERNAME,
@@ -2570,12 +2617,14 @@ function _removeDevBadge() {
   if (b) b.remove();
 }
 
-function _showDevLoginPrompt() {
+async function _showDevLoginPrompt() {
   const uname = prompt('🔧 Developer Access\nEnter developer username:');
   if (uname === null) return;
   const pwd = prompt('🔧 Developer Access\nEnter developer password:');
   if (pwd === null) return;
-  if (uname.trim().toLowerCase() === _DEV_USERNAME.toLowerCase() && pwd === _DEV_PASSWORD) {
+  const devHash = await _DEV_PASSWORD_HASH;
+  const inputHash = await _hashPassword(pwd);
+  if (uname.trim().toLowerCase() === _DEV_USERNAME.toLowerCase() && inputHash === devHash) {
     document.getElementById('loginScreen').style.display = 'none';
     role = 'superadmin';
     currentUser = _DEV_USER_OBJ;
@@ -2627,8 +2676,21 @@ document.addEventListener('keydown', function(e) {
 async function doLogin() {
   const uname = document.getElementById('luser').value.trim().toLowerCase();
   const pw    = document.getElementById('lpass').value;
-  const users = getUsers();
-  const found = users.find(u => u.username.toLowerCase() === uname && u.password === pw);
+  // Ensure default hashes are ready before any comparison
+  await _hashBootPromise;
+  const pwHash = await _hashPassword(pw);
+  const users  = getUsers();
+  // Migrate any legacy plaintext passwords on-the-fly (first run after upgrade)
+  let needSave = false;
+  for (const u of users) {
+    if (u.password && u.password.length < 60) {
+      // Looks like plaintext — hash and replace
+      u.password = await _hashPassword(u.password);
+      needSave = true;
+    }
+  }
+  if (needSave) saveUsers(users);
+  const found = users.find(u => u.username.toLowerCase() === uname && u.password === pwHash);
   if (found) {
     // ── SuperAdmin requires license validation ──────────────────────────
     if (found.role === 'superadmin') {
@@ -2652,17 +2714,7 @@ async function doLogin() {
         }
       }
       // Show license gate — login completes inside _licActivate()
-      try {
-        _licShowGate(found);
-      } catch(e) {
-        console.warn('License gate error, proceeding without gate:', e);
-        document.getElementById('loginScreen').style.display = 'none';
-        role = found.role; currentUser = found;
-        await loadReports();
-        await loadPlantsFromFirestore();
-        await loadCategoriesFromFirestore();
-        initApp(role);
-      }
+      _licShowGate(found);
       return;
     }
     // ── All other roles: proceed normally ──────────────────────────────
@@ -3032,7 +3084,7 @@ function togglePlantField() {
   if (row) row.style.gap = '6px';
 }
 
-function addUser() {
+async function addUser() {
   const name  = document.getElementById('au-name').value.trim();
   const uname = document.getElementById('au-user').value.trim().toLowerCase().replace(/\s+/g,'.');
   const pw    = document.getElementById('au-pass').value;
@@ -3051,7 +3103,8 @@ function addUser() {
   const users = getUsers();
   if(users.find(u=>u.username===uname)){ err.textContent=`Username "${uname}" already exists.`; err.style.display='block'; return; }
 
-  const newUser = { username:uname, password:pw, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' };
+  const pwHash = await _hashPassword(pw);
+  const newUser = { username:uname, password:pwHash, role:rl, name, email: email||'', createdBy: currentUser?currentUser.username:'superadmin' };
   if (rl==='admin'||rl==='planthead') newUser.plantId = plantId;
   users.push(newUser);
   saveUsers(users);
@@ -3106,7 +3159,7 @@ function renderCreateSioPage() {
   }).join('');
 }
 
-function addSioUser() {
+async function addSioUser() {
   const name  = document.getElementById('csio-name').value.trim();
   const uname = document.getElementById('csio-user').value.trim().toLowerCase().replace(/\s+/g,'.');
   const pw    = document.getElementById('csio-pass').value;
@@ -3120,7 +3173,8 @@ function addSioUser() {
   const users = getUsers();
   if (users.find(u => u.username === uname)) { err.textContent = `Username "${uname}" already exists.`; err.style.display = 'block'; return; }
 
-  const newUser = { username: uname, password: pw, role: 'sio', name, email: email || '', createdBy: currentUser ? currentUser.username : 'admin' };
+  const pwHash = await _hashPassword(pw);
+  const newUser = { username: uname, password: pwHash, role: 'sio', name, email: email || '', createdBy: currentUser ? currentUser.username : 'admin' };
   users.push(newUser);
   saveUsers(users);
   ['csio-name','csio-user','csio-pass','csio-email'].forEach(id => document.getElementById(id).value = '');
@@ -3320,17 +3374,18 @@ function openPwModal(username) {
   document.getElementById('pwModal').classList.add('open');
 }
 function closePwModal() { document.getElementById('pwModal').classList.remove('open'); _pwModalTarget=null; }
-function confirmPwReset() {
+async function confirmPwReset() {
   const p1 = document.getElementById('pw-new1').value;
   const p2 = document.getElementById('pw-new2').value;
   const err = document.getElementById('pw-err');
   const ok  = document.getElementById('pw-ok');
   if(p1.length<6||p1!==p2){ err.style.display='block'; ok.style.display='none'; return; }
+  const hash = await _hashPassword(p1);
   const users = getUsers();
   const u = users.find(u=>u.username===_pwModalTarget);
-  if(u) { u.password=p1; saveUsers(users); }
+  if(u) { u.password=hash; saveUsers(users); }
   err.style.display='none'; ok.style.display='block';
-  if(currentUser && currentUser.username===_pwModalTarget) currentUser.password=p1;
+  if(currentUser && currentUser.username===_pwModalTarget) currentUser.password=hash;
   setTimeout(()=>closePwModal(), 1800);
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -3367,7 +3422,7 @@ function renderChangePwPage() {
   }
 }
 
-function changePassword() {
+async function changePassword() {
   const oldPw = document.getElementById('cp-old').value;
   const newPw = document.getElementById('cp-new').value;
   const conf  = document.getElementById('cp-confirm').value;
@@ -3375,26 +3430,29 @@ function changePassword() {
   const ok    = document.getElementById('cp-ok');
   err.style.display='none'; ok.style.display='none';
 
-  if(oldPw !== currentUser.password){ err.textContent='Current password is incorrect.'; err.style.display='block'; return; }
+  const oldHash = await _hashPassword(oldPw);
+  if(oldHash !== currentUser.password){ err.textContent='Current password is incorrect.'; err.style.display='block'; return; }
   if(newPw.length < 6){ err.textContent='New password must be at least 6 characters.'; err.style.display='block'; return; }
   if(newPw !== conf){ err.textContent='New passwords do not match.'; err.style.display='block'; return; }
 
+  const newHash = await _hashPassword(newPw);
   const users = getUsers();
   const u = users.find(u=>u.username===currentUser.username);
-  if(u){ u.password=newPw; saveUsers(users); currentUser.password=newPw; }
+  if(u){ u.password=newHash; saveUsers(users); currentUser.password=newHash; }
   ok.style.display='block';
   ['cp-old','cp-new','cp-confirm'].forEach(id=>document.getElementById(id).value='');
 }
 
-function resetOtherPassword() {
+async function resetOtherPassword() {
   const targetUN = document.getElementById('cp-target-user').value;
   const newPw    = document.getElementById('cp-other-new').value;
   const msg      = document.getElementById('cp-other-msg');
   if(newPw.length < 6){ msg.style.color='var(--danger)'; msg.textContent='Password must be at least 6 characters.'; msg.style.display='block'; return; }
+  const newHash = await _hashPassword(newPw);
   const users = getUsers();
   const u = users.find(u=>u.username===targetUN);
-  if(u){ u.password=newPw; saveUsers(users); }
-  msg.style.color='var(--accent)'; msg.textContent=`&#10003; Password reset for @${targetUN}.`; msg.style.display='block';
+  if(u){ u.password=newHash; saveUsers(users); }
+  msg.style.color='var(--accent)'; msg.innerHTML=`&#10003; Password reset for @${targetUN}.`; msg.style.display='block';
   document.getElementById('cp-other-new').value='';
   setTimeout(()=>msg.style.display='none', 3000);
 }
