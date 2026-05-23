@@ -187,6 +187,12 @@
   .rbadge{font-family:var(--mono);font-size:14px;letter-spacing:0.02em;border-radius:2px;padding:4px 10px;text-transform:uppercase;border:1px solid;}
   .secured-badge{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.01em;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);color:#34d399;white-space:nowrap;cursor:default;user-select:none;}
   .secured-badge svg{flex-shrink:0;}
+  /* License expiry badge — shown for SuperAdmin only */
+  .lic-badge{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.01em;white-space:nowrap;cursor:default;user-select:none;border:1px solid;}
+  .lic-badge svg{flex-shrink:0;}
+  .lic-badge.ok{background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.35);color:#34d399;}
+  .lic-badge.warn{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.4);color:#f59e0b;}
+  .lic-badge.expired{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4);color:#ef4444;}
   .rbadge.u{color:var(--accent);background:rgba(0,229,160,0.08);border-color:rgba(0,229,160,0.2);}
   .rbadge.a{color:var(--adm);background:rgba(123,140,255,0.08);border-color:rgba(123,140,255,0.2);}
   .rbadge.sa{color:var(--sa);background:rgba(245,197,66,0.08);border-color:rgba(245,197,66,0.2);}
@@ -705,6 +711,10 @@
       <span class="secured-badge" id="securedBadge" title="Passwords secured with SHA-256 hashing">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Secured
+      </span>
+      <span class="lic-badge" id="licExpiryBadge" title="">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="licExpiryText">License</span>
       </span>
       <span class="rbadge u" id="rbadge">Reporter</span>
       <div class="notif-bell-wrap" id="notifBellWrap">
@@ -2795,6 +2805,7 @@ function initApp(r) {
     rb.className = 'rbadge sa'; rb.textContent = 'SuperAdmin';
     const secBadge = document.getElementById('securedBadge');
     if (secBadge) secBadge.style.display = 'flex';
+    if (typeof updateLicenseExpiryBadge === 'function') updateLicenseExpiryBadge();
     nav.innerHTML = `
       <button class="nb asa" onclick="showPage('saanalytics',this)">&#128202; Analytics</button>
       <button class="nb" onclick="showPage('dashboard',this)">Dashboard</button>
@@ -2860,6 +2871,8 @@ function lockApp() {
   _removeDevBadge(); // clear developer badge if active
   const _secBadge = document.getElementById('securedBadge');
   if (_secBadge) _secBadge.style.display = 'none';
+  const _licBadge = document.getElementById('licExpiryBadge');
+  if (_licBadge) _licBadge.style.display = 'none';
   role = null; currentUser = null;
   qrGenerated = false;
   invMediaFiles = [];
@@ -5330,12 +5343,53 @@ async function _licValidate(key) {
       activationCount: (d.activationCount||0)+1,
       lastValidated: firebase.firestore.FieldValue.serverTimestamp()
     }); } catch(_){}
+    // Cache license data for header badge display
+    window._currentLicense = { key: cleanKey, data: d, expiry: expiry };
     return { valid:true, data:d };
   } catch(e) {
     if (e.code==='unavailable' || (e.message&&e.message.includes('offline'))) return { valid:false, reason:'OFFLINE' };
     if (e.code==='permission-denied') return { valid:false, reason:'PERMISSION', detail:e.message };
     return { valid:false, reason:'ERROR', message:e.message };
   }
+}
+
+function updateLicenseExpiryBadge() {
+  var badge = document.getElementById('licExpiryBadge');
+  var txt   = document.getElementById('licExpiryText');
+  if (!badge || !txt) return;
+  // Only show for SuperAdmin with a validated license
+  if (role !== 'superadmin' || !window._currentLicense) {
+    badge.style.display = 'none';
+    return;
+  }
+  var lic = window._currentLicense;
+  var expiry = lic.expiry;
+  badge.classList.remove('ok','warn','expired');
+  if (!expiry) {
+    badge.classList.add('ok');
+    txt.textContent = 'License: No expiry';
+    badge.title = 'License key: ' + lic.key + ' — no expiry date set';
+    badge.style.display = 'inline-flex';
+    return;
+  }
+  var now = new Date();
+  var msPerDay = 24*60*60*1000;
+  var daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / msPerDay);
+  var fmt = expiry.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  if (daysLeft < 0) {
+    badge.classList.add('expired');
+    txt.textContent = 'License expired';
+    badge.title = 'License ' + lic.key + ' expired on ' + fmt + ' (' + Math.abs(daysLeft) + ' day' + (Math.abs(daysLeft)===1?'':'s') + ' ago)';
+  } else if (daysLeft <= 30) {
+    badge.classList.add('warn');
+    txt.textContent = 'Expires in ' + daysLeft + ' day' + (daysLeft===1?'':'s');
+    badge.title = 'License ' + lic.key + ' expires on ' + fmt + ' — please renew soon';
+  } else {
+    badge.classList.add('ok');
+    txt.textContent = 'License valid · ' + fmt;
+    badge.title = 'License ' + lic.key + ' — ' + daysLeft + ' days remaining (expires ' + fmt + ')';
+  }
+  badge.style.display = 'inline-flex';
 }
 
 var _LIC_MSGS = {
@@ -5386,6 +5440,7 @@ async function _licActivate() {
       window.addEventListener('load', function() {
         _licValidate(cached).then(function(r) {
           if (!r.valid) localStorage.removeItem('_saLicKey');
+          else if (typeof updateLicenseExpiryBadge === 'function') updateLicenseExpiryBadge();
         });
       });
     }
